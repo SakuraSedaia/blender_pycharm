@@ -7,13 +7,10 @@ import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.project.Project
 
 class BlenderConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
-    override fun createTemplateConfiguration(project: Project): RunConfiguration {
-        return BlenderRunConfiguration(project, this, "Blender")
-    }
+    override fun createTemplateConfiguration(project: Project): RunConfiguration =
+        BlenderRunConfiguration(project, this, "Blender")
 
     override fun getId(): String = "BlenderConfigurationFactory"
 
-    override fun getOptionsClass(): Class<out BaseState> {
-        return BlenderRunConfigurationOptions::class.java
-    }
+    override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
 }

@@ -3,12 +3,12 @@ package com.sakurasedaia.blenderextensions.settings
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.FormBuilder
-import javax.swing.JCheckBox
+import com.intellij.ui.components.JBCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
 
 class BlenderConfigurable(private val project: Project) : Configurable {
-    private var myAutoReloadCheckbox = JCheckBox("Auto-reload extension on save")
+    private var myAutoReloadCheckbox = JBCheckBox("Auto-reload extension on save")
 
     override fun getDisplayName(): String = "Blender Extension Integration"
 

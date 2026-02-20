@@ -2,6 +2,10 @@
 
 Blender Extensions integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
 
+## AI Content Notice
+
+This project was developed almost exclusively using the AI integration tools by JetBrains s.r.o. in Intellij IDEA. The AI tools were used to generate the initial code, documentation, and some of the content in this README. The final review and editing were done by a human to ensure accuracy and clarity.
+
 ## Features
 
 - **Launch Blender**: Start a Blender instance directly from PyCharm.
