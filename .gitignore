@@ -43,3 +43,4 @@ bin/
 .DS_Store
 /.reference/
 /.blender-docs/
+/.ai-logs/
