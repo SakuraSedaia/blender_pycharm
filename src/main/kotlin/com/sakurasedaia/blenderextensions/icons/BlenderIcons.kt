@@ -5,13 +5,7 @@ import javax.swing.Icon
 
 object BlenderIcons {
     @JvmField
-    val Blender: Icon = IconLoader.getIcon("/icons/blender_logo.svg", BlenderIcons::class.java)
-
-    @JvmField
-    val BlenderGray: Icon = IconLoader.getIcon("/icons/blender_logo_gray.svg", BlenderIcons::class.java)
-
-    @JvmField
-    val AddonFolder: Icon = IconLoader.getIcon("/icons/addon_folder.svg", BlenderIcons::class.java)
+    val Blender: Icon = IconLoader.getIcon("/icons/blender_logo_gray.svg", BlenderIcons::class.java)
 
     @JvmField
     val AddonSrcFolder: Icon = IconLoader.getIcon("/icons/addon_src_folder.svg", BlenderIcons::class.java)

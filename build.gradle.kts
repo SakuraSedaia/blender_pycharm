@@ -17,7 +17,7 @@ repositories {
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
 	intellijPlatform {
-		pycharm("2025.3.2.1")
+		pycharm("2025.3.3")
 		testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 		
 		// Add plugin dependencies for compilation here:

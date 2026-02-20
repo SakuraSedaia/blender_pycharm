@@ -34,6 +34,7 @@
         <defaultLiveTemplates file="liveTemplates/Blender.xml"/>
 
         <directoryProjectGenerator implementation="com.sakurasedaia.blenderextensions.project.BlenderAddonProjectGenerator"/>
+        <iconProvider implementation="com.sakurasedaia.blenderextensions.icons.BlenderIconProvider"/>
     </extensions>
 
     <actions>
