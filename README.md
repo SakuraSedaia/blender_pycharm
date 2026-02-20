@@ -15,8 +15,18 @@ Blender Extensions integration for PyCharm. This plugin allows you to launch Ble
 
 1. Open **Run/Debug Configurations** (Run > Edit Configurations...).
 2. Click **+** and select **Blender**.
-3. Set the **Blender path** to your Blender executable (e.g., `C:\Program Files\Blender Foundation\Blender 4.2\blender.exe`).
-4. (Optional) In **Settings** > **Tools** > **Blender Extension Integration**, check **Auto-reload extension on save** to enable automatic reloads.
+3. Choose a Blender version from the **Blender version** dropdown (4.2+). The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
+4. Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. You can disable it any time.
+5. Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
+6. (Optional) In **Settings** > **Tools** > **Blender Extension Integration**, check **Auto-reload extension on save** to enable automatic reloads.
+
+### Logging and Troubleshooting
+The plugin maintains a runtime log in the project root: `blender_plugin.log`. This log contains detailed information about:
+- Blender downloads and extraction status (including macOS DMG mounting).
+- Symbolic link or directory junction creation.
+- Startup arguments and sandboxing details.
+
+If you encounter issues, check this log first.
 
 ### Usage
 
@@ -47,7 +57,16 @@ The project follows the standard IntelliJ Platform plugin structure:
 
 ## How it Works
 
-The plugin starts a local TCP server when Blender is launched. It injects a small Python script into Blender via the `--python` flag. This script connects back to PyCharm and waits for reload commands. When a reload is triggered, PyCharm sends a message over the socket, and the Python script executes `bpy.ops.extensions.package_reload()`.
+The plugin starts a local TCP server when Blender is launched. It injects a startup Python script into Blender that:
+1. **Repository Management**: Automatically configures a local extension repository named `blender_pycharm` pointing to the project's symlink.
+2. **Communication**: Connects back to PyCharm and listens for structured JSON reload commands (e.g., `{"type": "reload", "name": "my_extension"}`).
+3. **Robust Reload Cycle**: Executes a robust reload sequence on Blender's main thread (via `bpy.app.timers`):
+    - Disables the specific extension module.
+    - Purges the module and its submodules from `sys.modules`.
+    - Forces a refresh of all extension repositories (`bpy.ops.extensions.repo_refresh_all()`).
+    - Re-enables the extension, forcing a fresh import of your code changes.
+
+This ensures that your code changes are always picked up, avoiding common caching issues in Blender's Python environment.
 
 ## Development
 
@@ -63,4 +82,11 @@ The plugin starts a local TCP server when Blender is launched. It injects a smal
 - **Tests**: `./gradlew test`
 
 ---
+
+## Acknowledgments
+
+This extension is **heavily** based on and inspired by [Jacques Lucke's blender_vscode](https://github.com/JacquesLucke/blender_vscode) extension for Visual Studio Code. Many of the core architectural decisions, particularly the robust hot-reloading mechanism and the extension platform integration, are derived from the excellent work done in that project.
+
+---
+
 For more information on contributing, see [CONTRIBUTING.md](./CONTRIBUTING.md).

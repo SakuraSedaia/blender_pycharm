@@ -58,6 +58,14 @@ When referencing Blender documentation, please refer to the `.blender-docs` dire
 
 The [Jacques Lucke VS-Code extension](https://github.com/JacquesLucke/blender_vscode.git) is the main basis for this project. A clone of this repository is maintained in the `.reference` directory for architectural and feature parity reference.
 
+## AI-Assisted Development
+
+This project uses AI agents (like Junie) to maintain high-quality code and documentation. When contributing using an AI agent:
+
+- **Logging**: Ensure all chat sessions are logged in the `.ai-logs/` folder following the naming convention `chat-session-YYYY-MM-DD.log`.
+- **Summaries**: Create a `summary_YYYY-MM-DD.md` in the same folder after significant milestones.
+- **Context**: Keep `.junie/context.md` and `.junie/project.md` updated with the latest architectural decisions and project state.
+
 ## Reporting Issues
 
 If you find a bug or have a feature request, please [open an issue](https://github.com/Sakura-Sedaia/BlenderExtensions/issues) with:
