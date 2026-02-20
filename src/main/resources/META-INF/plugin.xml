@@ -32,6 +32,8 @@
 
         <configurationType implementation="com.sakurasedaia.blenderextensions.run.BlenderRunConfigurationType"/>
         <defaultLiveTemplates file="liveTemplates/Blender.xml"/>
+
+        <directoryProjectGenerator implementation="com.sakurasedaia.blenderextensions.project.BlenderAddonProjectGenerator"/>
     </extensions>
 
     <actions>

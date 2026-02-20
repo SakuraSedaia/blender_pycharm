@@ -1,808 +1,200 @@
-diff --git a/README.md b/README.md
-index 5ff849d..cde266b 100644
---- a/README.md
-+++ b/README.md
-@@ -2,6 +2,10 @@
-
- Blender Extensions integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
-
-+## AI Content Notice
-+
-+This project was developed almost exclusively using the AI integration tools by JetBrains s.r.o. in Intellij IDEA. The AI tools were used to generate the initial code, documentation, and some of the content in this README. The final review and editing were done by a human to ensure accuracy and clarity.
-+
- ## Features
-
- - **Launch Blender**: Start a Blender instance directly from PyCharm.
-diff --git a/src/main/kotlin/com/sakurasedaia/blenderextensions/blender/BlenderService.kt b/src/main/kotlin/com/sakurasedaia/blenderextensions/blender/BlenderService.kt
-index 7818991..dde13dc 100644
---- a/src/main/kotlin/com/sakurasedaia/blenderextensions/blender/BlenderService.kt
-+++ b/src/main/kotlin/com/sakurasedaia/blenderextensions/blender/BlenderService.kt
-@@ -1,597 +1,138 @@
--package com.sakurasedaia.blenderextensions.blender
--
--import com.intellij.execution.configurations.GeneralCommandLine
--import com.intellij.execution.process.OSProcessHandler
--import com.intellij.execution.process.ProcessAdapter
--import com.intellij.execution.process.ProcessEvent
--import com.intellij.openapi.components.Service
--import com.intellij.openapi.project.Project
--import com.intellij.openapi.util.Key
--import com.sakurasedaia.blenderextensions.settings.BlenderSettings
--import java.io.File
--import java.io.PrintWriter
--import java.net.ServerSocket
--import java.net.Socket
--import java.time.LocalDateTime
--import java.time.format.DateTimeFormatter
--import java.util.concurrent.atomic.AtomicBoolean
--
--@Service(Service.Level.PROJECT)
--class BlenderService(private val project: Project) {
--    private var processHandler: OSProcessHandler? = null
--    private var serverSocket: ServerSocket? = null
--    private val isRunning = AtomicBoolean(false)
--    private var blenderClient: Socket? = null
--    private var currentExtensionName: String? = null
--
--    fun log(message: String) {
--        val logFile = File(project.basePath, "blender_plugin.log")
--        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
--        try {
--            logFile.appendText("[$timestamp] $message\n")
--        } catch (_: Exception) {
--        }
--        println("[BlenderPlugin] $message")
--    }
--
--    fun getOrDownloadBlenderPath(version: String): String? {
--        val os = System.getProperty("os.name").lowercase()
--        val arch = System.getProperty("os.arch").lowercase()
--        val isWindows = os.contains("win")
--        val isMac = os.contains("mac")
--        val isLinux = !isWindows && !isMac
--
--        val downloadDir = File(com.intellij.openapi.application.PathManager.getSystemPath(), "blender_downloads/$version")
--        if (!downloadDir.exists()) {
--            downloadDir.mkdirs()
--        }
--
--        // Check if already downloaded
--        val executable = findBlenderExecutable(downloadDir)
--        if (executable != null) {
--            log("Blender $version already exists at ${executable.absolutePath}")
--            return executable.absolutePath
--        }
--
--        // If not, download it
--        val downloadUrl = getDownloadUrl(version, isWindows, isMac, isLinux, arch) ?: run {
--            log("Could not resolve download URL for Blender $version")
--            return null
--        }
--        log("Downloading Blender $version from $downloadUrl")
--        val downloadedFile = downloadFile(downloadUrl, downloadDir) ?: run {
--            log("Failed to download Blender from $downloadUrl")
--            return null
--        }
--
--        // Extract it
--        log("Extracting ${downloadedFile.name}...")
--        extractFile(downloadedFile, downloadDir)
--
--        val finalExecutable = findBlenderExecutable(downloadDir)
--        if (finalExecutable != null) {
--            log("Blender $version successfully installed at ${finalExecutable.absolutePath}")
--        } else {
--            log("Failed to find Blender executable after extraction in ${downloadDir.absolutePath}")
--        }
--        return finalExecutable?.absolutePath
--    }
--
--    private fun findBlenderExecutable(directory: File): File? {
--        val os = System.getProperty("os.name").lowercase()
--        val isWindows = os.contains("win")
--        val isMac = os.contains("mac")
--
--        val executableName = if (isWindows) "blender.exe" else "blender"
--
--        // Walk the directory to find the executable
--        return directory.walkTopDown().find {
--            if (isMac) {
--                it.name == "Blender" && it.path.contains("Blender.app/Contents/MacOS")
--            } else {
--                it.name == executableName && it.isFile && (isWindows || it.canExecute())
--            }
--        }
--    }
--
--    private fun getDownloadUrl(version: String, isWindows: Boolean, isMac: Boolean, isLinux: Boolean, arch: String): String? {
--        val baseUrl = "https://download.blender.org/release/Blender$version/"
--        val platformSuffix = when {
--            isWindows -> "windows-x64\\.zip"
--            isMac -> if (arch.contains("aarch64") || arch.contains("arm64")) "macos-arm64\\.dmg" else "macos-x64\\.dmg"
--            else -> "linux-x64\\.tar\\.xz"
--        }
--        val regex = Regex("blender-$version\\.(\\d+)-$platformSuffix")
--        try {
--            val html = java.net.URL(baseUrl).readText()
--            val matches = regex.findAll(html).toList()
--            val best = matches.maxByOrNull { it.groupValues[1].toIntOrNull() ?: -1 }?.value
--            if (best != null) return baseUrl + best
--        } catch (_: Exception) {
--            // ignore and use fallback below
--        }
--        // Fallback to a safe default if online detection fails
--        val fallbackPatch = when (version) {
--            "4.2" -> "18"
--            "4.3" -> "2"
--            "4.4" -> "1"
--            "4.5" -> "0"
--            "5.0" -> "1"
--            else -> "0"
--        }
--        val suffix = when {
--            isWindows -> "windows-x64.zip"
--            isMac -> if (arch.contains("aarch64") || arch.contains("arm64")) "macos-arm64.dmg" else "macos-x64.dmg"
--            else -> "linux-x64.tar.xz"
--        }
--        return "$baseUrl" + "blender-$version.$fallbackPatch-$suffix"
--    }
--
--    private fun downloadFile(url: String, targetDir: File): File? {
--        val fileName = url.substringAfterLast("/")
--        val targetFile = File(targetDir, fileName)
--
--        val indicator = com.intellij.openapi.progress.ProgressManager.getInstance().progressIndicator
--        indicator?.text = "Downloading Blender $url..."
--
--        try {
--            java.net.URL(url).openStream().use { input ->
--                targetFile.outputStream().use { output ->
--                    input.copyTo(output)
--                }
--            }
--            return targetFile
--        } catch (e: Exception) {
--            e.printStackTrace()
--            return null
--        }
--    }
--
--    private fun extractFile(file: File, targetDir: File) {
--        val indicator = com.intellij.openapi.progress.ProgressManager.getInstance().progressIndicator
--        indicator?.text = "Extracting Blender..."
--
--        if (file.name.endsWith(".zip")) {
--            val command = if (System.getProperty("os.name").lowercase().contains("win")) {
--                listOf("powershell", "Expand-Archive", "-Path", file.absolutePath, "-DestinationPath", targetDir.absolutePath, "-Force")
--            } else {
--                listOf("unzip", "-o", file.absolutePath, "-d", targetDir.absolutePath)
--            }
--            try {
--                ProcessBuilder(command).start().waitFor()
--            } catch (e: Exception) {
--                log("Failed to extract ZIP: ${e.message}")
--            }
--        } else if (file.name.endsWith(".tar.xz")) {
--            val command = listOf("tar", "-xf", file.absolutePath, "-C", targetDir.absolutePath)
--            try {
--                ProcessBuilder(command).start().waitFor()
--            } catch (e: Exception) {
--                log("Failed to extract TAR.XZ: ${e.message}")
--            }
--        } else if (file.name.endsWith(".dmg")) {
--            if (System.getProperty("os.name").lowercase().contains("mac")) {
--                log("Handling macOS DMG mounting and extraction...")
--                val mountPoint = File("/tmp/blender_mount_${System.currentTimeMillis()}")
--                mountPoint.mkdirs()
--                try {
--                    // Mount DMG
--                    log("Mounting ${file.absolutePath} to ${mountPoint.absolutePath}")
--                    ProcessBuilder("hdiutil", "attach", file.absolutePath, "-mountpoint", mountPoint.absolutePath, "-nobrowse", "-readonly").start().waitFor()
--
--                    // Copy Blender.app
--                    val appFile = mountPoint.listFiles()?.find { it.name == "Blender.app" }
--                    if (appFile != null) {
--                        log("Copying Blender.app to ${targetDir.absolutePath}")
--                        ProcessBuilder("cp", "-R", appFile.absolutePath, targetDir.absolutePath).start().waitFor()
--                    } else {
--                        log("Could not find Blender.app in mounted DMG")
--                    }
--                } catch (e: Exception) {
--                    log("Error during DMG handling: ${e.message}")
--                    e.printStackTrace()
--                } finally {
--                    // Detach DMG
--                    log("Detaching DMG from ${mountPoint.absolutePath}")
--                    ProcessBuilder("hdiutil", "detach", mountPoint.absolutePath).start().waitFor()
--                    mountPoint.delete()
--                }
--            } else {
--                log("DMG extraction is only supported on macOS")
--            }
--        } else {
--            log("Unsupported file format for extraction: ${file.name}")
--        }
--    }
--
--    fun startBlender() {
--        // This might be called from old code, but now we need the path.
--        // For now, let's just do nothing or handle it if we have a default.
--    }
--
--    fun startBlenderProcess(
--        blenderPath: String,
--        addonSourceDir: String? = null,
--        addonSymlinkName: String? = null,
--        additionalArgs: String? = null,
--        isSandboxed: Boolean = false
--    ): OSProcessHandler? {
--        if (isRunning.get()) return processHandler
--
--        if (blenderPath.isEmpty() || !File(blenderPath).exists()) {
--            return null
--        }
--
--        val sourceDir = if (!addonSourceDir.isNullOrEmpty()) File(addonSourceDir) else File(project.basePath ?: return null)
--        if (!sourceDir.exists()) return null
--
--        val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourceDir.name
--        currentExtensionName = symlinkName
--
--        linkExtensionSource(addonSourceDir, addonSymlinkName, isSandboxed)
--        val repoDir = getExtensionsRepoDir(isSandboxed)
--        log("Starting Blender with repo at: ${repoDir?.absolutePath}")
--        val port = startServer()
--
--        val script = createStartupScript(port, repoDir, currentExtensionName)
--        log("Startup script created at: ${script.absolutePath}")
--        val commandLine = GeneralCommandLine(blenderPath)
--            .withParameters("--python", script.absolutePath)
--
--        if (isSandboxed) {
--            log("Using sandboxed mode")
--            val sandboxDir = File(project.basePath, ".blender_sandbox")
--            val configDir = File(sandboxDir, "config")
--            val scriptsDir = File(sandboxDir, "scripts")
--
--            if (!configDir.exists()) configDir.mkdirs()
--            if (!scriptsDir.exists()) scriptsDir.mkdirs()
--
--            // Create a simple app template to satisfy the requirement
--            val templatesDir = File(scriptsDir, "startup/bl_app_templates/blender_extensions_dev")
--            if (!templatesDir.exists()) templatesDir.mkdirs()
--            val initFile = File(templatesDir, "__init__.py")
--            if (!initFile.exists()) {
--                initFile.writeText("def register():\n    pass\n\ndef unregister():\n    pass\n")
--            }
--
--            // Copy splash screen if available
--            val projectSplash = File(project.basePath, "splash.png")
--            val targetSplash = File(templatesDir, "splash.png")
--            if (projectSplash.exists()) {
--                try {
--                    projectSplash.copyTo(targetSplash, overwrite = true)
--                    log("Copied project-specific splash screen to sandboxed app template")
--                } catch (e: Exception) {
--                    log("Failed to copy project splash screen: ${e.message}")
--                }
--            } else {
--                // Try to copy the default splash from plugin resources
--                try {
--                    val defaultSplash = this.javaClass.getResourceAsStream("/splash.png")
--                    if (defaultSplash != null) {
--                        defaultSplash.use { input ->
--                            targetSplash.outputStream().use { output ->
--                                input.copyTo(output)
--                            }
--                        }
--                        log("Copied default splash screen from plugin resources to sandboxed app template")
--                    } else {
--                        log("Default splash screen not found in plugin resources")
--                    }
--                } catch (e: Exception) {
--                    log("Failed to copy default splash screen: ${e.message}")
--                }
--            }
--
--            commandLine.withEnvironment("BLENDER_USER_CONFIG", configDir.absolutePath)
--            commandLine.withEnvironment("BLENDER_USER_SCRIPTS", scriptsDir.absolutePath)
--            commandLine.addParameters("--app-template", "blender_extensions_dev")
--        }
--
--        if (!additionalArgs.isNullOrBlank()) {
--            commandLine.addParameters(additionalArgs.split(" "))
--        }
--
--        val handler = OSProcessHandler(commandLine)
--        processHandler = handler
--        handler.addProcessListener(object : ProcessAdapter() {
--            override fun processTerminated(event: ProcessEvent) {
--                isRunning.set(false)
--                stopServer()
--            }
--        })
--
--        handler.startNotify()
--        isRunning.set(true)
--        return handler
--    }
--
--    private fun getExtensionsRepoDir(isSandboxed: Boolean = false): File? {
--        if (isSandboxed) {
--            val sandboxDir = File(project.basePath, ".blender_sandbox")
--            val extensionsDir = File(sandboxDir, "extensions")
--            return File(extensionsDir, "blender_pycharm")
--        }
--
--        val os = System.getProperty("os.name").lowercase()
--        val userHome = System.getProperty("user.home")
--        val blenderConfigDir = when {
--            os.contains("win") -> File(System.getenv("APPDATA"), "Blender Foundation/Blender")
--            os.contains("mac") -> File(userHome, "Library/Application Support/Blender")
--            else -> File(userHome, ".config/blender") // Linux
--        }
--
--        if (!blenderConfigDir.exists()) return null
--
--        // Find the latest version directory
--        val versions = blenderConfigDir.listFiles { file -> file.isDirectory && file.name.all { it.isDigit() || it == '.' } }
--        val latestVersion = versions?.maxByOrNull { it.name } ?: return null
--
--        val extensionsDir = File(latestVersion, "extensions")
--        return File(extensionsDir, "blender_pycharm")
--    }
--
--    private fun linkExtensionSource(addonSourceDir: String?, addonSymlinkName: String?, isSandboxed: Boolean = false) {
--        val userRepoDir = getExtensionsRepoDir(isSandboxed) ?: return
--
--        if (!userRepoDir.exists()) {
--            userRepoDir.mkdirs()
--        }
--
--        val sourceDir = if (!addonSourceDir.isNullOrEmpty()) File(addonSourceDir) else File(project.basePath ?: return)
--        if (!sourceDir.exists()) return
--
--        val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourceDir.name
--        val targetLink = File(userRepoDir, symlinkName)
--
--        if (targetLink.exists()) {
--            // Check if it's already a link to the same place, if not maybe we should recreate it?
--            // For now, let's just delete it if it's there to ensure it's correct.
--            targetLink.delete()
--        }
--
--        try {
--            java.nio.file.Files.createSymbolicLink(
--                targetLink.toPath(),
--                sourceDir.toPath()
--            )
--            log("Created symbolic link: ${targetLink.absolutePath} -> ${sourceDir.absolutePath}")
--        } catch (e: Exception) {
--            log("Failed to create symbolic link: ${e.message}")
--            if (System.getProperty("os.name").lowercase().contains("win")) {
--                log("Attempting to create a directory junction instead (Windows fallback)...")
--                try {
--                    // On Windows, junctions don't require special privileges
--                    val process = ProcessBuilder("cmd", "/c", "mklink", "/J", targetLink.absolutePath, sourceDir.absolutePath).start()
--                    val exitCode = process.waitFor()
--                    if (exitCode == 0) {
--                        log("Successfully created directory junction.")
--                    } else {
--                        log("mklink failed with exit code $exitCode")
--                    }
--                } catch (e2: Exception) {
--                    log("Failed to create junction: ${e2.message}")
--                }
--            }
--        }
--    }
--
--    private fun startServer(): Int {
--        val server = ServerSocket(0)
--        serverSocket = server
--        val port = server.localPort
--        project.putUserData(BLENDER_PORT_KEY, port)
--
--        Thread {
--            try {
--                while (!server.isClosed) {
--                    val client = try {
--                        server.accept()
--                    } catch (e: Exception) {
--                        null
--                    }
--                    if (client != null) {
--                        println("Blender connected on port $port")
--                        blenderClient = client
--                    }
--                }
--            } catch (e: Exception) {
--                // Handle error
--            }
--        }.start()
--        return port
--    }
--
--    private fun stopServer() {
--        serverSocket?.close()
--        blenderClient?.close()
--    }
--
--    private fun createStartupScript(port: Int, repoDir: File?, extensionName: String?): File {
--        val repoPath = repoDir?.absolutePath?.replace("\\", "\\\\") ?: ""
--        val extName = extensionName ?: ""
--        val scriptContent = """
--            import bpy
--            import socket
--            import threading
--            import os
--            import traceback
--
--            def ensure_extension_repo_exists(repo_name, repo_path):
--                if bpy.app.version < (4, 2, 0):
--                    return
--                if not repo_path or not os.path.exists(repo_path):
--                    return
--
--                repo_path = os.path.normpath(repo_path)
--
--                # Check if repo exists
--                existing_repo = None
--                for repo in bpy.context.preferences.extensions.repos:
--                    if getattr(repo, 'module', None) == repo_name:
--                        existing_repo = repo
--                        break
--
--                if existing_repo:
--                    try:
--                        existing_repo.enabled = True
--                    except:
--                        pass
--                    current_path = getattr(existing_repo, 'directory', getattr(existing_repo, 'path', None))
--                    if current_path and os.path.normpath(current_path) == repo_path:
--                        print(f"Extension repo '{repo_name}' is already correctly configured.")
--                        return
--
--                    print(f"Repo '{repo_name}' points to different path: {current_path}. Re-creating...")
--                    try:
--                        # Use the API to remove it
--                        bpy.context.preferences.extensions.repos.remove(existing_repo)
--                    except Exception as e:
--                        print(f"Failed to remove existing repo: {e}")
--                        # Attempt direct update as fallback, maybe it is NOT read-only in some versions
--                        try:
--                            if hasattr(existing_repo, 'directory'):
--                                existing_repo.directory = repo_path
--                                return
--                            elif hasattr(existing_repo, 'path'):
--                                existing_repo.path = repo_path
--                                return
--                        except Exception as e2:
--                            print(f"Fallback update also failed: {e2}")
--
--                # Add the repo
--                try:
--                    if hasattr(bpy.ops.preferences, 'extension_repo_add'):
--                        # Blender 5.0+
--                        bpy.ops.preferences.extension_repo_add(
--                            name=repo_name,
--                            type='LOCAL',
--                            custom_directory=repo_path,
--                            use_custom_directory=True
--                        )
--                        print(f"Added extensions repository (5.0+): {repo_name} -> {repo_path}")
--                    elif hasattr(bpy.ops.extensions, 'repo_add'):
--                        # Blender 4.2+
--                        bpy.ops.extensions.repo_add(
--                            name=repo_name,
--                            type='LOCAL',
--                            directory=repo_path
--                        )
--                        print(f"Added extensions repository (4.2+): {repo_name} -> {repo_path}")
--                    else:
--                        new_repo = bpy.context.preferences.extensions.repos.new(name=repo_name, module=repo_name)
--                        try:
--                            if hasattr(new_repo, 'directory'):
--                                new_repo.directory = repo_path
--                            elif hasattr(new_repo, 'path'):
--                                new_repo.path = repo_path
--                            new_repo.enabled = True
--                        except Exception as e:
--                            print(f"Failed to set path on new repo: {e}")
--                        print(f"Created extensions repository (Manual): {repo_name} -> {repo_path}")
--                except Exception as e:
--                    print(f"Failed to create extensions repository: {e}")
--                    traceback.print_exc()
--
--            def listen_for_reload():
--                import json
--                import sys
--                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
--                try:
--                    s.connect(('127.0.0.1', $port))
--                    print(f"Connected to IntelliJ for extension reloading on port $port")
--                    while True:
--                        data = s.recv(1024)
--                        if not data:
--                            break
--                        try:
--                            message = json.loads(data.decode().strip())
--                            if message.get('type') == 'reload':
--                                extension_name = message.get('name')
--                                print(f"Received reload command for: {extension_name}")
--
--                                def do_reload():
--                                    try:
--                                        module_name = f"bl_ext.blender_pycharm.{extension_name}"
--
--                                        # 1. Disable if enabled
--                                        if module_name in bpy.context.preferences.addons:
--                                            bpy.ops.preferences.addon_disable(module=module_name)
--
--                                        # 2. Refresh repositories to pick up file changes
--                                        if hasattr(bpy.ops.extensions, 'repo_refresh_all'):
--                                            bpy.ops.extensions.repo_refresh_all()
--
--                                        # 3. Purge from sys.modules to force re-import
--                                        for m in list(sys.modules.keys()):
--                                            if m == module_name or m.startswith(module_name + "."):
--                                                del sys.modules[m]
--
--                                        # 4. Re-enable
--                                        bpy.ops.preferences.addon_enable(module=module_name)
--                                        print(f"Successfully reloaded extension: {module_name}")
--
--                                    except Exception as e:
--                                        print(f"Error during reload of {extension_name}: {e}")
--                                        traceback.print_exc()
--                                    return None # Don't repeat the timer
--
--                                # Use timer to run on main thread (much safer in Blender)
--                                if hasattr(bpy.app, 'timers'):
--                                    bpy.app.timers.register(do_reload)
--                                else:
--                                    do_reload()
--                        except Exception as e:
--                            print(f"Error parsing reload message: {e}")
--                except Exception as e:
--                    print(f"Error in listen_for_reload: {e}")
--                finally:
--                    s.close()
--
--            def ensure_extension_enabled(extension_name):
--                if not extension_name:
--                    return
--
--                import bpy
--                module_name = f"bl_ext.blender_pycharm.{extension_name}"
--                if module_name not in bpy.context.preferences.addons:
--                    print(f"Automatically enabling extension: {module_name}")
--                    try:
--                        if hasattr(bpy.ops.extensions, 'repo_refresh_all'):
--                            bpy.ops.extensions.repo_refresh_all()
--                        bpy.ops.preferences.addon_enable(module=module_name)
--                    except Exception as e:
--                        print(f"Failed to auto-enable {module_name}: {e}")
--                return None
--
--            ensure_extension_repo_exists("blender_pycharm", r"$repoPath")
--            if hasattr(bpy.app, 'timers'):
--                bpy.app.timers.register(lambda: ensure_extension_enabled("$extName"), first_interval=1.0)
--            else:
--                ensure_extension_enabled("$extName")
--            threading.Thread(target=listen_for_reload, daemon=True).start()
--        """.trimIndent()
--
--        val tempFile = File.createTempFile("blender_start", ".py")
--        tempFile.writeText(scriptContent)
--        return tempFile
--    }
--
--    fun reloadExtension() {
--        blenderClient?.let {
--            try {
--                val out = PrintWriter(it.getOutputStream(), true)
--                val extensionName = currentExtensionName ?: "unknown"
--                out.println("""{"type": "reload", "name": "$extensionName"}""")
--            } catch (e: Exception) {
--                // Handle error
--            }
--        }
--    }
--
--    companion object {
--        val BLENDER_PORT_KEY = Key.create<Int>("BLENDER_PORT")
--        fun getInstance(project: Project): BlenderService = project.getService(BlenderService::class.java)
--    }
--}
-+package com.sakurasedaia.blenderextensions.blender
-+
-+import com.intellij.execution.process.OSProcessHandler
-+import com.intellij.execution.process.ProcessAdapter
-+import com.intellij.execution.process.ProcessEvent
-+import com.intellij.openapi.components.Service
-+import com.intellij.openapi.project.Project
-+import com.intellij.openapi.util.Key
-+import java.io.PrintWriter
-+import java.net.ServerSocket
-+import java.net.Socket
-+import java.nio.file.Files
-+import java.nio.file.Paths
-+import java.util.concurrent.atomic.AtomicBoolean
-+
-+@Service(Service.Level.PROJECT)
-+class BlenderService(private val project: Project) {
-+    private val logger = BlenderLogger(project)
-+    private val downloader = BlenderDownloader(logger)
-+    private val linker = BlenderLinker(project, logger)
-+    private val launcher = BlenderLauncher(project, logger)
-+    private val scriptGenerator = BlenderScriptGenerator()
-+
-+    private var processHandler: OSProcessHandler? = null
-+    private var serverSocket: ServerSocket? = null
-+    private val isRunning = AtomicBoolean(false)
-+    private var blenderClient: Socket? = null
-+    private var currentExtensionName: String? = null
-+
-+    /**
-+     * Main log entry point for other components (like UI).
-+     */
-+    fun log(message: String) = logger.log(message)
-+
-+    fun getOrDownloadBlenderPath(version: String): String? = downloader.getOrDownloadBlenderPath(version)
-+
-+    fun startBlenderProcess(
-+        blenderPath: String,
-+        addonSourceDir: String? = null,
-+        addonSymlinkName: String? = null,
-+        additionalArgs: String? = null,
-+        isSandboxed: Boolean = false
-+    ): OSProcessHandler? {
-+        if (isRunning.get()) return processHandler
-+
-+        val projectPath = project.basePath ?: return null
-+        val sourcePath = if (!addonSourceDir.isNullOrEmpty()) Paths.get(addonSourceDir) else Paths.get(projectPath)
-+
-+        if (!Files.exists(sourcePath)) {
-+            logger.log("Source directory does not exist: ${sourcePath}")
-+            return null
-+        }
-+
-+        val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourcePath.fileName.toString()
-+        currentExtensionName = symlinkName
-+
-+        linker.linkExtensionSource(addonSourceDir, addonSymlinkName, isSandboxed)
-+        val repoDir = linker.getExtensionsRepoDir(isSandboxed)
-+
-+        val port = startServer()
-+        val script = scriptGenerator.createStartupScript(port, repoDir, currentExtensionName)
-+
-+        val handler = launcher.startBlenderProcess(blenderPath, script, additionalArgs, isSandboxed)
-+        if (handler == null) {
-+            stopServer()
-+            return null
-+        }
-+
-+        processHandler = handler
-+        handler.addProcessListener(object : ProcessAdapter() {
-+            override fun processTerminated(event: ProcessEvent) {
-+                isRunning.set(false)
-+                stopServer()
-+            }
-+        })
-+
-+        handler.startNotify()
-+        isRunning.set(true)
-+        return handler
-+    }
-+
-+    private fun startServer(): Int {
-+        val server = ServerSocket(0)
-+        serverSocket = server
-+        val port = server.localPort
-+        project.putUserData(BLENDER_PORT_KEY, port)
-+
-+        Thread {
-+            try {
-+                while (!server.isClosed) {
-+                    val client = try {
-+                        server.accept()
-+                    } catch (e: Exception) {
-+                        null
-+                    }
-+                    if (client != null) {
-+                        logger.log("Blender connected on port ${port}")
-+                        blenderClient = client
-+                    }
-+                }
-+            } catch (e: Exception) {
-+                // Server closed or error
-+            }
-+        }.start()
-+        return port
-+    }
-+
-+    private fun stopServer() {
-+        try {
-+            serverSocket?.close()
-+            blenderClient?.close()
-+        } catch (e: Exception) {
-+            // Ignore
-+        }
-+    }
-+
-+    fun reloadExtension() {
-+        val client = blenderClient
-+        if (client == null || client.isClosed) {
-+            logger.log("Cannot reload: Blender is not connected.")
-+            return
-+        }
-+
-+        try {
-+            val out = PrintWriter(client.getOutputStream(), true)
-+            val extensionName = currentExtensionName ?: "unknown"
-+            out.println("{\"type\": \"reload\", \"name\": \"$extensionName\"}")
-+            logger.log("Sent reload command for: ${extensionName}")
-+        } catch (e: Exception) {
-+            logger.log("Failed to send reload command: ${e.message}")
-+        }
-+    }
-+
-+    companion object {
-+        val BLENDER_PORT_KEY = Key.create<Int>("BLENDER_PORT")
-+        fun getInstance(project: Project): BlenderService = project.getService(BlenderService::class.java)
-+    }
-+}
-diff --git a/src/main/kotlin/com/sakurasedaia/blenderextensions/listeners/BlenderFileSaveListener.kt b/src/main/kotlin/com/sakurasedaia/blenderextensions/listeners/BlenderFileSaveListener.kt
-index 82c41f6..0d111c0 100644
---- a/src/main/kotlin/com/sakurasedaia/blenderextensions/listeners/BlenderFileSaveListener.kt
-+++ b/src/main/kotlin/com/sakurasedaia/blenderextensions/listeners/BlenderFileSaveListener.kt
-@@ -1,18 +1,26 @@
- package com.sakurasedaia.blenderextensions.listeners
-
-+import com.intellij.openapi.fileEditor.FileDocumentManager
- import com.intellij.openapi.fileEditor.FileDocumentManagerListener
- import com.intellij.openapi.editor.Document
- import com.intellij.openapi.project.ProjectManager
-+import com.intellij.openapi.roots.ProjectFileIndex
- import com.sakurasedaia.blenderextensions.blender.BlenderService
- import com.sakurasedaia.blenderextensions.settings.BlenderSettings
-
- class BlenderFileSaveListener : FileDocumentManagerListener {
-     override fun beforeDocumentSaving(document: Document) {
-+        val file = FileDocumentManager.getInstance().getFile(document) ?: return
-         val projects = ProjectManager.getInstance().openProjects
-         for (project in projects) {
--            val settings = BlenderSettings.getInstance(project).state
--            if (settings.autoReload) {
--                BlenderService.getInstance(project).reloadExtension()
-+            if (project.isDisposed) continue
-+
-+            val fileIndex = ProjectFileIndex.getInstance(project)
-+            if (fileIndex.isInContent(file)) {
-+                val settings = BlenderSettings.getInstance(project).state
-+                if (settings.autoReload) {
-+                    BlenderService.getInstance(project).reloadExtension()
-+                }
-             }
-         }
-     }
-diff --git a/src/main/kotlin/com/sakurasedaia/blenderextensions/settings/BlenderConfigurable.kt b/src/main/kotlin/com/sakurasedaia/blenderextensions/settings/BlenderConfigurable.kt
-index ca3a434..76078b5 100644
---- a/src/main/kotlin/com/sakurasedaia/blenderextensions/settings/BlenderConfigurable.kt
-+++ b/src/main/kotlin/com/sakurasedaia/blenderextensions/settings/BlenderConfigurable.kt
-@@ -3,12 +3,12 @@ package com.sakurasedaia.blenderextensions.settings
- import com.intellij.openapi.options.Configurable
- import com.intellij.openapi.project.Project
- import com.intellij.util.ui.FormBuilder
--import javax.swing.JCheckBox
-+import com.intellij.ui.components.JBCheckBox
- import javax.swing.JComponent
- import javax.swing.JPanel
-
- class BlenderConfigurable(private val project: Project) : Configurable {
--    private var myAutoReloadCheckbox = JCheckBox("Auto-reload extension on save")
-+    private var myAutoReloadCheckbox = JBCheckBox("Auto-reload extension on save")
-
-     override fun getDisplayName(): String = "Blender Extension Integration"
-
+              - package.json (RegularFile, 6f4c013787f163800c1fbfd756ad8ac9)
+         - lib (Directory, 0d7a4401caea0a01de8f94d045dae837)
+           - angular.jar (RegularFile, 85f66281d6e43dfe29b020bd1718295e)
+         - ngCli (Directory, 6c42d43f1c7d75a42161136931f35282)
+           - commands (Directory, 73b54ffa790ec9c41e0feee5d70d8d8c)
+             - generate-impl.js (RegularFile, 3deffe9e3033c3ce7808e179910b856d)
+             - generate.json (RegularFile, 6ab83721df72c95ff0eb2d4b41fa978b)
+           - generate.js (RegularFile, 6ad2f7bfad6f437ea735da55751c7c0a)
+           - generateVirtual.js (RegularFile, c39e25d5bdbca0c753f6e4b15841ca64)
+           - rerouteModulesToProject.js (RegularFile, b8ca125916c413fc529ba98c787d79a6)
+           - runner.js (RegularFile, 24ec093ff91084776fe885592f02725c)
+           - schematicsInfoProvider.js (RegularFile, 469cd5fd0b26b4d815eb9b7c5b891188)
+           - schematicsProvider.js (RegularFile, e106772732d30300a10d1ca3bcbb2e53)
+           - schematicsProvider140.js (RegularFile, 1e018fd9adea0026100723acdfeaa52c)
+           - schematicsProvider60.js (RegularFile, 299105e36adf98fd37d486d8cd281d26)
+           - schematicsProvider62.js (RegularFile, 6275f94a39c8fa3851023a8eff95c9dd)
+           - schematicsProvider70.js (RegularFile, ad74ab2797c42b0ef1e8a4d4585c9a18)
+           - schematicsProvider80.js (RegularFile, d62f736e8861c5786e58d98d9f8361fe)
+           - schematicsProvider90.js (RegularFile, 3b8bfc5f2cb38741ca3300b8bf08b0d0)
+       - clouds-docker-gateway (Directory, 27dd4c613c9cefdac699dbbf34b01db5)
+         - lib (Directory, 860aefb133db2a05435eacd38bc452df)
+           - clouds-docker-gateway-frontend.jar (RegularFile, c7f8ee96ff0c25e72a5f798a5187a500)
+           - clouds-docker-gateway.jar (RegularFile, 2928159a10e310767da1e412567b2d58)
+       - clouds-docker-impl (Directory, a3df9b7d22b5a07e5eb9d176ac0ccce9)
+         - lib (Directory, d71938105cdfca0dfc61802469deea45)
+           - clouds-docker-impl.jar (RegularFile, d2597a1386522b0126e1e41370c5781f)
+           - com.github.docker-java-docker-java-api.jar (RegularFile, 74bd8c20ad8f840956b2ac2bc347f307)
+           - com.github.docker-java-docker-java-core.jar (RegularFile, ec44c714bddf6f7a0afcd8f0211a134d)
+           - com.github.docker-java-docker-java-transport-httpclient5.jar (RegularFile, 5c71374b67408b4e5143aefde07ba93f)
+           - com.github.docker-java-docker-java-transport.jar (RegularFile, 2474bf799941e1502b67f4e6a1f8b8c1)
+           - modules (Directory, 38ff96bfce501fca516d0fa488e7839a)
+             - intellij.clouds.docker.file.backend.jar (RegularFile, 9cb281315ec48f536715dfb01ad15c5d)
+             - intellij.clouds.docker.file.frontend.split.jar (RegularFile, e03ff4783e77e57013a2231d72260051)
+             - intellij.clouds.docker.frontend.jar (RegularFile, 64a338edf85302cc44965dc7bafe6d34)
+             - intellij.clouds.docker.jar (RegularFile, 60f605a45e348ebbef0c535d920d92d9)
+             - intellij.clouds.docker.shared.jar (RegularFile, c3a1b2001c1bf18d19e31fe4e3e1011d)
+       - color-scheme-github (Directory, 5b26adcdd787f93f14c6a97008a8bb64)
+         - lib (Directory, cd902d47a20e2006aa48b06d38c5a57f)
+           - color-scheme-github.jar (RegularFile, 7542ef407cb3f31ef0cbc52d49a6991f)
+       - color-scheme-monokai (Directory, eb3731ded2a7e89f23ca9118f7ff72ec)
+         - lib (Directory, 9827dfb20b2d13f7902d6998c5bd5543)
+           - color-scheme-monokai.jar (RegularFile, ed943e9a26bfad5ebe745d5cef06899f)
+       - color-scheme-twilight (Directory, 28b13cae0a551af8672b480412d3bc76)
+         - lib (Directory, 9364378c8e0e442ba7c18d0c6db66cd5)
+           - color-scheme-twilight.jar (RegularFile, 560caed9b153fe48e00f436f241009d8)
+       - color-scheme-warmNeon (Directory, e610b5fdeb6231f43867cf2aab460bcc)
+         - lib (Directory, d398899d823b131acba11744ad566d73)
+           - color-scheme-warmNeon.jar (RegularFile, a20dcab63143e0f43272449d9867d9fe)
+       - completionMlRanking (Directory, 1e590b7e75e380aa50012841fd3084e3)
+         - lib (Directory, a63184cafe9a3ea476e07ed93ac9e03d)
+           - completionMlRanking.jar (RegularFile, 1fe70b2a31b3513e91212f90d683a6ce)
+       - configurationScript (Directory, 9fb138fae327df2da783f4d3449dba9c)
+         - lib (Directory, 24460b016b8e683e0388bf740a944042)
+           - configurationScript.jar (RegularFile, 9ce5dc93496425d69058ffe280de9cd2)
+       - copyright (Directory, cbe11a0c20445ab70e9ad9c50e86e4bd)
+         - lib (Directory, 75cc437792580e9d278833624bbf12bc)
+           - copyright.jar (RegularFile, 41948d366cfff96fd99a51dad7027a75)
+       - css-plugin (Directory, b9cab0c97befc4dfdcb0fbbc7797181a)
+         - lib (Directory, 088ca5e41ffd963cb3b971f8b642cc4c)
+           - css-plugin.jar (RegularFile, 64c2fe63411d2f3730a5c600003f9b9e)
+           - frontend-split (Directory, 0de45281ad836b2f681c57dc63a360c9)
+             - css-frontend.jar (RegularFile, c293642e13ff1cfe59e2477a7c6a3d26)
+           - modules (Directory, 73732efa0ed99c1e851f0419bcadac12)
+             - intellij.css.analysis.jar (RegularFile, 9097fab9db49ef65e003809ac43e57a8)
+             - intellij.css.backend.jar (RegularFile, 496327f47d2c9903003917a077562c82)
+             - intellij.css.common.jar (RegularFile, 1620b44f46a9a8ce735ea1f26b238eb3)
+             - intellij.css.common.psi.jar (RegularFile, f30ee3453973d4d4d2cbcd6f3e8f45ef)
+             - intellij.css.copyright.jar (RegularFile, c816ff45a5ef624195a8244ca6d67eb2)
+             - intellij.css.frontend.split.jar (RegularFile, 54c189f1f2755bfc280a95c57cb0ae6e)
+             - intellij.css.jar (RegularFile, e80ff7336452a8a522c0ac38fca7605b)
+             - intellij.css.psi.jar (RegularFile, c91e493c0a74b3bb0f172a8215d44bb6)
+             - intellij.css.schemeGenerator.jar (RegularFile, e863e23d17cb7dbeb16f9f57337adc62)
+             - intellij.css.watcher.jar (RegularFile, c06148f264ad2cf33457b2be18ed76a4)
+             - intellij.css.xmlSchemeGenerator.jar (RegularFile, d1e1205af378f849ca2c21d872968125)
+       - cwm-plugin (Directory, 747fca958e779932bfd36ad106e3a047)
+         - jre-build.txt (RegularFile, 5c49d202cc2feb754313d991dbbacdee)
+         - lib (Directory, 48070fb5f1afa969d5200537f03cf23f)
+           - bouncy-castle-pgp.jar (RegularFile, 64f4d6b36d3e09a0812ad7f052cb6265)
+           - cwm-connection-backend.jar (RegularFile, e0f360d53f9a272c99c8544aba5fb5ed)
+           - cwm-connection-common.jar (RegularFile, 88d2d171cecdcb39e5b2c0a6fd9b6bcd)
+           - cwm-plugin-android.jar (RegularFile, 8b7a04bf7d7a7169bbd71931f75a0d2f)
+           - cwm-plugin.jar (RegularFile, 7842a6942e09646f4ef0dc52ecd4650b)
+           - frontend-split (Directory, 2c5bff26c74dad35ca7348f3a220d59f)
+             - cwm-connection-frontend.jar (RegularFile, f7d6eb6bd1bc70076aa22ad0e2789fc5)
+             - cwm-frontend.jar (RegularFile, 3010634c8a328b363c70fdd96bc2a97c)
+             - driver-frontend-split.jar (RegularFile, 6cdac99cafa578eaa2d41f31ab401456)
+             - frontend-split.jar (RegularFile, 8198ee950450bc3449a74f8bc1dd1fd3)
+             - markdown-frontend-split.jar (RegularFile, 7b2155d17e3d4511629ff7a3f919f6c3)
+             - performance-testing-frontend-split.jar (RegularFile, ca56b1105a9904ae4cc9aea7608c876d)
+             - rd-client.jar (RegularFile, 45fa53fd964bd9697b1ac073f083a095)
+           - git-protocol.jar (RegularFile, 2f02974e63c0006e068b9e797d6de407)
+           - ice4j.jar (RegularFile, c363717635d48627366f003d48b830e6)
+           - intellij.community.wintools.jar (RegularFile, bd4b3af617c32196fdf97323db247636)
+           - intellij.cwm.plugin.common.jar (RegularFile, 6cb918ecf499722f72d2cf0a64c91741)
+           - intellij.cwm.plugin.jar (RegularFile, dba1444f11e2147ec14d0472962853c9)
+           - intellij.platform.backend.split.jar (RegularFile, e2c1eee7c7e289402e9fbc132c777711)
+           - intellij.platform.remoteController.backend.jar (RegularFile, c793739aef951304f7b3715b980f48b3)
+           - intellij.platform.remoteController.jar (RegularFile, 348d03ffa40e01c5a58233235eb96ff6)
+           - intellij.platform.split.jar (RegularFile, d56cc705b542baa042b3c27d009290b9)
+           - java-websocket.jar (RegularFile, 251febf4989a684247b9953272586571)
+           - jitsi-utils.jar (RegularFile, fb69fe5a47cb1b1eb4e7ebc8214c0b65)
+           - jnaerator-runtime.jar (RegularFile, 81d4a0d7a82f2f1b6b99d967c50eea58)
+           - jstun.jar (RegularFile, ea199b97b5a4a92fe929c218b63b30c6)
+           - modules (Directory, 3fc1e382290474237b6fca128c326bfe)
+             - intellij.cwm.vcs.jar (RegularFile, 1a92f0117560d29f39c7f07db8119d25)
+             - intellij.docker.backend.split.jar (RegularFile, 54e9f2a50f1cf16f58e1774600f5e04d)
+             - intellij.driver.backend.split.jar (RegularFile, b9698263c784b803b3d7d27c1542fc7b)
+             - intellij.java.backend.split.jar (RegularFile, 58774be05ba950287ba3605fbf39353c)
+             - intellij.performanceTesting.backend.split.jar (RegularFile, a2624fa59d15947be02616d6b89f0081)
+             - intellij.platform.buildView.split.jar (RegularFile, b05aaa976aa093c901ae0446d17a64fd)
+             - intellij.platform.completion.backend.split.jar (RegularFile, 2a1fbb34cdb590b6f037523a8b106340)
+             - intellij.platform.completion.common.split.jar (RegularFile, 12698b6d9f2e864a9a8d5b0f690d0ccd)
+             - intellij.platform.completion.frontend.split.jar (RegularFile, f716de03e1d5baad03efebe1b1876606)
+             - intellij.platform.credentialStore.backend.split.jar (RegularFile, be67a6efd2fe255d09ede86e495fb5c0)
+             - intellij.platform.credentialStore.common.jar (RegularFile, 3ab670e2b95bd5a240971f3e6d2da084)
+             - intellij.platform.credentialStore.frontend.split.jar (RegularFile, d80ea374bb29e519a739bf6271668906)
+             - intellij.platform.execution.frontend.split.jar (RegularFile, e15d539d1e6eba1244c52cc213972ce7)
+             - intellij.platform.identifiers.highlighting.frontend.split.jar (RegularFile, 70dbcf4ce1b30dc9770d9e0c1dfe9754)
+             - intellij.platform.inline.completion.backend.split.jar (RegularFile, 656c8f78840a6683e24ee3da9946e51c)
+             - intellij.platform.inline.completion.frontend.split.jar (RegularFile, 32b073edc720399827644b98773c1e66)
+             - intellij.platform.inline.completion.split.jar (RegularFile, 3dbcb8b90d44249c1952f47738bce1ea)
+             - intellij.platform.kernel.backend.split.jar (RegularFile, c84a580bf5b051a886e3b95664f90077)
+             - intellij.platform.navbar.backend.split.jar (RegularFile, 297ca18ff2f21c555cacf7a2db096cb1)
+             - intellij.platform.plugins.backend.split.jar (RegularFile, 85f34caa9d0eb3bd0d552b1c45a15ed2)
+             - intellij.platform.plugins.frontend.split.jar (RegularFile, 341246e489c2feae7935acf024bf39ec)
+             - intellij.platform.plugins.shared.split.jar (RegularFile, 59756e1a5da6b4fe9bf7e19eeed8b346)
+             - intellij.platform.progress.frontend.split.jar (RegularFile, 44dd9a92e67be11bf92bed8caea9025d)
+             - intellij.platform.project.frontend.split.jar (RegularFile, 96e9cb1e931c94a5772d39c28d590734)
+             - intellij.platform.rpc.split.jar (RegularFile, e4b937159d38612e7b909c1f4a63e4be)
+             - intellij.platform.searchEverywhere.frontend.split.jar (RegularFile, 22f722fc71f8c8eb7f4ceaf52b0efd34)
+             - intellij.platform.vcs.backend.split.jar (RegularFile, 5c0c1e47655ef9f18f22fb6d8c75a393)
+             - intellij.platform.vcs.common.split.jar (RegularFile, f4e2628d7dc4f572ac1325ef913fee8e)
+             - intellij.platform.vcs.frontend.split.jar (RegularFile, f624dd4bcf3eb5beb3a505f3cc7e12a2)
+             - intellij.station.backend.split.jar (RegularFile, 92eb3d00d93d5357cb47aab55aa9f575)
+             - intellij.terminal.backend.split.jar (RegularFile, c59d0b9d66fc2d2c434fa67a89f886b5)
+             - intellij.vcs.git.backend.split.jar (RegularFile, 2a9295cd51f8df20416d83fd598e2e1e)
+             - intellij.vcs.git.frontend.split.jar (RegularFile, caa1df9e0e286981099dd0add2c221ea)
+             - intellij.xml.frontend.split.jar (RegularFile, 005cff682c81607aa60f916212c7936a)
+           - quiche-jna-stubs.jar (RegularFile, 575d30a8cd0ef7bc86a20149f1836178)
+           - split-connection.jar (RegularFile, 9ab2e27d8bc3598149c80e7453a9c40e)
+           - split-protocol.jar (RegularFile, 660a8b03dc995ea13d574accf99f459b)
+           - tls-channel.jar (RegularFile, 12840ef3164c0116e43915b47bb5e830)
+           - vcs-protocol.jar (RegularFile, dc07cae94be2bdd7d2fa4eee1e285983)
+         - quiche-native (Directory, 117b011c9636a20010d15165559504da)
+           - linux-x86-64 (Directory, 5054d5478849b429949b83f24f29c76e)
+             - libquiche.so (RegularFile, b870f9fb7805dda256199db70f95ebd1)
+       - DatabaseTools (Directory, 40931cf3e87bbc9b41f539af9f209991)
+         - lib (Directory, bcdf4cadee47b949f90b1d00f76b8de2)
+           - aether-dependency-resolver.jar (RegularFile, 3db9e4b66b4d3a39e8a5ce8479b93ea2)
+           - database-plugin-frontend.jar (RegularFile, a6ac7c32d6bab8de5d263de096f1cf00)
+           - database-plugin.jar (RegularFile, 777be786b63eae0a0e72228d09131915)
+           - frontend-split (Directory, 03be86f986daa9aa610d316ba736b358)
+             - database-frontend.jar (RegularFile, 8b54b4cc49cd5cea9993ea68c763be5a)
+           - maven-resolver-connector-basic.jar (RegularFile, 38963221416534f333d62824ae3805a6)
+           - maven-resolver-provider.jar (RegularFile, 36bdc85299f38a3f0580b897da1e09ee)
+           - maven-resolver-transport-file.jar (RegularFile, d0167ab4b9ded565e10c51197615a5c6)
+           - maven-resolver-transport-http.jar (RegularFile, 106dc709c2aca3da16fc15a905b97eaa)
+           - modules (Directory, de593a49a6c714500067d0e9b96aafb7)
+             - intellij.database.backend.split.jar (RegularFile, 1f810792be7511e29df71f55de4a1351)
+             - intellij.database.completionMlRanking.jar (RegularFile, f77b7a952d02e5219689cdbfdbea4d3c)
+             - intellij.database.connectivity.jar (RegularFile, e45100804b9bfb317db9a8f8c3b37322)
+             - intellij.database.core.impl.jar (RegularFile, 20adf13b3f3a387c79fc3aae524cc067)
+             - intellij.database.dialects.base.ex.jar (RegularFile, 8df6170b98181bddb60ff14f9bb77ce2)
+             - intellij.database.dialects.base.jar (RegularFile, ddd546453fd5d38e38765c3abd4d6436)
+             - intellij.database.dialects.generic.jar (RegularFile, fc58860359ec91a17a33d2f17f5f976b)
+             - intellij.database.dialects.maria.jar (RegularFile, 3fffe41f9ae33ef733dec73c32debfcb)
+             - intellij.database.dialects.mongo.ex.jar (RegularFile, 2601ef0b10cfd398b110c54f9ec078fe)
+             - intellij.database.dialects.mongo.jar (RegularFile, e3c87eba04a5bf263cf7fa1e053ce945)
+             - intellij.database.dialects.mongo.js.external.jar (RegularFile, 42bf3dbc8c1a5771f23065f13a06b01e)
+             - intellij.database.dialects.mongo.sql.jar (RegularFile, b9dfe0fbc3259d9ad95762c73d673873)
+             - intellij.database.dialects.mssql.ex.jar (RegularFile, ec31576a7acb64931d56d1be85035436)
+             - intellij.database.dialects.mssql.impl.jar (RegularFile, 71bf16bd518d939c1715a697a89bd62e)
+             - intellij.database.dialects.mssql.jar (RegularFile, 1c05cbdd270ba849d095136b90a415a9)
+             - intellij.database.dialects.mysql.jar (RegularFile, ef69888d72a239d09bd166109da13673)
+             - intellij.database.dialects.mysqlbase.ex.jar (RegularFile, 2205fe9761969ed4bead8606adb88c11)
+             - intellij.database.dialects.mysqlbase.impl.jar (RegularFile, 6cd230f805285918d1980ca6f9d6508c)
+             - intellij.database.dialects.mysqlbase.jar (RegularFile, 40bac062780c537f7fbbc5bad0445d66)
+             - intellij.database.dialects.oracle.ex.coverage.jar (RegularFile, 30db58b21ba443bde462bfc801962435)
+             - intellij.database.dialects.oracle.ex.jar (RegularFile, 07f6b5f97c1ab7253f775e24ee463f6d)
+             - intellij.database.dialects.oracle.jar (RegularFile, f2f402286d444de1048b72c9891b1314)
+             - intellij.database.dialects.postgres.jar (RegularFile, 3032ae78b5d7581aa28c8c6cda8772a0)
+             - intellij.database.dialects.postgresbase.jar (RegularFile, 1bb41b41e1a0ce7d41e3c46d8aa143c8)
+             - intellij.database.dialects.postgresgreenplumbase.jar (RegularFile, b783bec2098ca9c48d9d7c2060328e96)
+             - intellij.database.dialects.redis.backend.jar (RegularFile, b5f4e5c23f5a3cb086e7c1afbf638801)
+             - intellij.database.dialects.redis.jar (RegularFile, 33454067b1ae8e77fb6b3cbbb3f835da)
+             - intellij.database.dialects.sql92.jar (RegularFile, 6ee8e37d10cee04486b4e0ecc413332f)
+             - intellij.database.dialects.sqlite.ex.jar (RegularFile, c6db39dca9f6b5d82c3bba69358e6fb6)
+             - intellij.database.dialects.sqlite.jar (RegularFile, 7a9e09c32346e7475fc121e0d559d1da)
+             - intellij.database.dialects.sybase.ex.jar (RegularFile, 492f5ffc3a4a299d858d80a673a833b4)
+             - intellij.database.dialects.sybase.jar (RegularFile, 24e056b4263ba6ad1d43203d378f43a4)
+             - intellij.database.frontend.split.jar (RegularFile, b85ecdcf5da90dffffd2da824b9c8f55)
+             - intellij.database.impl.jar (RegularFile, d4f44109b51f40f6b54fd614f9d02b4a)
+             - intellij.database.jdbcConsole.jar (RegularFile, 4569e923a09dfa84dbee7d68c0f0067b)
+             - intellij.database.jdbcConsole.shim.jar (RegularFile, 1a7b69c818d68bcbd9f9685c83e7c0ac)
+             - intellij.database.pro.jar (RegularFile, c4af3a3dcfb134c01f0284cb45b053df)
+             - intellij.database.sql.backend.core.jar (RegularFile, 8a6bcf009b439561f13dbd577ea6fef3)
+             - intellij.database.sql.common.core.jar (RegularFile, 81b21c95b645ae53118073ac53d044a1)
+             - intellij.database.sql.common.impl.jar (RegularFile, 372cdf949044bedbd90353926bc43eb0)
+             - intellij.database.sql.copyright.jar (RegularFile, 75a6ee6512a6587d04056fa64835b905)
+             - intellij.database.sql.core.impl.jar (RegularFile, e6ba1aa332316215217453857fded500)

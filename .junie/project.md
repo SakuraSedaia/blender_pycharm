@@ -8,6 +8,7 @@
 - Project Linking: Automatically links local source directories to Blender's extensions repository.
 - Blender Support: Compatible with Blender 4.2+ and 5.0. Supports automatic downloading and sandboxing of Blender versions with isolated app templates and user directories.
 - UI: Custom Run Configuration for Blender with version selection and sandboxing toggles.
+- Project Template: Provides a single template mirroring PyCharm’s “Pure Python” setup. Includes a “Project name” field that auto-formats (preserving capitals, hyphenating spaces) to drive the folder and addon metadata. The field is synchronized with the platform's Location field. Supports full Python interpreter configuration (automatic venv creation with site-package options or custom interpreter). Includes automatic Python 3.11 detection and best-effort auto-downloading if no standard Python is found on the system. A checkbox allows optionally enabling Auto-load (adds `auto_load.py` and an autoload-ready `__init__.py`).
 
 ## Core Architecture
 - IntelliJ Platform plugin (Kotlin) for Blender extension development and hot reloading. 
@@ -20,11 +21,13 @@
     - `BlenderScriptGenerator`: Application-level generator of Blender-side Python scripts.
     - `BlenderLogger`: Project-level custom logger with file logging support.
 - Custom Run Configurations for launching Blender and common extension operations (validate, build).
+- Project Templates: `DirectoryProjectGenerator` implementations for quick project setup.
 
 ## Key Files
 - `src/main/kotlin/com/sakurasedaia/blenderextensions/blender/BlenderService.kt`: Core project facade.
 - `src/main/kotlin/com/sakurasedaia/blenderextensions/blender/BlenderCommunicationService.kt`: Hot-reloading protocol server.
 - `src/main/kotlin/com/sakurasedaia/blenderextensions/run/BlenderRunConfiguration.kt`: UI and entry point for launching Blender.
 - `src/main/kotlin/com/sakurasedaia/blenderextensions/run/BlenderRunProfileState.kt`: Execution logic for Blender run configurations.
+- `src/main/kotlin/com/sakurasedaia/blenderextensions/project/BlenderProjectGenerators.kt`: Logic for new project templates.
 - `.ai-logs/`: Historical logs and summaries of development sessions.
 - `.reference/blender_vscode`: Reference of the VS Code Blender extension.
