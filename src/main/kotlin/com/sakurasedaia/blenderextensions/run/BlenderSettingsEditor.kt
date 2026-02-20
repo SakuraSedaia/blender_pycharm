@@ -5,7 +5,9 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.components.JBCheckBox
+import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
 import javax.swing.JComponent
@@ -19,6 +21,11 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     private val myAddonSymlinkNameField = JBTextField()
     private val myAddonSourceDirectoryField = TextFieldWithBrowseButton()
     private val myAdditionalArgumentsField = JBTextField()
+
+    private val myBlenderCommandComponent = LabeledComponent.create(myBlenderCommandField, "Blender command ($ blender --command <command>):")
+    private val myAddonSymlinkComponent = LabeledComponent.create(myAddonSymlinkNameField, "Addon symlink name:")
+    private val myAddonSourceDirComponent = LabeledComponent.create(myAddonSourceDirectoryField, "Addon source directory:")
+    private val myArgumentsComponent = LabeledComponent.create(myAdditionalArgumentsField, "Blender commandline arguments:")
 
     init {
         myBlenderVersionComboBox.addActionListener {
@@ -37,6 +44,19 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         myAddonSymlinkNameField.text = options.addonSymlinkName ?: ""
         myAddonSourceDirectoryField.text = options.addonSourceDirectory ?: ""
         myAdditionalArgumentsField.text = options.additionalArguments ?: ""
+
+        val factory = s.factory
+        val isTesting = factory is BlenderTestingConfigurationFactory
+        val isCommand = factory is BlenderCommandConfigurationFactory
+        val isBuildOrValidate = factory is BlenderBuildConfigurationFactory || factory is BlenderValidateConfigurationFactory
+
+        myIsSandboxedCheckBox.isVisible = isTesting
+        myAddonSymlinkComponent.isVisible = isTesting
+        myAddonSourceDirComponent.isVisible = isTesting
+        myArgumentsComponent.isVisible = isTesting
+        
+        myBlenderCommandComponent.isVisible = isCommand || isBuildOrValidate
+        myBlenderCommandField.isEnabled = isCommand
     }
 
     override fun applyEditorTo(s: BlenderRunConfiguration) {
@@ -68,11 +88,11 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         return FormBuilder.createFormBuilder()
             .addLabeledComponent("Blender version:", myBlenderVersionComboBox)
             .addLabeledComponent("Manual Blender path:", myBlenderPathField)
-            .addLabeledComponent("Blender command ($ blender --command <command>):", myBlenderCommandField)
+            .addComponent(myBlenderCommandComponent)
             .addComponent(myIsSandboxedCheckBox)
-            .addLabeledComponent("Addon symlink name:", myAddonSymlinkNameField)
-            .addLabeledComponent("Addon source directory:", myAddonSourceDirectoryField)
-            .addLabeledComponent("Blender commandline arguments:", myAdditionalArgumentsField)
+            .addComponent(myAddonSymlinkComponent)
+            .addComponent(myAddonSourceDirComponent)
+            .addComponent(myArgumentsComponent)
             .addComponentFillVertically(JPanel(), 0)
             .panel
     }
