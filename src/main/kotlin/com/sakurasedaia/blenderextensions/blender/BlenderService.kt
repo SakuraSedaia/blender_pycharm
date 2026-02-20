@@ -254,6 +254,35 @@ class BlenderService(private val project: Project) {
             if (!initFile.exists()) {
                 initFile.writeText("def register():\n    pass\n\ndef unregister():\n    pass\n")
             }
+
+            // Copy splash screen if available
+            val projectSplash = File(project.basePath, "splash.png")
+            val targetSplash = File(templatesDir, "splash.png")
+            if (projectSplash.exists()) {
+                try {
+                    projectSplash.copyTo(targetSplash, overwrite = true)
+                    log("Copied project-specific splash screen to sandboxed app template")
+                } catch (e: Exception) {
+                    log("Failed to copy project splash screen: ${e.message}")
+                }
+            } else {
+                // Try to copy the default splash from plugin resources
+                try {
+                    val defaultSplash = this.javaClass.getResourceAsStream("/splash.png")
+                    if (defaultSplash != null) {
+                        defaultSplash.use { input ->
+                            targetSplash.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                        log("Copied default splash screen from plugin resources to sandboxed app template")
+                    } else {
+                        log("Default splash screen not found in plugin resources")
+                    }
+                } catch (e: Exception) {
+                    log("Failed to copy default splash screen: ${e.message}")
+                }
+            }
             
             commandLine.withEnvironment("BLENDER_USER_CONFIG", configDir.absolutePath)
             commandLine.withEnvironment("BLENDER_USER_SCRIPTS", scriptsDir.absolutePath)

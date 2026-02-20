@@ -16,7 +16,7 @@ Blender Extensions integration for PyCharm. This plugin allows you to launch Ble
 1. Open **Run/Debug Configurations** (Run > Edit Configurations...).
 2. Click **+** and select **Blender**.
 3. Choose a Blender version from the **Blender version** dropdown (4.2+). The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
-4. Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. You can disable it any time.
+4. Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time.
 5. Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
 6. (Optional) In **Settings** > **Tools** > **Blender Extension Integration**, check **Auto-reload extension on save** to enable automatic reloads.
 
@@ -90,3 +90,9 @@ This extension is **heavily** based on and inspired by [Jacques Lucke's blender_
 ---
 
 For more information on contributing, see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+---
+
+## Disclaimer
+
+This project is not affiliated with either Blender, the Blender Foundation, or JetBrains s.r.o, as I am not a developer or maintainer for either.

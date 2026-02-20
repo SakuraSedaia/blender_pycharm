@@ -19,6 +19,13 @@
         -   Blender startup parameters and sandbox configuration.
 4.  **Extraction Error Handling**:
     -   Refactored `extractFile` to better handle different platforms and file formats, with explicit error logging for each step.
+5.  **Automatic Extension Enabling**:
+    -   Modified the injected startup script to include an `ensure_extension_enabled` function.
+    -   Used a timer to automatically enable the extension after Blender's initial indexing (~1.0s delay), ensuring a smooth developer experience.
+6.  **Custom and Default Splash Screen for Sandboxing**:
+    -   Integrated a default splash screen into the plugin resources (`src/main/resources/splash.png`).
+    -   Updated the sandboxing function to use this default splash screen automatically.
+    -   Maintained support for project-specific overrides if a `splash.png` exists in the user's project root.
 
 #### How to test on Windows:
 1.  Open the project in PyCharm/IntelliJ.
