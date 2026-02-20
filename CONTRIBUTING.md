@@ -1,4 +1,4 @@
-# Contributing to Blender Extensions for PyCharm
+# Contributing to Blender Extension Development for PyCharm
 
 Thank you for your interest in contributing to this project! We welcome all contributions, from bug reports and feature requests to code changes and documentation improvements.
 

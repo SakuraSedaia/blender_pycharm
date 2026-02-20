@@ -1,6 +1,6 @@
-# Blender Extensions for PyCharm
+# Blender Extension Development for PyCharm
 
-Blender Extensions integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
+Blender Extension Development integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
 
 ## AI Content Notice
 
