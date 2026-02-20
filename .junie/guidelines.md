@@ -30,3 +30,4 @@
   - Session Logging: Every chat session MUST be logged in `.ai-logs/` unless the user explicitly says "No Log".
   - Commits: Upon successful completion of a task, commit the changes to Git with brief messages (<= 2 sentences).
   - Resource Management: Download external assets locally (avoid CDNs) for reliability and offline availability.
+  - SSH/Passphrase Handling: If a Git command or any process requires a passphrase or password, use the `ask_user` tool to request it from the user. Since the `bash` tool is non-interactive, use appropriate means (like `GIT_ASKPASS`, `expect`, or `ssh-add` if applicable) to proceed once the user provides it.

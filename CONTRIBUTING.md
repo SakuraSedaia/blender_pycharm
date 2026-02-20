@@ -70,6 +70,7 @@ This project uses AI agents (like Junie) to maintain high-quality code and docum
 - **Logging**: Ensure all chat sessions are logged in the `.ai-logs/` folder following the naming convention `chat-session-YYYY-MM-DD.log`.
 - **Summaries**: Create a `summary_YYYY-MM-DD.md` in the same folder after significant milestones.
 - **Context**: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated throughout all project changes. Also, keep `.junie/context.md` (language context) and `.junie/guidelines.md` (general rules) updated as standards evolve.
+- **Authentication**: If a Git operation requires an SSH passphrase, provide it to the agent via chat if it asks for it.
 
 ## Reporting Issues
 
