@@ -1,3 +1,8 @@
+import java.io.File
+
+val changelogFile = project.file("CHANGELOG.md")
+val changelogText = if (changelogFile.exists()) changelogFile.readText() else "Initial version"
+
 plugins {
 	id("java")
 	id("org.jetbrains.kotlin.jvm") version "2.1.20"
@@ -14,13 +19,10 @@ repositories {
 	}
 }
 
-// Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
 	intellijPlatform {
 		pycharm("2025.3.3")
 		testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
-		
-		// Add plugin dependencies for compilation here:
 		
 		bundledPlugin("PythonCore")
 		bundledPlugin("Pythonid")
@@ -33,14 +35,11 @@ intellijPlatform {
 			sinceBuild = "252.25557"
 		}
 		
-		changeNotes = """
-            Initial version
-        """.trimIndent()
+		changeNotes = changelogText
 	}
 }
 
 tasks {
-	// Set the JVM compatibility versions
 	withType<JavaCompile> {
 		sourceCompatibility = "21"
 		targetCompatibility = "21"
