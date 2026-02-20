@@ -15,29 +15,17 @@ class BlenderRunConfigurationType : ConfigurationType {
     override fun getId(): String = "BLENDER_RUN_CONFIGURATION"
     override fun getConfigurationFactories(): Array<ConfigurationFactory> = arrayOf(
         BlenderConfigurationFactory(this),
-        BlenderValidateConfigurationFactory(this),
-        BlenderBuildConfigurationFactory(this)
+        BlenderCommandConfigurationFactory(this)
     )
 }
 
-class BlenderValidateConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
+class BlenderCommandConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
     override fun createTemplateConfiguration(project: Project): RunConfiguration {
-        val config = BlenderRunConfiguration(project, this, "Validate Extension")
-        config.getOptions().additionalArguments = "extension validate"
+        val config = BlenderRunConfiguration(project, this, "Blender Command")
+        config.getOptions().blenderCommand = "extension validate"
         return config
     }
 
-    override fun getId(): String = "BlenderValidateConfigurationFactory"
-    override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
-}
-
-class BlenderBuildConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
-    override fun createTemplateConfiguration(project: Project): RunConfiguration {
-        val config = BlenderRunConfiguration(project, this, "Build Extension")
-        config.getOptions().additionalArguments = "extension build"
-        return config
-    }
-
-    override fun getId(): String = "BlenderBuildConfigurationFactory"
+    override fun getId(): String = "BlenderCommandConfigurationFactory"
     override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
 }

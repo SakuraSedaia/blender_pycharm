@@ -8,7 +8,7 @@ class BlenderRunConfigurationOptions : RunConfigurationOptions() {
         get() = blenderExecutablePathProperty.getValue(this)
         set(value) = blenderExecutablePathProperty.setValue(this, value)
 
-    private val blenderVersionProperty = string("Custom/Pre-installed").provideDelegate(this, "blenderVersion")
+    private val blenderVersionProperty = string("5.0").provideDelegate(this, "blenderVersion")
     var blenderVersion: String?
         get() = blenderVersionProperty.getValue(this)
         set(value) = blenderVersionProperty.setValue(this, value)
@@ -32,4 +32,9 @@ class BlenderRunConfigurationOptions : RunConfigurationOptions() {
     var additionalArguments: String?
         get() = additionalArgumentsProperty.getValue(this)
         set(value) = additionalArgumentsProperty.setValue(this, value)
+
+    private val blenderCommandProperty = string("").provideDelegate(this, "blenderCommand")
+    var blenderCommand: String?
+        get() = blenderCommandProperty.getValue(this)
+        set(value) = blenderCommandProperty.setValue(this, value)
 }

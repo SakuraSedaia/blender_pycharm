@@ -36,30 +36,49 @@ class BlenderService(private val project: Project) {
         addonSourceDir: String? = null,
         addonSymlinkName: String? = null,
         additionalArgs: String? = null,
-        isSandboxed: Boolean = false
+        isSandboxed: Boolean = false,
+        blenderCommand: String? = null
     ): OSProcessHandler? {
         if (isRunning.get()) return processHandler
 
         val projectPath = project.basePath ?: return null
-        val sourcePath = if (!addonSourceDir.isNullOrEmpty()) Path.of(addonSourceDir) else Path.of(projectPath)
-        
-        if (!sourcePath.exists()) {
-            logger.log("Source directory does not exist: $sourcePath")
-            return null
+
+        val handler = if (!blenderCommand.isNullOrBlank()) {
+            launcher.startBlenderProcess(
+                blenderPath = blenderPath,
+                additionalArgs = additionalArgs,
+                isSandboxed = isSandboxed,
+                blenderCommand = blenderCommand
+            )
+        } else {
+            val sourcePath = if (!addonSourceDir.isNullOrEmpty()) Path.of(addonSourceDir) else Path.of(projectPath)
+
+            if (!sourcePath.exists()) {
+                logger.log("Source directory does not exist: $sourcePath")
+                return null
+            }
+
+            val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourcePath.name
+            currentExtensionName = symlinkName
+
+            linker.linkExtensionSource(addonSourceDir, addonSymlinkName, isSandboxed)
+            val repoDir = linker.getExtensionsRepoDir(isSandboxed)
+
+            val port = communicationService.startServer()
+            val script = scriptGenerator.createStartupScript(port, repoDir, currentExtensionName)
+
+            launcher.startBlenderProcess(
+                blenderPath = blenderPath,
+                scriptPath = script,
+                additionalArgs = additionalArgs,
+                isSandboxed = isSandboxed
+            )
         }
 
-        val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourcePath.name
-        currentExtensionName = symlinkName
-
-        linker.linkExtensionSource(addonSourceDir, addonSymlinkName, isSandboxed)
-        val repoDir = linker.getExtensionsRepoDir(isSandboxed)
-        
-        val port = communicationService.startServer()
-        val script = scriptGenerator.createStartupScript(port, repoDir, currentExtensionName)
-        
-        val handler = launcher.startBlenderProcess(blenderPath, script, additionalArgs, isSandboxed)
         if (handler == null) {
-            communicationService.stopServer()
+            if (blenderCommand.isNullOrBlank()) {
+                communicationService.stopServer()
+            }
             return null
         }
 

@@ -31,11 +31,12 @@ class BlenderRunProfileState(
         }
         
         val handler = service.startBlenderProcess(
-            blenderPath,
-            options.addonSourceDirectory,
-            options.addonSymlinkName,
-            options.additionalArguments,
-            options.isSandboxed
+            blenderPath = blenderPath,
+            addonSourceDir = options.addonSourceDirectory,
+            addonSymlinkName = options.addonSymlinkName,
+            additionalArgs = options.additionalArguments,
+            isSandboxed = options.isSandboxed,
+            blenderCommand = options.blenderCommand
         ) ?: throw ExecutionException("Failed to start Blender. Check path in the run configuration.")
         
         val consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project)

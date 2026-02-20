@@ -13,8 +13,9 @@ import javax.swing.JPanel
 
 class BlenderSettingsEditor(private val project: Project) : SettingsEditor<BlenderRunConfiguration>() {
     private val myBlenderVersionComboBox = ComboBox(arrayOf("4.2", "4.3", "4.4", "4.5", "5.0", "Custom/Pre-installed"))
-    private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxing")
     private val myBlenderPathField = TextFieldWithBrowseButton()
+    private val myBlenderCommandField = JBTextField()
+    private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxing")
     private val myAddonSymlinkNameField = JBTextField()
     private val myAddonSourceDirectoryField = TextFieldWithBrowseButton()
     private val myAdditionalArgumentsField = JBTextField()
@@ -28,10 +29,11 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
 
     override fun resetEditorFrom(s: BlenderRunConfiguration) {
         val options = s.getOptions()
-        myBlenderVersionComboBox.selectedItem = options.blenderVersion ?: "Custom/Pre-installed"
+        myBlenderVersionComboBox.selectedItem = options.blenderVersion ?: "5.0"
         myIsSandboxedCheckBox.isSelected = options.isSandboxed
         myBlenderPathField.text = options.blenderExecutablePath ?: ""
         myBlenderPathField.isEnabled = myBlenderVersionComboBox.selectedItem == "Custom/Pre-installed"
+        myBlenderCommandField.text = options.blenderCommand ?: ""
         myAddonSymlinkNameField.text = options.addonSymlinkName ?: ""
         myAddonSourceDirectoryField.text = options.addonSourceDirectory ?: ""
         myAdditionalArgumentsField.text = options.additionalArguments ?: ""
@@ -42,6 +44,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         options.blenderVersion = myBlenderVersionComboBox.selectedItem as? String
         options.isSandboxed = myIsSandboxedCheckBox.isSelected
         options.blenderExecutablePath = myBlenderPathField.text
+        options.blenderCommand = myBlenderCommandField.text
         options.addonSymlinkName = myAddonSymlinkNameField.text
         options.addonSourceDirectory = myAddonSourceDirectoryField.text
         options.additionalArguments = myAdditionalArgumentsField.text
@@ -64,8 +67,9 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
 
         return FormBuilder.createFormBuilder()
             .addLabeledComponent("Blender version:", myBlenderVersionComboBox)
-            .addComponent(myIsSandboxedCheckBox)
             .addLabeledComponent("Manual Blender path:", myBlenderPathField)
+            .addLabeledComponent("Blender command ($ blender --command <command>):", myBlenderCommandField)
+            .addComponent(myIsSandboxedCheckBox)
             .addLabeledComponent("Addon symlink name:", myAddonSymlinkNameField)
             .addLabeledComponent("Addon source directory:", myAddonSourceDirectoryField)
             .addLabeledComponent("Blender commandline arguments:", myAdditionalArgumentsField)

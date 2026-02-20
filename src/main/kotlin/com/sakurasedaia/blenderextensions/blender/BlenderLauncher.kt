@@ -15,9 +15,10 @@ class BlenderLauncher(private val project: Project) {
 
     fun startBlenderProcess(
         blenderPath: String,
-        scriptPath: Path,
+        scriptPath: Path? = null,
         additionalArgs: String? = null,
-        isSandboxed: Boolean = false
+        isSandboxed: Boolean = false,
+        blenderCommand: String? = null
     ): OSProcessHandler? {
         val blenderFile = Path.of(blenderPath)
         if (!blenderFile.exists()) {
@@ -26,7 +27,13 @@ class BlenderLauncher(private val project: Project) {
         }
 
         val commandLine = GeneralCommandLine(blenderPath)
-            .withParameters("--python", scriptPath.absolutePathString())
+        
+        if (!blenderCommand.isNullOrBlank()) {
+            commandLine.addParameters("--command")
+            commandLine.addParameters(blenderCommand.split(" "))
+        } else if (scriptPath != null) {
+            commandLine.addParameters("--python", scriptPath.absolutePathString())
+        }
         
         if (isSandboxed) {
             setupSandbox(commandLine)
