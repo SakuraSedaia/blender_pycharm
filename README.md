@@ -11,7 +11,7 @@ This project was developed almost exclusively using the AI integration tools by 
 - **Launch Blender**: Start a Blender instance directly from PyCharm.
 - **Auto-Reload**: Automatically reload your extension in Blender whenever you save a file in PyCharm.
 - **Manual Reload**: Trigger a reload manually using a keyboard shortcut or menu action.
-- **Project Template**: Quickly start a new Blender Extension project from a single template that mirrors PyCharm’s Pure Python setup. It includes a “Project name” field that auto-formats to a lowercase-hyphenated folder name, plus full Python interpreter configuration (Virtualenv or Custom). If no suitable system Python is found (preferring 3.11), the plugin will attempt to automatically download and configure it for you. Optionally enable “Auto-load” to include an `auto_load.py` helper and autoload-ready `__init__.py`.
+- **Project Template**: Quickly start a new Blender Extension project from a single template that mirrors PyCharm’s Pure Python setup. It includes a “Project name” field that auto-formats to a lowercase-hyphenated folder name. After creation, the generated `README.md` provides clear instructions on configuring your Python interpreter and linting stubs using PyCharm's built-in tools. Optionally enable “Auto-load” to include an `auto_load.py` helper and autoload-ready `__init__.py`.
 - **Configurable**: Easily set the path to your Blender executable and toggle auto-reload.
 
 ## Operating Instructions

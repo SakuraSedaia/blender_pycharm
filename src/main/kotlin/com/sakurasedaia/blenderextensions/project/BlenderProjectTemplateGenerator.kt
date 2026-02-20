@@ -81,31 +81,34 @@ class BlenderProjectTemplateGenerator {
 
                 ## Setup Instructions
 
-                1.  **Create a Virtual Environment**:
-                    - Open the terminal in the project root.
-                    - Run `python -m venv .venv` (or `python3 -m venv .venv`).
+                To get the best development experience, follow these steps to configure your Python environment using PyCharm's built-in tools:
+
+                1.  **Configure Python Interpreter**:
+                    - Go to **File > Settings > Project** (or **PyCharm > Settings** on macOS) and select **Python Interpreter**.
+                    - Click **Add Interpreter** and select **Add Local Interpreter...**.
+                    - Choose **Virtualenv Environment**.
+                    - Ensure **New environment** is selected. The **Location** should default to a `.venv` folder in your project root.
+                    - Select a **Base interpreter** (Python 3.11 is recommended for Blender 4.2+ and 5.0).
+                    - Click **OK**. PyCharm will create the virtual environment and configure it for your project.
+
                 2.  **Install Linting Stubs**:
-                    - Run `.venv/bin/pip install fake-bpy-module --target .linting` (Linux/macOS) or `.venv\Scripts\pip install fake-bpy-module --target .linting` (Windows).
-                3.  **Configure PyCharm Interpreter**:
-                    - Go to **File > Settings > Project > Python Interpreter**.
-                    - Click **Add Interpreter > Add Local Interpreter...**.
-                    - Select **Existing** and point it to `.venv/bin/python` (Linux/macOS) or `.venv\Scripts\python.exe` (Windows).
-                4.  **Add Linting to Interpreter Paths**:
-                    - In the **Python Interpreter** settings, click the gear icon (or the three dots) and select **Show All...**.
-                    - Select your interpreter and click the **Show paths for the selected interpreter** icon.
-                    - Click **+** and add the `.linting` folder from your project root. This ensures you get code completion for `bpy`.
+                    - In the same **Python Interpreter** settings page, click the **+** icon (Install) to open the Available Packages dialog.
+                    - Search for `fake-bpy-module` and click **Install Package**.
+                    - Once installed, you will have full code completion and type hinting for the `bpy` module.
 
                 ## Development
 
                 1.  Make sure you have Blender 4.2 or later installed.
-                2.  Configure the Blender Run Configuration in PyCharm to point to your Blender executable.
-                3.  Run the configuration to start Blender with your extension enabled.
+                2.  Open **Run > Edit Configurations...**.
+                3.  Select the **Blender** configuration.
+                4.  Choose a Blender version (which the plugin will download) or select **Custom/Pre-installed** and provide the path to your Blender executable.
+                5.  Click **Run** to start Blender with your extension automatically linked and enabled.
 
                 ## Building and Validating
 
                 You can use the provided Run Configurations to validate and build your extension:
-                - **Validate Extension**: Runs `blender --extension validate` on your source.
-                - **Build Extension**: Runs `blender --extension build` to create a `.zip` package.
+                - **Validate Extension**: Checks your extension for errors and compliance with Blender's requirements.
+                - **Build Extension**: Packages your extension into a `.zip` file ready for distribution.
 
                 ## Useful Resources
 
