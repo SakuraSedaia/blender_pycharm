@@ -1,0 +1,21 @@
+<templateSet group="Blender">
+  <template name="blop" value="import bpy&#10;&#10;class $CLASS_NAME$(bpy.types.Operator):&#10;    &quot;&quot;&quot;$TOOLTIP$&quot;&quot;&quot;&#10;    bl_idname = &quot;$ID_NAME$&quot;&#10;    bl_label = &quot;$LABEL$&quot;&#10;    bl_options = {'REGISTER', 'UNDO'}&#10;&#10;    def execute(self, context):&#10;        $END$&#10;        return {'FINISHED'}&#10;&#10;def register():&#10;    bpy.utils.register_class($CLASS_NAME$)&#10;&#10;def unregister():&#10;    bpy.utils.unregister_class($CLASS_NAME$)&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    register()" description="Blender Operator" toReformat="true" toShortenFQNames="true">
+    <variable name="CLASS_NAME" expression="" defaultValue="&quot;SimpleOperator&quot;" alwaysStopAt="true" />
+    <variable name="TOOLTIP" expression="" defaultValue="&quot;Tooltip&quot;" alwaysStopAt="true" />
+    <variable name="ID_NAME" expression="" defaultValue="&quot;object.simple_operator&quot;" alwaysStopAt="true" />
+    <variable name="LABEL" expression="" defaultValue="&quot;Simple Operator&quot;" alwaysStopAt="true" />
+    <context>
+      <option name="Python" value="true" />
+    </context>
+  </template>
+  <template name="blpanel" value="import bpy&#10;&#10;class $CLASS_NAME$(bpy.types.Panel):&#10;    bl_label = &quot;$LABEL$&quot;&#10;    bl_idname = &quot;$ID_NAME$&quot;&#10;    bl_space_type = '$SPACE_TYPE$'&#10;    bl_region_type = 'UI'&#10;    bl_category = &quot;$CATEGORY$&quot;&#10;&#10;    def draw(self, context):&#10;        layout = self.layout&#10;        $END$&#10;&#10;def register():&#10;    bpy.utils.register_class($CLASS_NAME$)&#10;&#10;def unregister():&#10;    bpy.utils.unregister_class($CLASS_NAME$)&#10;&#10;if __name__ == &quot;__main__&quot;:&#10;    register()" description="Blender Panel" toReformat="true" toShortenFQNames="true">
+    <variable name="CLASS_NAME" expression="" defaultValue="&quot;SimplePanel&quot;" alwaysStopAt="true" />
+    <variable name="LABEL" expression="" defaultValue="&quot;Simple Panel&quot;" alwaysStopAt="true" />
+    <variable name="ID_NAME" expression="" defaultValue="&quot;VIEW3D_PT_simple_panel&quot;" alwaysStopAt="true" />
+    <variable name="SPACE_TYPE" expression="" defaultValue="&quot;VIEW_3D&quot;" alwaysStopAt="true" />
+    <variable name="CATEGORY" expression="" defaultValue="&quot;Blender Extension&quot;" alwaysStopAt="true" />
+    <context>
+      <option name="Python" value="true" />
+    </context>
+  </template>
+</templateSet>

@@ -1,0 +1,54 @@
+<!-- Plugin Configuration File: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <!-- Unique identifier of the plugin. It should be FQN, cannot be changed between the plugin versions. -->
+    <id>com.sakura-sedaia.BlenderExtensions</id>
+
+    <!-- Public plugin name should be written in Title Case.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
+    <name>Blender Extensions</name>
+
+    <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+    <vendor url="https://www.sakura-sedaia.com">Sakura Sedaia</vendor>
+
+    <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+         Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
+    <description><![CDATA[
+        Blender Extensions integration for PyCharm. Provides ability to launch Blender and automatically reload extensions.
+    ]]></description>
+
+    <!-- Product and plugin compatibility requirements.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.python</depends>
+    <depends>com.intellij.modules.pycharm</depends>
+
+    <!-- Extensions defined by the plugin.
+         Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable
+                instance="com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
+                id="com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
+                displayName="Blender Extension Integration"/>
+
+        <configurationType implementation="com.sakurasedaia.blenderextensions.run.BlenderRunConfigurationType"/>
+        <defaultLiveTemplates file="liveTemplates/Blender.xml"/>
+    </extensions>
+
+    <actions>
+        <group id="BlenderExtensions.Menu" text="Blender" description="Blender extension integration"
+               icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender">
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <action id="com.sakurasedaia.blenderextensions.actions.ReloadExtensionAction"
+                    class="com.sakurasedaia.blenderextensions.actions.ReloadExtensionAction"
+                    text="Reload Extension"
+                    description="Reload Blender extension manually">
+                <keyboard-shortcut keymap="$default" first-keystroke="control alt R"/>
+            </action>
+        </group>
+    </actions>
+
+    <applicationListeners>
+        <listener class="com.sakurasedaia.blenderextensions.listeners.BlenderFileSaveListener"
+                  topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+    </applicationListeners>
+</idea-plugin>
