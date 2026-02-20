@@ -82,7 +82,7 @@ This ensures that your code changes are always picked up, avoiding common cachin
 
 ### Building and Running
 
-- **Build**: `./gradlew build`
+- **Build**: `./gradlew build` (The built plugin will be available in `build/distributions/`)
 - **Run in Sandbox**: `./gradlew runIde`
 - **Tests**: `./gradlew test`
 

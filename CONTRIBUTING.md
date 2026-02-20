@@ -31,6 +31,11 @@ If you've added new logic, please consider adding unit tests in `src/test/kotlin
 ```bash
 ./gradlew test
 ```
+To build the distribution plugin ZIP file, run:
+```bash
+./gradlew build
+```
+The built plugin will be available in `build/distributions/`.
 
 ### 4. Commit and Push
 Commit your changes with descriptive messages:

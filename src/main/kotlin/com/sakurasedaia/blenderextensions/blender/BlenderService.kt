@@ -1,7 +1,7 @@
 package com.sakurasedaia.blenderextensions.blender
 
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.execution.process.ProcessAdapter
+import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -64,7 +64,7 @@ class BlenderService(private val project: Project) {
         }
 
         processHandler = handler
-        handler.addProcessListener(object : ProcessAdapter() {
+        handler.addProcessListener(object : ProcessListener {
             override fun processTerminated(event: ProcessEvent) {
                 isRunning.set(false)
                 communicationService.stopServer()

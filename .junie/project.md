@@ -8,6 +8,7 @@
 - Project Linking: Automatically links local source directories to Blender's extensions repository.
 - Blender Support: Compatible with Blender 4.2+ and 5.0. Supports automatic downloading and sandboxing of Blender versions with isolated app templates and user directories.
 - UI: Custom Run Configuration for Blender with version selection and sandboxing toggles.
+- Build & Performance: `buildSearchableOptions` and related tasks are disabled in `build.gradle.kts` to reduce build noise and avoid hanging shutdowns during headless IDE execution caused by external plugins (e.g., Grazie). Build artifacts (ZIP distribution) are generated in `build/distributions/`.
 - Project Template: Provides a single template mirroring PyCharm’s “Pure Python” setup. Includes a “Project name” field that auto-formats (preserving capitals, hyphenating spaces) to drive the folder and addon metadata. The field is synchronized with the platform's Location field. A checkbox allows optionally enabling Auto-load (adds `auto_load.py` and an autoload-ready `__init__.py`). Manual setup instructions for the Python interpreter and linting stubs are provided in the generated `README.md`. Automatically creates a pre-configured Blender Run Configuration (targeting Blender 5.0 with sandboxing) on project creation.
 
 ## Core Architecture
