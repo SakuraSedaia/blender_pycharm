@@ -178,7 +178,7 @@ class BlenderProjectTemplateGenerator {
                     "name": "$name",
                     "author": "$author",
                     "description": "",
-                    "blender": (2, 80, 0),
+                    "blender": (4, 2, 0),
                     "version": (0, 0, 1),
                     "location": "",
                     "warning": "",
