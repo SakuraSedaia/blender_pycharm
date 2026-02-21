@@ -8,10 +8,19 @@ This project was developed almost exclusively using the AI integration tools by 
 
 ## Features
 
-- **Launch Blender**: Start a Blender instance directly from PyCharm.
+- **Testing**: Launch a Blender instance in a development environment with auto-reload, sandboxing, and symlinking enabled.
 - **Auto-Reload**: Automatically reload your extension in Blender whenever you save a file in PyCharm.
 - **Manual Reload**: Trigger a reload manually using a keyboard shortcut or menu action.
-- **Project Template**: Quickly start a new Blender Extension project from a single template that mirrors PyCharm’s Pure Python setup. It includes a “Project name” field that auto-formats to a lowercase-hyphenated folder name. After creation, the generated `README.md` provides clear instructions on configuring your Python interpreter and linting stubs using PyCharm's built-in tools. Optionally enable “Auto-load” to include an `auto_load.py` helper and autoload-ready `__init__.py`. The template also automatically creates a pre-configured Blender Run Configuration.
+- **Project Template**: Quickly start a new Blender Extension project from a single template that mirrors PyCharm’s Pure Python setup. It includes a comprehensive project wizard to configure your `blender_manifest.toml`:
+    - **Metadata**: Set Addon ID, Tagline, Maintainer, Website, and Tags.
+    - **Compatibility**: Specify minimum and maximum Blender versions, and supported platforms.
+    - **Permissions**: Easily request permissions for Network, Filesystem, Clipboard, Camera, and Microphone (with mandatory reasons).
+    - **Build Settings**: Configure build exclude patterns and license information.
+    - **Automation**: Optionally enable “Auto-load” to include an `auto_load.py` helper and autoload-ready `__init__.py`.
+    - **AI Integration**: Check “Append pre-made agent guidelines” to include standardized instructions for AI agents in a `.junie/` directory.
+    - **Run Configurations**: The template automatically creates pre-configured Blender Run Configurations for Testing, Build, and Validate.
+    - **Post-Creation**: The generated `README.md` provides clear instructions on configuring your Python interpreter and linting stubs using PyCharm's built-in tools.
+- **Automated Folder Icon Detection**: Directories containing a `blender_manifest.toml` file are automatically identified with a custom Blender extension folder icon for better project navigation.
 - **Blender Management Tool Window**: A new tool window (right side) to manage global Blender installations (Download/Delete) and clear the project-local sandbox.
 - **Configurable**: Easily set the path to your Blender executable and toggle auto-reload.
 
@@ -23,14 +32,14 @@ This project was developed almost exclusively using the AI integration tools by 
 2. Click **+** and select **Blender**.
 3. (Optional) Open the **Blender Management** tool window on the right sidebar to view, download, or delete managed Blender versions, or to clear the project's `.blender_sandbox` folder.
 4. Choose a configuration template:
-    - **Start Blender**: Launch Blender in a development environment with auto-reload.
+    - **Testing**: Launch Blender in a development environment with auto-reload, sandboxing, and symlinking. This is the primary mode for active development.
     - **Build**: Build your extension using `blender --command extensions build`.
     - **Validate**: Validate your extension using `blender --command extensions validate`.
     - **Command**: Run a custom Blender command using `blender --command <command>`.
-4. Choose a Blender version from the **Blender version** dropdown (4.2+). The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
-5. (Start Blender only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time. Additionally, check **Import User Configuration** to copy your standard Blender settings (user preferences, startup file, etc.) into the sandbox.
-6. (Start Blender only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
-7. (Optional) In **Settings** > **Tools** > **Blender Extension Integration**, check **Auto-reload extension on save** to enable automatic reloads.
+5. Choose a Blender version from the **Blender version** dropdown (4.2+). Blender 5.0 is the default version. The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
+6. (Testing only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time. Additionally, check **Import User Configuration** to copy your standard Blender settings (user preferences, startup file, etc.) into the sandbox. Note that fields not relevant to the selected mode (like sandboxing for Build/Validate) are automatically hidden.
+7. (Testing only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
+8. (Optional) In **Settings** > **Tools** > **Blender Extension Integration**, check **Auto-reload extension on save** to enable automatic reloads.
 
 ### Logging and Troubleshooting
 The plugin maintains a runtime log in the project root: `blender_plugin.log`. This log contains detailed information about:
@@ -42,7 +51,7 @@ If you encounter issues, check this log first.
 
 ### Usage
 
-- **Start Blender**: Create a new **Blender** Run Configuration (Run > Edit Configurations... > + > Blender) and run it.
+- **Testing**: Create a new **Blender** Run Configuration (Run > Edit Configurations... > + > Blender), select the **Testing** template, and run it.
 - **Reload Extension**:
     - **Manual**: Go to the **Blender** menu and select **Reload Extension**, or use the shortcut `Ctrl+Alt+R`.
     - **Automatic**: If enabled in settings, simply save any file in your project (`Ctrl+S`).
@@ -70,11 +79,11 @@ The project follows the standard IntelliJ Platform plugin structure:
 ## How it Works
 
 The plugin starts a local TCP server when Blender is launched. It injects a startup Python script into Blender that:
-1. **Repository Management**: Automatically configures a local extension repository named `blender_pycharm` pointing to the project's symlink.
+1. **Repository Management**: Automatically configures a local extension repository named `blender_pycharm` pointing to the project's symlink. Handles API differences between Blender 4.2+ and 5.0.
 2. **Communication**: Connects back to PyCharm and listens for structured JSON reload commands (e.g., `{"type": "reload", "name": "my_extension"}`).
 3. **Robust Reload Cycle**: Executes a robust reload sequence on Blender's main thread (via `bpy.app.timers`):
     - Disables the specific extension module.
-    - Purges the module and its submodules from `sys.modules`.
+    - Purges the module and all its submodules from Python's `sys.modules` to clear the module cache.
     - Forces a refresh of all extension repositories (`bpy.ops.extensions.repo_refresh_all()`).
     - Re-enables the extension, forcing a fresh import of your code changes.
 
