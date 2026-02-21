@@ -109,7 +109,16 @@ As the plugin is not yet published on the JetBrains Marketplace, it must be inst
 
 ## Acknowledgments
 
-This extension is **heavily** based on and inspired by [Jacques Lucke's blender_vscode](https://github.com/JacquesLucke/blender_vscode) extension for Visual Studio Code. Many of the core architectural decisions, particularly the robust hot-reloading mechanism and the extension platform integration, are derived from the excellent work done in that project.
+
+1. This extension is **heavily** based on and inspired by [Jacques Lucke's blender_vscode](https://github.com/JacquesLucke/blender_vscode) extension for Visual Studio Code. Some of the core functions are pulled directly from his extension, those include in this project are:
+- Extension repository management.
+- Communication between Blender and PyCharm.
+- Robust reload cycle.
+- New Project Wizard. (Integrated into PyCharm's New Project Wizard)
+
+2. The Blender logo is a trademark of the Blender Foundation, and is only used within this project to denote Blender specific actions and features.
+
+3. The initial versions of this project were developed using JetBrains' AI tools, specifically Junie, which wrote a significant portion of the code and documentation.
 
 ---
 
@@ -119,4 +128,4 @@ For more information on contributing, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Disclaimer
 
-This project is not affiliated with either Blender, the Blender Foundation, or JetBrains s.r.o, as I am not a developer or maintainer for either.
+This project is not affiliated with either Blender, the Blender Foundation, or JetBrains s.r.o, as I am not a developer or maintainer for any of these organizations.
