@@ -3,11 +3,13 @@ package com.sakurasedaia.blenderextensions.blender
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
-import kotlin.io.path.exists
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import kotlin.io.path.*
 
 @Service(Service.Level.PROJECT)
 class BlenderLauncher(private val project: Project) {
@@ -22,7 +24,7 @@ class BlenderLauncher(private val project: Project) {
         importUserConfig: Boolean = false,
         blenderVersion: String? = null
     ): OSProcessHandler? {
-        val blenderFile = Path.of(blenderPath)
+        val blenderFile = Paths.get(blenderPath)
         if (!blenderFile.exists()) {
             logger.log("Blender executable does not exist: $blenderPath")
             return null
@@ -52,12 +54,12 @@ class BlenderLauncher(private val project: Project) {
     private fun setupSandbox(commandLine: GeneralCommandLine, importUserConfig: Boolean, blenderVersion: String?) {
         logger.log("Using sandboxed mode")
         val projectPath = project.basePath ?: return
-        val sandboxDir = Path.of(projectPath, ".blender_sandbox")
+        val sandboxDir = Paths.get(projectPath, ".blender_sandbox")
         val configDir = sandboxDir.resolve("config")
         val scriptsDir = sandboxDir.resolve("scripts")
         
-        Files.createDirectories(configDir)
-        Files.createDirectories(scriptsDir)
+        configDir.createDirectories()
+        scriptsDir.createDirectories()
         
         if (importUserConfig) {
             importBlenderConfig(configDir, blenderVersion)
@@ -65,10 +67,10 @@ class BlenderLauncher(private val project: Project) {
 
         // Create a simple app template
         val templatesDir = scriptsDir.resolve("startup/bl_app_templates/blender_extensions_dev")
-        Files.createDirectories(templatesDir)
+        templatesDir.createDirectories()
         val initFile = templatesDir.resolve("__init__.py")
         if (!initFile.exists()) {
-            Files.writeString(initFile, "\"\"\"\nBlender Extension Development App Template\nCreated by the Blender Extension Development for PyCharm plugin.\n\"\"\"\ndef register():\n    pass\n\ndef unregister():\n    pass\n")
+            initFile.writeText("\"\"\"\nBlender Extension Development App Template\nCreated by the Blender Extension Development for PyCharm plugin.\n\"\"\"\ndef register():\n    pass\n\ndef unregister():\n    pass\n")
         }
 
         handleSandboxSplashScreen(templatesDir)
@@ -82,7 +84,7 @@ class BlenderLauncher(private val project: Project) {
         val versionToUse = version ?: "5.0" // Fallback to 5.0
         val sourceConfigDir = findSystemBlenderConfigDir(versionToUse)
         
-        if (sourceConfigDir == null || !Files.exists(sourceConfigDir)) {
+        if (sourceConfigDir == null || !sourceConfigDir.exists()) {
             logger.log("Could not find system Blender config directory for version $versionToUse")
             return
         }
@@ -92,9 +94,9 @@ class BlenderLauncher(private val project: Project) {
         
         for (fileName in filesToCopy) {
             val sourceFile = sourceConfigDir.resolve(fileName)
-            if (Files.exists(sourceFile)) {
+            if (sourceFile.exists()) {
                 try {
-                    Files.copy(sourceFile, targetConfigDir.resolve(fileName), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                    sourceFile.copyTo(targetConfigDir.resolve(fileName), overwrite = true)
                     logger.log("Imported $fileName")
                 } catch (e: Exception) {
                     logger.log("Failed to import $fileName: ${e.message}")
@@ -105,7 +107,7 @@ class BlenderLauncher(private val project: Project) {
         // Copy special directories if they exist (pycharm, sedaia)
         for (dirName in listOf("pycharm", "sedaia")) {
             val sourceDir = sourceConfigDir.resolve(dirName)
-            if (Files.exists(sourceDir) && Files.isDirectory(sourceDir)) {
+            if (sourceDir.exists() && sourceDir.isDirectory()) {
                 try {
                     copyDirectory(sourceDir, targetConfigDir.resolve(dirName))
                     logger.log("Imported $dirName folder")
@@ -117,14 +119,12 @@ class BlenderLauncher(private val project: Project) {
     }
 
     private fun copyDirectory(source: Path, target: Path) {
-        Files.walk(source).use { stream ->
-            stream.forEach { sourcePath ->
-                val targetPath = target.resolve(source.relativize(sourcePath))
-                if (Files.isDirectory(sourcePath)) {
-                    Files.createDirectories(targetPath)
-                } else {
-                    Files.copy(sourcePath, targetPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-                }
+        source.walk().forEach { sourcePath ->
+            val targetPath = target.resolve(source.relativize(sourcePath))
+            if (sourcePath.isDirectory()) {
+                targetPath.createDirectories()
+            } else {
+                sourcePath.copyTo(targetPath, overwrite = true)
             }
         }
     }
@@ -136,25 +136,25 @@ class BlenderLauncher(private val project: Project) {
         return when {
             osName.contains("win") -> {
                 val appData = System.getenv("APPDATA")
-                if (appData != null) Path.of(appData, "Blender Foundation", "Blender", version, "config") else null
+                if (appData != null) Paths.get(appData, "Blender Foundation", "Blender", version, "config") else null
             }
             osName.contains("mac") -> {
-                Path.of(userHome, "Library", "Application Support", "Blender", version, "config")
+                Paths.get(userHome, "Library", "Application Support", "Blender", version, "config")
             }
             else -> { // Linux/Unix
-                Path.of(userHome, ".config", "blender", version, "config")
+                Paths.get(userHome, ".config", "blender", version, "config")
             }
         }
     }
 
     private fun handleSandboxSplashScreen(templatesDir: Path) {
         val projectPath = project.basePath ?: return
-        val projectSplash = Path.of(projectPath, "splash.png")
+        val projectSplash = Paths.get(projectPath, "splash.png")
         val targetSplash = templatesDir.resolve("splash.png")
         
         if (projectSplash.exists()) {
             try {
-                Files.copy(projectSplash, targetSplash, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                projectSplash.copyTo(targetSplash, overwrite = true)
                 logger.log("Copied project-specific splash screen to sandboxed app template")
             } catch (e: Exception) {
                 logger.log("Failed to copy project splash screen: ${e.message}")
@@ -163,7 +163,7 @@ class BlenderLauncher(private val project: Project) {
             // Try to copy the default splash from plugin resources
             try {
                 this.javaClass.getResourceAsStream("/splash.png")?.use { input ->
-                    Files.copy(input, targetSplash, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+                    Files.copy(input, targetSplash, StandardCopyOption.REPLACE_EXISTING)
                 }
                 logger.log("Copied default splash screen from plugin resources to sandboxed app template")
             } catch (e: Exception) {
@@ -173,6 +173,6 @@ class BlenderLauncher(private val project: Project) {
     }
 
     companion object {
-        fun getInstance(project: Project): BlenderLauncher = project.getService(BlenderLauncher::class.java)
+        fun getInstance(project: Project): BlenderLauncher = project.service()
     }
 }
