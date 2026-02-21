@@ -19,7 +19,7 @@
         <h3>Core Features:</h3>
         <ul>
             <li><b>Automated Environment Management:</b> Automatically download and manage multiple Blender versions (4.2+ and 5.0) directly from the IDE.</li>
-            <li><b>Sandboxed Testing:</b> Launch Blender in an isolated development environment with project-local configuration and script directories to prevent conflicts with your main Blender installation.</li>
+            <li><b>Sandboxed Development:</b> Launch Blender in an isolated development environment with project-local configuration and script directories to prevent conflicts with your main Blender installation.</li>
             <li><b>Real-time Hot-Reloading:</b> Automatically reload your extension in Blender upon saving files in PyCharm, or trigger reloads manually with <code>Ctrl+Alt+R</code>.</li>
             <li><b>Smart Project Templates:</b> Quickly bootstrap new Blender extensions with pre-configured project structures, including optional "auto-load" logic and automated run configurations.</li>
             <li><b>Integrated CLI Tools:</b> Dedicated run configurations for building and validating extensions using the <code>blender --command</code> interface.</li>

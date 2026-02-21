@@ -7,7 +7,6 @@ import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.components.JBCheckBox
-import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
 import javax.swing.JComponent
@@ -46,7 +45,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         myAdditionalArgumentsField.text = options.additionalArguments ?: ""
 
         val factory = s.factory
-        val isTesting = factory is BlenderTestingConfigurationFactory
+        val isTesting = factory is BlenderStartBlenderConfigurationFactory
         val isCommand = factory is BlenderCommandConfigurationFactory
         val isBuildOrValidate = factory is BlenderBuildConfigurationFactory || factory is BlenderValidateConfigurationFactory
 

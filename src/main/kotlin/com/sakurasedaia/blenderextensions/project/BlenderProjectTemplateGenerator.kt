@@ -297,16 +297,7 @@ class BlenderProjectTemplateGenerator {
                 .idea/
 
                 # Blender
-                *.blend
-                *.blend1
-                *.blend2
-                *.blend3
-                *.blend4
-                *.blend5
-                *.blend6
-                *.blend7
-                *.blend8
-                *.blend9
+                *.blend*
             """.trimIndent()
         }
         

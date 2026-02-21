@@ -14,19 +14,19 @@ class BlenderRunConfigurationType : ConfigurationType {
     override fun getIcon(): Icon = BlenderIcons.Blender
     override fun getId(): String = "BLENDER_RUN_CONFIGURATION"
     override fun getConfigurationFactories(): Array<ConfigurationFactory> = arrayOf(
-        BlenderTestingConfigurationFactory(this),
+        BlenderStartBlenderConfigurationFactory(this),
         BlenderBuildConfigurationFactory(this),
         BlenderValidateConfigurationFactory(this),
         BlenderCommandConfigurationFactory(this)
     )
 }
 
-class BlenderTestingConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
+class BlenderStartBlenderConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
     override fun createTemplateConfiguration(project: Project): RunConfiguration =
-        BlenderRunConfiguration(project, this, "Testing")
+        BlenderRunConfiguration(project, this, "Start Blender")
 
-    override fun getName(): String = "Testing"
-    override fun getId(): String = "BlenderTestingConfigurationFactory"
+    override fun getName(): String = "Start Blender"
+    override fun getId(): String = "BlenderStartBlenderConfigurationFactory"
     override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
 }
 

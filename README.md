@@ -21,13 +21,13 @@ This project was developed almost exclusively using the AI integration tools by 
 1. Open **Run/Debug Configurations** (Run > Edit Configurations...).
 2. Click **+** and select **Blender**.
 3. Choose a configuration template:
-    - **Testing**: Launch Blender in a development environment with auto-reload.
+    - **Start Blender**: Launch Blender in a development environment with auto-reload.
     - **Build**: Build your extension using `blender --command extensions build`.
     - **Validate**: Validate your extension using `blender --command extensions validate`.
     - **Command**: Run a custom Blender command using `blender --command <command>`.
 4. Choose a Blender version from the **Blender version** dropdown (4.2+). The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
-5. (Testing only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time.
-6. (Testing only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
+5. (Start Blender only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time.
+6. (Start Blender only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
 7. (Optional) In **Settings** > **Tools** > **Blender Extension Integration**, check **Auto-reload extension on save** to enable automatic reloads.
 
 ### Logging and Troubleshooting

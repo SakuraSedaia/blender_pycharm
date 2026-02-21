@@ -90,9 +90,7 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
         projectPath.resolve(".gitignore").writeText(BlenderProjectTemplateGenerator.generateGitignore())
 
         if (settings.agentGuidelines) {
-            val junieDir = projectPath.resolve(".junie")
-            Files.createDirectories(junieDir)
-            junieDir.resolve("guidelines.md").writeText(
+            projectPath.resolve(".agent-guidelines.md").writeText(
                 BlenderProjectTemplateGenerator.generateAgentGuidelines()
             )
         }
