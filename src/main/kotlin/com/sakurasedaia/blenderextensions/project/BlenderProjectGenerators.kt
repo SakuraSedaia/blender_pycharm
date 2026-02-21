@@ -18,8 +18,7 @@ import javax.swing.event.DocumentEvent
 import javax.swing.SwingUtilities
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.ConfigurationTypeUtil
-import com.sakurasedaia.blenderextensions.run.BlenderRunConfiguration
-import com.sakurasedaia.blenderextensions.run.BlenderRunConfigurationType
+import com.sakurasedaia.blenderextensions.run.*
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.Icon
@@ -103,22 +102,41 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
             )
         }
 
-        // Automatically create a Blender Run Configuration using the latest blender version (5.0)
+        // Automatically create Blender Run Configurations: Start Blender, Build, and Validate
         val runManager = RunManager.getInstance(project)
         val configType = ConfigurationTypeUtil.findConfigurationType(BlenderRunConfigurationType::class.java)
-        val factory = configType.configurationFactories[0] // The primary factory
-        val runSettings = runManager.createConfiguration("Blender", factory)
-        val runConfig = runSettings.configuration as BlenderRunConfiguration
+        
+        // 1. Start Blender
+        val startBlenderFactory = configType.configurationFactories.find { it is BlenderStartBlenderConfigurationFactory }
+        if (startBlenderFactory != null) {
+            val runSettings = runManager.createConfiguration("Start Blender", startBlenderFactory)
+            val runConfig = runSettings.configuration as BlenderRunConfiguration
+            val options = runConfig.getOptions()
+            options.blenderVersion = "5.0"
+            options.isSandboxed = true
+            options.addonSourceDirectory = srcDir.toAbsolutePath().toString()
+            options.addonSymlinkName = addonId
+            runManager.addConfiguration(runSettings)
+            runManager.selectedConfiguration = runSettings
+        }
 
-        // Set default options
-        val options = runConfig.getOptions()
-        options.blenderVersion = "5.0"
-        options.isSandboxed = true
-        options.addonSourceDirectory = srcDir.toAbsolutePath().toString()
+        // 2. Build
+        val buildFactory = configType.configurationFactories.find { it is BlenderBuildConfigurationFactory }
+        if (buildFactory != null) {
+            val runSettings = runManager.createConfiguration("Build", buildFactory)
+            val runConfig = runSettings.configuration as BlenderRunConfiguration
+            runConfig.getOptions().blenderVersion = "5.0"
+            runManager.addConfiguration(runSettings)
+        }
 
-        // Add to RunManager
-        runManager.addConfiguration(runSettings)
-        runManager.selectedConfiguration = runSettings
+        // 3. Validate
+        val validateFactory = configType.configurationFactories.find { it is BlenderValidateConfigurationFactory }
+        if (validateFactory != null) {
+            val runSettings = runManager.createConfiguration("Validate", validateFactory)
+            val runConfig = runSettings.configuration as BlenderRunConfiguration
+            runConfig.getOptions().blenderVersion = "5.0"
+            runManager.addConfiguration(runSettings)
+        }
 
         if (settings.createGitRepo) {
             try {
@@ -160,6 +178,13 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     private var projectLocation: String? = null
     private var isUpdating = false
     private var addonIdIsManual = false
+    private val stateListeners = mutableListOf<com.intellij.platform.WebProjectGenerator.SettingsStateListener>()
+
+    private fun fireStateChanged() {
+        if (!isUpdating) {
+            stateListeners.forEach { it.stateChanged(true) }
+        }
+    }
 
     fun updateLocation(path: String) {
         if (projectLocation == path) return
@@ -169,9 +194,15 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
             val nameFromPath = try { Path.of(path).fileName?.toString() } catch (_: Exception) { null }
             if (!nameFromPath.isNullOrEmpty() && projectNameField.text != nameFromPath) {
                 isUpdating = true
-                projectNameField.text = nameFromPath
-                addonIdField.text = formatToId(nameFromPath)
-                isUpdating = false
+                try {
+                    projectNameField.text = nameFromPath
+                    if (!addonIdIsManual) {
+                        addonIdField.text = formatToId(nameFromPath, allowCapitals = false)
+                    }
+                } finally {
+                    isUpdating = false
+                }
+                fireStateChanged()
             }
         }
     }
@@ -221,40 +252,102 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
                             } catch (_: Exception) {}
                             updateLocationFromProjectName()
                             if (!addonIdIsManual) {
-                                addonIdField.text = formatted.lowercase()
+                                addonIdField.text = formatToId(formatted, allowCapitals = false)
                             }
                         } finally {
                             isUpdating = false
                         }
+                        fireStateChanged()
                     }
                 } else {
-                    updateLocationFromProjectName()
-                    if (!addonIdIsManual) {
-                        addonIdField.text = formatted.lowercase()
+                    isUpdating = true
+                    try {
+                        updateLocationFromProjectName()
+                        if (!addonIdIsManual) {
+                            addonIdField.text = formatToId(formatted, allowCapitals = false)
+                        }
+                    } finally {
+                        isUpdating = false
                     }
+                    fireStateChanged()
                 }
             }
         })
 
         addonIdField.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
-                if (!isUpdating) {
-                    addonIdIsManual = addonIdField.text.isNotBlank()
+                if (isUpdating) return
+                
+                val original = addonIdField.text
+                val formatted = formatToId(original, allowCapitals = false)
+
+                if (original != formatted) {
+                    isUpdating = true
+                    SwingUtilities.invokeLater {
+                        try {
+                            val caret = addonIdField.caretPosition
+                            addonIdField.text = formatted
+                            try {
+                                addonIdField.caretPosition = Math.min(caret, formatted.length)
+                            } catch (_: Exception) {}
+                            addonIdIsManual = formatted.isNotBlank()
+                        } finally {
+                            isUpdating = false
+                        }
+                        fireStateChanged()
+                    }
+                } else {
+                    addonIdIsManual = original.isNotBlank()
+                    fireStateChanged()
                 }
             }
         })
 
         // Reason fields should be disabled if checkbox is not selected
         permissionNetworkReasonField.isEnabled = false
-        permissionNetworkCheckbox.addActionListener { permissionNetworkReasonField.isEnabled = permissionNetworkCheckbox.isSelected }
+        permissionNetworkCheckbox.addActionListener {
+            permissionNetworkReasonField.isEnabled = permissionNetworkCheckbox.isSelected
+            fireStateChanged()
+        }
         permissionFilesReasonField.isEnabled = false
-        permissionFilesCheckbox.addActionListener { permissionFilesReasonField.isEnabled = permissionFilesCheckbox.isSelected }
+        permissionFilesCheckbox.addActionListener {
+            permissionFilesReasonField.isEnabled = permissionFilesCheckbox.isSelected
+            fireStateChanged()
+        }
         permissionClipboardReasonField.isEnabled = false
-        permissionClipboardCheckbox.addActionListener { permissionClipboardReasonField.isEnabled = permissionClipboardCheckbox.isSelected }
+        permissionClipboardCheckbox.addActionListener {
+            permissionClipboardReasonField.isEnabled = permissionClipboardCheckbox.isSelected
+            fireStateChanged()
+        }
         permissionCameraReasonField.isEnabled = false
-        permissionCameraCheckbox.addActionListener { permissionCameraReasonField.isEnabled = permissionCameraCheckbox.isSelected }
+        permissionCameraCheckbox.addActionListener {
+            permissionCameraReasonField.isEnabled = permissionCameraCheckbox.isSelected
+            fireStateChanged()
+        }
         permissionMicrophoneReasonField.isEnabled = false
-        permissionMicrophoneCheckbox.addActionListener { permissionMicrophoneReasonField.isEnabled = permissionMicrophoneCheckbox.isSelected }
+        permissionMicrophoneCheckbox.addActionListener {
+            permissionMicrophoneReasonField.isEnabled = permissionMicrophoneCheckbox.isSelected
+            fireStateChanged()
+        }
+
+        autoLoadCheckbox.addActionListener { fireStateChanged() }
+        createGitRepoCheckbox.addActionListener { fireStateChanged() }
+
+        // Add listeners to other fields to trigger validation
+        listOf(
+            addonTaglineField,
+            addonMaintainerField,
+            addonWebsiteField,
+            addonTagsField,
+            blenderVersionMinField,
+            blenderVersionMaxField,
+            addonPlatformsField,
+            buildPathsExcludePatternField
+        ).forEach { field ->
+            field.document.addDocumentListener(object : DocumentAdapter() {
+                override fun textChanged(e: DocumentEvent) = fireStateChanged()
+            })
+        }
 
         // Enforce 64-char max for permission reasons
         fun enforceMax64(tf: JBTextField) {
@@ -266,6 +359,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
                         tf.text = t.substring(0, 64)
                         try { tf.caretPosition = minOf(caret, 64) } catch (_: Exception) {}
                     }
+                    fireStateChanged()
                 }
             })
         }
@@ -426,5 +520,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     override fun isBackgroundJobRunning(): Boolean = false
 
     @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
-    override fun addSettingsStateListener(listener: com.intellij.platform.WebProjectGenerator.SettingsStateListener) {}
+    override fun addSettingsStateListener(listener: com.intellij.platform.WebProjectGenerator.SettingsStateListener) {
+        stateListeners.add(listener)
+    }
 }
