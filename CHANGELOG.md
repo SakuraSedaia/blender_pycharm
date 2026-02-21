@@ -15,6 +15,7 @@
 - **Improved Repository Management**: Enhanced startup scripts to better handle extension repository registration across different Blender versions.
 - **Modernized Codebase**: Refactored `BlenderLauncher` and other core components using Kotlin-idiomatic patterns and `kotlin.io.path`.
 - **Gradle Downgrade**: Downgraded to Gradle 8.13.0 for better stability and compatibility with the IntelliJ Platform Gradle Plugin.
+- **Documentation Overhaul**: Updated `README.md` and `CONTRIBUTING.md` to reflect current project architecture, installation procedures, and development workflows. Moved technical development instructions to `CONTRIBUTING.md`.
 
 ### Fixed
 - Resolved various issues with symbolic link creation and Blender version detection.

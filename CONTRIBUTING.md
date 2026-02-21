@@ -4,10 +4,18 @@ Thank you for your interest in contributing to this project! We welcome all cont
 
 ## Getting Started
 
+### Prerequisites
+
+- [IntelliJ IDEA](https://www.jetbrains.com/idea/) (Community or Ultimate)
+- [JDK 21](https://adoptium.net/temurin/releases/?version=21) or later
+- [Blender](https://www.blender.org/) 4.2 or later (supporting extensions)
+
+### Setup
+
 1. **Fork the repository** on GitHub.
 2. **Clone your fork** locally.
 3. **Open the project** in IntelliJ IDEA.
-4. **Set up the SDK**: Ensure you have a JDK 21+ installed and configured. IntelliJ should automatically pick up the Gradle configuration.
+4. **Set up the SDK**: Ensure you have JDK 21+ installed and configured. IntelliJ should automatically pick up the Gradle configuration.
 
 ## Development Workflow
 

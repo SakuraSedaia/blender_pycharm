@@ -67,10 +67,14 @@ The project follows the standard IntelliJ Platform plugin structure:
 │   ├── main
 │   │   ├── kotlin          # Plugin source code
 │   │   │   └── com.sakurasedaia.blenderextensions
-│   │   │       ├── run         # Run Configuration components
-│   │   │       ├── blender     # Core Blender service and communication logic
-│   │   │       ├── listeners   # File system listeners (Auto-reload)
-│   │   │       └── settings    # Persistent settings and configuration UI
+│   │   │       ├── actions     # Keyboard shortcuts and menu actions
+│   │   │       ├── blender     # Core Blender service, TCP server, and communication
+│   │   │       ├── icons       # Custom icons and icon providers
+│   │   │       ├── listeners   # File system listeners for auto-reload
+│   │   │       ├── project     # Project template generators and manifest wizards
+│   │   │       ├── run         # Specialized Run Configurations (Testing, Build, etc.)
+│   │   │       ├── settings    # Persistent settings and configuration UI
+│   │   │       └── ui          # Blender Management Tool Window and UI components
 │   │   └── resources
 │   │       └── META-INF
 │   │           └── plugin.xml  # Plugin manifest
@@ -86,21 +90,20 @@ The plugin starts a local TCP server when Blender is launched. It injects a star
     - Purges the module and all its submodules from Python's `sys.modules` to clear the module cache.
     - Forces a refresh of all extension repositories (`bpy.ops.extensions.repo_refresh_all()`).
     - Re-enables the extension, forcing a fresh import of your code changes.
+4. **Sandboxing and Configuration**: Creates a project-local Blender user environment (`.blender_sandbox`) that isolates development settings. This includes custom splash screens and optionally imported user configurations (preferences, startup file).
+5. **Global Version Management**: Automatically handles multi-version downloads (4.2+ and 5.0) and global installation management through the dedicated tool window.
 
 This ensures that your code changes are always picked up, avoiding common caching issues in Blender's Python environment.
 
-## Development
+## Installation
 
-### Prerequisites
+As the plugin is not yet published on the JetBrains Marketplace, it must be installed manually:
 
-- [IntelliJ IDEA](https://www.jetbrains.com/idea/) (Community or Ultimate)
-- [Blender](https://www.blender.org/) 4.2 or later (supporting extensions)
-
-### Building and Running
-
-- **Build**: `./gradlew build` (The built plugin will be available in `build/distributions/`)
-- **Run in Sandbox**: `./gradlew runIde`
-- **Tests**: `./gradlew test`
+1. Download the latest plugin distribution ZIP file from the [Releases](https://github.com/Sakura-Sedaia/BlenderExtensions/releases) page.
+2. In PyCharm, open **Settings** (or **Preferences** on macOS) > **Plugins**.
+3. Click the gear icon (⚙️) next to the "Installed" tab and select **Install Plugin from Disk...**.
+4. Navigate to the downloaded ZIP file and click **OK**.
+5. Restart PyCharm to complete the installation.
 
 ---
 
