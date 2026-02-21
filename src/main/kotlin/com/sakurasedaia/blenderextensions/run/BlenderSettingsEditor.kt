@@ -17,6 +17,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     private val myBlenderPathField = TextFieldWithBrowseButton()
     private val myBlenderCommandField = JBTextField()
     private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxing")
+    private val myImportUserConfigCheckBox = JBCheckBox("Import User Configuration")
     private val myAddonSymlinkNameField = JBTextField()
     private val myAddonSourceDirectoryField = TextFieldWithBrowseButton()
     private val myAdditionalArgumentsField = JBTextField()
@@ -37,6 +38,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         val options = s.getOptions()
         myBlenderVersionComboBox.selectedItem = options.blenderVersion ?: "5.0"
         myIsSandboxedCheckBox.isSelected = options.isSandboxed
+        myImportUserConfigCheckBox.isSelected = options.importUserConfig
         myBlenderPathField.text = options.blenderExecutablePath ?: ""
         myBlenderPathField.isEnabled = myBlenderVersionComboBox.selectedItem == "Custom/Pre-installed"
         myBlenderCommandField.text = options.blenderCommand ?: ""
@@ -50,6 +52,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         val isBuildOrValidate = factory is BlenderBuildConfigurationFactory || factory is BlenderValidateConfigurationFactory
 
         myIsSandboxedCheckBox.isVisible = isTesting
+        myImportUserConfigCheckBox.isVisible = isTesting
         myAddonSymlinkComponent.isVisible = isTesting
         myAddonSourceDirComponent.isVisible = isTesting
         myArgumentsComponent.isVisible = isTesting
@@ -62,6 +65,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         val options = s.getOptions()
         options.blenderVersion = myBlenderVersionComboBox.selectedItem as? String
         options.isSandboxed = myIsSandboxedCheckBox.isSelected
+        options.importUserConfig = myImportUserConfigCheckBox.isSelected
         options.blenderExecutablePath = myBlenderPathField.text
         options.blenderCommand = myBlenderCommandField.text
         options.addonSymlinkName = myAddonSymlinkNameField.text
@@ -89,6 +93,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
             .addLabeledComponent("Manual Blender path:", myBlenderPathField)
             .addComponent(myBlenderCommandComponent)
             .addComponent(myIsSandboxedCheckBox)
+            .addComponent(myImportUserConfigCheckBox)
             .addComponent(myAddonSymlinkComponent)
             .addComponent(myAddonSourceDirComponent)
             .addComponent(myArgumentsComponent)

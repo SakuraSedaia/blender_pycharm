@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.sakura-sedaia"
-version = "1.0.1"
+version = "1.0.0"
 
 repositories {
 	mavenCentral()

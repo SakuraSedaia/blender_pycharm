@@ -18,6 +18,11 @@ class BlenderRunConfigurationOptions : RunConfigurationOptions() {
         get() = isSandboxedProperty.getValue(this)
         set(value) = isSandboxedProperty.setValue(this, value)
 
+    private val importUserConfigProperty = property(false).provideDelegate(this, "importUserConfig")
+    var importUserConfig: Boolean
+        get() = importUserConfigProperty.getValue(this)
+        set(value) = importUserConfigProperty.setValue(this, value)
+
     private val addonSymlinkNameProperty = string("").provideDelegate(this, "addonSymlinkName")
     var addonSymlinkName: String?
         get() = addonSymlinkNameProperty.getValue(this)

@@ -44,7 +44,9 @@ class BlenderRunProfileState(
             addonSymlinkName = options.addonSymlinkName,
             additionalArgs = options.additionalArguments,
             isSandboxed = options.isSandboxed,
-            blenderCommand = options.blenderCommand
+            blenderCommand = options.blenderCommand,
+            importUserConfig = options.importUserConfig,
+            blenderVersion = if (options.blenderVersion == "Custom/Pre-installed") null else options.blenderVersion
         ) ?: throw ExecutionException("Failed to start Blender. Check path in the run configuration.")
         
         val consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project)

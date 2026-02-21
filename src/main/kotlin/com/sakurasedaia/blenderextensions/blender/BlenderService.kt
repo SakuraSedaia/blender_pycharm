@@ -37,7 +37,9 @@ class BlenderService(private val project: Project) {
         addonSymlinkName: String? = null,
         additionalArgs: String? = null,
         isSandboxed: Boolean = false,
-        blenderCommand: String? = null
+        blenderCommand: String? = null,
+        importUserConfig: Boolean = false,
+        blenderVersion: String? = null
     ): OSProcessHandler? {
         if (isRunning.get()) return processHandler
 
@@ -48,7 +50,9 @@ class BlenderService(private val project: Project) {
                 blenderPath = blenderPath,
                 additionalArgs = additionalArgs,
                 isSandboxed = isSandboxed,
-                blenderCommand = blenderCommand
+                blenderCommand = blenderCommand,
+                importUserConfig = importUserConfig,
+                blenderVersion = blenderVersion
             )
         } else {
             val sourcePath = if (!addonSourceDir.isNullOrEmpty()) Path.of(addonSourceDir) else Path.of(projectPath)
@@ -71,7 +75,9 @@ class BlenderService(private val project: Project) {
                 blenderPath = blenderPath,
                 scriptPath = script,
                 additionalArgs = additionalArgs,
-                isSandboxed = isSandboxed
+                isSandboxed = isSandboxed,
+                importUserConfig = importUserConfig,
+                blenderVersion = blenderVersion
             )
         }
 
