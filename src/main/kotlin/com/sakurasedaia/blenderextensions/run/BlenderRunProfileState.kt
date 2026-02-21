@@ -6,6 +6,9 @@ import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.filters.TextConsoleBuilderFactory
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.sakurasedaia.blenderextensions.blender.BlenderService
 
@@ -23,7 +26,12 @@ class BlenderRunProfileState(
             options.blenderExecutablePath
         } else {
             service.log("Using managed Blender version: ${options.blenderVersion}")
-            service.getOrDownloadBlenderPath(options.blenderVersion!!)
+            val version = options.blenderVersion!!
+            ProgressManager.getInstance().run(object : Task.WithResult<String?, ExecutionException>(project, "Downloading Blender $version", true) {
+                override fun compute(indicator: ProgressIndicator): String? {
+                    return service.getOrDownloadBlenderPath(version)
+                }
+            })
         }
 
         if (blenderPath.isNullOrEmpty()) {

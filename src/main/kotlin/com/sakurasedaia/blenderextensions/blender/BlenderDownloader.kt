@@ -110,13 +110,21 @@ class BlenderDownloader(private val project: Project) {
         val targetFile = targetDir.resolve(fileName)
         
         val indicator = ProgressManager.getInstance().progressIndicator
-        indicator?.text = "Downloading Blender from $url..."
+        indicator?.text = "Downloading Blender..."
+        indicator?.text2 = url
         
         try {
-            HttpRequests.request(url).saveToFile(targetFile, indicator)
+            HttpRequests.request(url)
+                .connect { request ->
+                    request.saveToFile(targetFile, indicator)
+                }
             return targetFile
         } catch (e: Exception) {
-            logger.log("Download failed: ${e.message}")
+            if (e is com.intellij.openapi.progress.ProcessCanceledException) {
+                logger.log("Download cancelled by user")
+            } else {
+                logger.log("Download failed: ${e.message}")
+            }
             return null
         }
     }
@@ -124,6 +132,8 @@ class BlenderDownloader(private val project: Project) {
     private fun extractFile(file: Path, targetDir: Path) {
         val indicator = ProgressManager.getInstance().progressIndicator
         indicator?.text = "Extracting Blender..."
+        indicator?.text2 = file.name
+        indicator?.isIndeterminate = true
         
         val fileName = file.name
         when {
@@ -185,8 +195,17 @@ class BlenderDownloader(private val project: Project) {
         try {
             val handler = OSProcessHandler(commandLine)
             handler.startNotify()
-            handler.waitFor()
+            while (!handler.waitFor(100)) {
+                ProgressManager.checkCanceled()
+            }
+            if (handler.exitCode != 0) {
+                logger.log("Extraction command failed with exit code ${handler.exitCode}: ${commandLine.commandLineString}")
+            }
         } catch (e: Exception) {
+            if (e is com.intellij.openapi.progress.ProcessCanceledException) {
+                logger.log("Extraction cancelled by user")
+                throw e
+            }
             logger.log("Failed to execute extraction command: ${e.message}")
         }
     }
