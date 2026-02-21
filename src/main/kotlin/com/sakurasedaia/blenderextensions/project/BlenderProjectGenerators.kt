@@ -215,7 +215,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     }
 
     private val autoLoadCheckbox = JBCheckBox("Add automatic module/class registration script", false)
-    private val includeAgentGuidelines = JBCheckBox("Include Preset guidelines", false)
+    private val includeAgentGuidelines = JBCheckBox("Append pre-made agent guidelines", false)
     private val createGitRepoCheckbox = JBCheckBox("Create Git repository", false)
     private val projectNameField = JBTextField()
     private val addonIdField = JBTextField()
