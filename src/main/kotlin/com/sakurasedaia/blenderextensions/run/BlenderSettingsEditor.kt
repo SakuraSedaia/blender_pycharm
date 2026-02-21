@@ -9,11 +9,12 @@ import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
+import com.sakurasedaia.blenderextensions.blender.BlenderVersions
 import javax.swing.JComponent
 import javax.swing.JPanel
 
 class BlenderSettingsEditor(private val project: Project) : SettingsEditor<BlenderRunConfiguration>() {
-    private val myBlenderVersionComboBox = ComboBox(arrayOf("4.2", "4.3", "4.4", "4.5", "5.0", "Custom/Pre-installed"))
+    private val myBlenderVersionComboBox = ComboBox(BlenderVersions.getSupportedVersionsWithCustom())
     private val myBlenderPathField = TextFieldWithBrowseButton()
     private val myBlenderCommandField = JBTextField()
     private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxing")

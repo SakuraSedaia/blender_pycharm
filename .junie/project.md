@@ -7,7 +7,7 @@
 - Hot-Reloading: Implemented via structured JSON protocol with the sequence "disable -> purge -> refresh -> enable" to ensure re-imports.
 - Project Linking: Automatically links local source directories to Blender's extensions repository.
 - Blender Support: Compatible with Blender 4.2+ and 5.0. Supports automatic downloading and sandboxing of Blender versions with isolated app templates and user directories. Sandboxed sessions now support importing user configuration (preferences, startup files) from the system's Blender installation.
-- UI: Custom Run Configuration for Blender with version selection, sandboxing, and user configuration import toggles.
+- UI: Custom Run Configuration for Blender with version selection, sandboxing, and user configuration import toggles. Includes a dedicated "Blender Management" tool window for global downloads and project-specific sandbox clearing.
 - Build & Performance: `buildSearchableOptions` and related tasks are disabled in `build.gradle.kts` to reduce build noise and avoid hanging shutdowns during headless IDE execution caused by external plugins (e.g., Grazie). Build artifacts (ZIP distribution) are generated in `build/distributions/`.
 - Project Template: Provides a single template mirroring PyCharm’s “Pure Python” setup. Includes a “Project name” field that auto-formats (preserving capitals, hyphenating spaces) to drive the folder and addon metadata. The field is synchronized with the platform's Location field. A checkbox allows optionally enabling Auto-load (adds `auto_load.py` and an autoload-ready `__init__.py`). Manual setup instructions for the Python interpreter and linting stubs are provided in the generated `README.md`. Automatically creates a pre-configured Blender Run Configuration (targeting Blender 5.0 with sandboxing) on project creation.
 
@@ -21,6 +21,9 @@
     - `BlenderCommunicationService`: Project-level TCP server for hot-reloading command protocol.
     - `BlenderScriptGenerator`: Application-level generator of Blender-side Python scripts.
     - `BlenderLogger`: Project-level custom logger with file logging support.
+- **Blender Management UI**: 
+    - `BlenderToolWindowFactory`: Entry point for the tool window.
+    - `BlenderToolWindowContent`: UI components for managing versions and sandboxes.
 - Custom Run Configurations for launching Blender and common extension operations (validate, build).
 - Project Templates: `DirectoryProjectGenerator` implementations for quick project setup.
 

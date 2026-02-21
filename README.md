@@ -12,6 +12,7 @@ This project was developed almost exclusively using the AI integration tools by 
 - **Auto-Reload**: Automatically reload your extension in Blender whenever you save a file in PyCharm.
 - **Manual Reload**: Trigger a reload manually using a keyboard shortcut or menu action.
 - **Project Template**: Quickly start a new Blender Extension project from a single template that mirrors PyCharm’s Pure Python setup. It includes a “Project name” field that auto-formats to a lowercase-hyphenated folder name. After creation, the generated `README.md` provides clear instructions on configuring your Python interpreter and linting stubs using PyCharm's built-in tools. Optionally enable “Auto-load” to include an `auto_load.py` helper and autoload-ready `__init__.py`. The template also automatically creates a pre-configured Blender Run Configuration.
+- **Blender Management Tool Window**: A new tool window (right side) to manage global Blender installations (Download/Delete) and clear the project-local sandbox.
 - **Configurable**: Easily set the path to your Blender executable and toggle auto-reload.
 
 ## Operating Instructions
@@ -20,7 +21,8 @@ This project was developed almost exclusively using the AI integration tools by 
 
 1. Open **Run/Debug Configurations** (Run > Edit Configurations...).
 2. Click **+** and select **Blender**.
-3. Choose a configuration template:
+3. (Optional) Open the **Blender Management** tool window on the right sidebar to view, download, or delete managed Blender versions, or to clear the project's `.blender_sandbox` folder.
+4. Choose a configuration template:
     - **Start Blender**: Launch Blender in a development environment with auto-reload.
     - **Build**: Build your extension using `blender --command extensions build`.
     - **Validate**: Validate your extension using `blender --command extensions validate`.

@@ -31,6 +31,15 @@ class BlenderService(private val project: Project) {
 
     fun getOrDownloadBlenderPath(version: String): String? = downloader.getOrDownloadBlenderPath(version)
 
+    fun clearSandbox() {
+        val projectPath = project.basePath ?: return
+        val sandboxDir = Path.of(projectPath, ".blender_sandbox")
+        if (sandboxDir.exists()) {
+            sandboxDir.toFile().deleteRecursively()
+            logger.log("Cleared sandbox directory: $sandboxDir")
+        }
+    }
+
     fun startBlenderProcess(
         blenderPath: String,
         addonSourceDir: String? = null,

@@ -15,6 +15,23 @@ import kotlin.io.path.*
 class BlenderDownloader(private val project: Project) {
     private val logger = BlenderLogger.getInstance(project)
 
+    fun getDownloadDirectory(version: String): Path {
+        return Path.of(PathManager.getSystemPath(), "blender_downloads", version)
+    }
+
+    fun isDownloaded(version: String): Boolean {
+        val downloadDir = getDownloadDirectory(version)
+        return findBlenderExecutable(downloadDir) != null
+    }
+
+    fun deleteVersion(version: String) {
+        val downloadDir = getDownloadDirectory(version)
+        if (downloadDir.exists()) {
+            downloadDir.toFile().deleteRecursively()
+            logger.log("Deleted Blender $version from ${downloadDir.absolutePathString()}")
+        }
+    }
+
     fun getOrDownloadBlenderPath(version: String): String? {
         val osName = System.getProperty("os.name").lowercase()
         val arch = System.getProperty("os.arch").lowercase()
@@ -22,7 +39,7 @@ class BlenderDownloader(private val project: Project) {
         val isMac = osName.contains("mac")
         val isLinux = !isWindows && !isMac
 
-        val downloadDir = Path.of(PathManager.getSystemPath(), "blender_downloads", version)
+        val downloadDir = getDownloadDirectory(version)
         if (!downloadDir.exists()) {
             Files.createDirectories(downloadDir)
         }
@@ -96,7 +113,7 @@ class BlenderDownloader(private val project: Project) {
         }
         
         // Fallback to a safe default if online detection fails
-        val fallbackPatch = FALLBACK_PATCHES[version] ?: "0"
+        val fallbackPatch = BlenderVersions.FALLBACK_PATCHES[version] ?: "0"
         val suffix = when {
             isWindows -> "windows-x64.zip"
             isMac -> if (arch.contains("aarch64") || arch.contains("arm64")) "macos-arm64.dmg" else "macos-x64.dmg"
@@ -212,13 +229,5 @@ class BlenderDownloader(private val project: Project) {
 
     companion object {
         fun getInstance(project: Project): BlenderDownloader = project.getService(BlenderDownloader::class.java)
-
-        private val FALLBACK_PATCHES = mapOf(
-            "4.2" to "18",
-            "4.3" to "2",
-            "4.4" to "1",
-            "4.5" to "0",
-            "5.0" to "1"
-        )
     }
 }

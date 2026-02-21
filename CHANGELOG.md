@@ -9,3 +9,4 @@
 - Added project templates for simple and autoload-ready addons.
 - Added robust hot-reloading mechanism via structured JSON protocol.
 - Automatically include Start Blender, Build, and Validate configs in new projects.
+- Added "Blender Management" Tool Window to manage global installations and project sandboxes.
