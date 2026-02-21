@@ -89,6 +89,14 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
         projectPath.resolve("README.md").writeText(BlenderProjectTemplateGenerator.generateReadme())
         projectPath.resolve(".gitignore").writeText(BlenderProjectTemplateGenerator.generateGitignore())
 
+        if (settings.agentGuidelines) {
+            val junieDir = projectPath.resolve(".junie")
+            Files.createDirectories(junieDir)
+            junieDir.resolve("guidelines.md").writeText(
+                BlenderProjectTemplateGenerator.generateAgentGuidelines()
+            )
+        }
+
         if (settings.enableAutoLoad) {
             srcDir.resolve("__init__.py").writeText(
                 BlenderProjectTemplateGenerator.generateAutoLoadInit(projectName, authorName)
@@ -171,7 +179,8 @@ data class BlenderAddonProjectSettings(
     var permissionMicrophone: Boolean = false,
     var permissionMicrophoneReason: String? = null,
     var buildPathsExcludePattern: String? = null,
-    var createGitRepo: Boolean = false
+    var createGitRepo: Boolean = false,
+    val agentGuidelines: Boolean
 )
 
 private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjectSettings> {
@@ -207,7 +216,8 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
         }
     }
 
-    private val autoLoadCheckbox = JBCheckBox("Enable Module Auto Loading", false)
+    private val autoLoadCheckbox = JBCheckBox("Add automatic module/class registration script", false)
+    private val includeAgentGuidelines = JBCheckBox("Include Preset guidelines", false)
     private val createGitRepoCheckbox = JBCheckBox("Create Git repository", false)
     private val projectNameField = JBTextField()
     private val addonIdField = JBTextField()
@@ -331,6 +341,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
         }
 
         autoLoadCheckbox.addActionListener { fireStateChanged() }
+        includeAgentGuidelines.addActionListener { fireStateChanged() }
         createGitRepoCheckbox.addActionListener { fireStateChanged() }
 
         // Add listeners to other fields to trigger validation
@@ -373,6 +384,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
 
         panel = FormBuilder.createFormBuilder()
             .addComponent(autoLoadCheckbox)
+            .addComponent(includeAgentGuidelines)
             .addComponent(createGitRepoCheckbox)
             .addSeparator()
             .addLabeledComponent("Project name:", projectNameField)
@@ -449,6 +461,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
 
     override fun getSettings(): BlenderAddonProjectSettings = BlenderAddonProjectSettings(
         enableAutoLoad = autoLoadCheckbox.isSelected,
+        agentGuidelines = includeAgentGuidelines.isSelected,
         projectName = projectNameField.text?.trim(),
         addonId = addonIdField.text?.trim(),
         addonTagline = addonTaglineField.text?.trim(),
