@@ -25,6 +25,7 @@ class BlenderTestingConfigurationFactory(type: ConfigurationType) : Configuratio
     override fun createTemplateConfiguration(project: Project): RunConfiguration =
         BlenderRunConfiguration(project, this, "Testing")
 
+    override fun getName(): String = "Testing"
     override fun getId(): String = "BlenderTestingConfigurationFactory"
     override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
 }
@@ -36,6 +37,7 @@ class BlenderBuildConfigurationFactory(type: ConfigurationType) : ConfigurationF
         return config
     }
 
+    override fun getName(): String = "Build"
     override fun getId(): String = "BlenderBuildConfigurationFactory"
     override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
 }
@@ -47,6 +49,7 @@ class BlenderValidateConfigurationFactory(type: ConfigurationType) : Configurati
         return config
     }
 
+    override fun getName(): String = "Validate"
     override fun getId(): String = "BlenderValidateConfigurationFactory"
     override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
 }
@@ -58,6 +61,7 @@ class BlenderCommandConfigurationFactory(type: ConfigurationType) : Configuratio
         return config
     }
 
+    override fun getName(): String = "Command"
     override fun getId(): String = "BlenderCommandConfigurationFactory"
     override fun getOptionsClass(): Class<out BaseState> = BlenderRunConfigurationOptions::class.java
 }
