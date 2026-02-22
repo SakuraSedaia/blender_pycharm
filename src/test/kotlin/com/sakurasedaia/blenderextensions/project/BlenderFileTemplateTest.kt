@@ -6,13 +6,23 @@ import org.junit.Test
 
 class BlenderFileTemplateTest {
     @Test
-    fun testFileTemplateExists() {
+    fun testAddonFileTemplateExists() {
         val resource = javaClass.getResource("/fileTemplates/internal/Blender Add-on.py.ft")
-        assertNotNull("File template should exist in resources", resource)
+        assertNotNull("Add-on file template should exist in resources", resource)
         val content = resource!!.readText()
-        assertTrue("Template should contain bl_info", content.contains("bl_info = {"))
-        assertTrue("Template should contain register", content.contains("def register():"))
-        assertTrue("Template should contain unregister", content.contains("def unregister():"))
-        assertTrue("Template should contain Velocity variables", content.contains("\${NAME}"))
+        assertTrue("Add-on template should contain bl_info", content.contains("bl_info = {"))
+        assertTrue("Add-on template should contain register", content.contains("def register():"))
+        assertTrue("Add-on template should contain unregister", content.contains("def unregister():"))
+    }
+
+    @Test
+    fun testModuleFileTemplateExists() {
+        val resource = javaClass.getResource("/fileTemplates/internal/Blender Module.py.ft")
+        assertNotNull("Module file template should exist in resources", resource)
+        val content = resource!!.readText()
+        assertTrue("Module template should contain register", content.contains("def register():"))
+        assertTrue("Module template should contain unregister", content.contains("def unregister():"))
+        assertTrue("Module template should contain imports", content.contains("import bpy.types as T"))
+        assertTrue("Module template should contain main check", content.contains("if __name__ == \"__main__\":"))
     }
 }

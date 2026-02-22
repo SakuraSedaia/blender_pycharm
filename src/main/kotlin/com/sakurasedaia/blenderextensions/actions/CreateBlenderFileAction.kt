@@ -7,12 +7,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDirectory
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
 
-class CreateBlenderAddonAction : CreateFileFromTemplateAction("Blender Add-on", "Create a new single-script Blender add-on", BlenderIcons.Blender), DumbAware {
+class CreateBlenderFileAction : CreateFileFromTemplateAction("Blender File", "Create a new Blender Python file", BlenderIcons.Blender), DumbAware {
     override fun buildDialog(project: Project, directory: PsiDirectory, builder: CreateFileFromTemplateDialog.Builder) {
         builder
-            .setTitle("New Blender Add-on")
+            .setTitle("New Blender File")
             .addKind("Blender Add-on", BlenderIcons.Blender, "Blender Add-on")
+            .addKind("Blender Module", BlenderIcons.Blender, "Blender Module")
     }
 
-    override fun getActionName(directory: PsiDirectory?, newName: String, templateName: String?): String = "Blender Add-on"
+    override fun getActionName(directory: PsiDirectory?, newName: String, templateName: String?): String = "Blender File"
 }

@@ -71,10 +71,10 @@
             </action>
         </group>
 
-        <action id="com.sakurasedaia.blenderextensions.actions.CreateBlenderAddonAction"
-                class="com.sakurasedaia.blenderextensions.actions.CreateBlenderAddonAction"
-                text="Blender Add-on"
-                description="Create a new single-script Blender add-on"
+        <action id="com.sakurasedaia.blenderextensions.actions.CreateBlenderFileAction"
+                class="com.sakurasedaia.blenderextensions.actions.CreateBlenderFileAction"
+                text="Blender File"
+                description="Create a new Blender Python file (Add-on or Module)"
                 icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
         </action>

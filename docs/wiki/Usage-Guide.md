@@ -21,12 +21,15 @@ To start a new Blender extension project:
 - **Append pre-made agent guidelines**: Adds a premade `.agent-guidelines.md` document to help AI coding agents understand your project structure.
 - **Create Git repository**: Automatically initializes a Git repository in the project folder.
 
-### Creating a Simple (Legacy) Add-on
-If you don't need the full extension structure and manifest, you can create a single-script add-on:
+### Creating a Simple (Legacy) Add-on or Module
+If you don't need the full extension structure and manifest, you can create a single-script add-on or a boilerplate module:
 1. Right-click on a directory in the **Project** view.
-2. Select **New** > **Blender Add-on**.
-3. Enter a filename.
-4. The plugin generates a boilerplate script with a `bl_info` dictionary, a sample operator, and registration logic.
+2. Select **New** > **Blender File**.
+3. Choose either **Blender Add-on** or **Blender Module**.
+4. Enter a filename.
+5. The plugin generates the boilerplate:
+   - **Add-on**: Standard `bl_info` dictionary, sample operator, and registration logic.
+   - **Module**: Standard imports (`bpy`, `T`, `P`, `O`, `U`), empty `register`/`unregister`, and `if __name__ == "__main__":` block.
 
 ---
 
