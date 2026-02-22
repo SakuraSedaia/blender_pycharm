@@ -14,14 +14,21 @@ import kotlin.io.path.*
 @Service(Service.Level.PROJECT)
 class BlenderDownloader(private val project: Project) {
     private val logger = BlenderLogger.getInstance(project)
+    private val isDownloadedCache = mutableMapOf<String, Boolean>()
 
     fun getDownloadDirectory(version: String): Path {
         return Path.of(PathManager.getSystemPath(), "blender_downloads", version)
     }
 
     fun isDownloaded(version: String): Boolean {
-        val downloadDir = getDownloadDirectory(version)
-        return findBlenderExecutable(downloadDir) != null
+        return isDownloadedCache.getOrPut(version) {
+            val downloadDir = getDownloadDirectory(version)
+            findBlenderExecutable(downloadDir) != null
+        }
+    }
+
+    fun clearCache() {
+        isDownloadedCache.clear()
     }
 
     fun deleteVersion(version: String) {
@@ -29,6 +36,7 @@ class BlenderDownloader(private val project: Project) {
         if (downloadDir.exists()) {
             downloadDir.toFile().deleteRecursively()
             logger.log("Deleted Blender $version from ${downloadDir.absolutePathString()}")
+            clearCache()
         }
     }
 
@@ -67,6 +75,7 @@ class BlenderDownloader(private val project: Project) {
         logger.log("Extracting ${downloadedFile.name}...")
         extractFile(downloadedFile, downloadDir)
         
+        clearCache()
         val finalExecutable = findBlenderExecutable(downloadDir)
         if (finalExecutable != null) {
             logger.log("Blender $version successfully installed at ${finalExecutable.absolutePathString()}")
@@ -77,14 +86,16 @@ class BlenderDownloader(private val project: Project) {
     }
 
     private fun findBlenderExecutable(directory: Path): Path? {
+        if (!directory.exists() || !directory.isDirectory()) return null
+
         val osName = System.getProperty("os.name").lowercase()
         val isWindows = osName.contains("win")
         val isMac = osName.contains("mac")
 
         val executableName = if (isWindows) "blender.exe" else "blender"
         
-        // Walk the directory to find the executable
-        Files.walk(directory).use { stream ->
+        // Walk the directory to find the executable, limited depth for performance
+        Files.walk(directory, 3).use { stream ->
             return stream.filter { path ->
                 if (isMac) {
                     path.name == "Blender" && path.toString().contains("Blender.app/Contents/MacOS")

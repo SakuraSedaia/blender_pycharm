@@ -17,7 +17,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     private val myBlenderVersionComboBox = ComboBox(BlenderVersions.getSupportedVersionsWithCustom())
     private val myBlenderPathField = TextFieldWithBrowseButton()
     private val myBlenderCommandField = JBTextField()
-    private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxing")
+    private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxed Environment")
     private val myImportUserConfigCheckBox = JBCheckBox("Import User Configuration")
     private val myAddonSymlinkNameField = JBTextField()
     private val myAddonSourceDirectoryField = TextFieldWithBrowseButton()

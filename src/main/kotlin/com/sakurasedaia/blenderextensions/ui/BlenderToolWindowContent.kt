@@ -19,7 +19,6 @@ import javax.swing.table.AbstractTableModel
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
-
 class BlenderToolWindowContent(private val project: Project) {
     private val downloader = BlenderDownloader.getInstance(project)
     private val service = BlenderService.getInstance(project)
@@ -51,9 +50,18 @@ class BlenderToolWindowContent(private val project: Project) {
         val managedVersionsLabel = JBLabel("Managed Blender Installations").apply {
             font = font.deriveFont(java.awt.Font.BOLD)
         }
+
+        val refreshButton = JButton("Refresh Status").apply {
+            addActionListener { tableModel.refresh() }
+        }
+        
+        val managedVersionsHeader = JPanel(BorderLayout()).apply {
+            add(managedVersionsLabel, BorderLayout.WEST)
+            add(refreshButton, BorderLayout.EAST)
+        }
         
         val managedVersionsPanel = FormBuilder.createFormBuilder()
-            .addComponent(managedVersionsLabel)
+            .addComponent(managedVersionsHeader)
             .addComponent(JBScrollPane(table))
             .panel
 
@@ -114,6 +122,7 @@ class BlenderToolWindowContent(private val project: Project) {
         override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean = columnIndex == 2
 
         fun refresh() {
+            downloader.clearCache()
             fireTableDataChanged()
         }
         

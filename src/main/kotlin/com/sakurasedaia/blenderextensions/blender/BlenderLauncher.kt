@@ -52,7 +52,7 @@ class BlenderLauncher(private val project: Project) {
     }
 
     private fun setupSandbox(commandLine: GeneralCommandLine, importUserConfig: Boolean, blenderVersion: String?) {
-        logger.log("Using sandboxed mode")
+        logger.log("Using sandboxed environment")
         val projectPath = project.basePath ?: return
         val sandboxDir = Paths.get(projectPath, ".blender_sandbox")
         val configDir = sandboxDir.resolve("config")
@@ -105,6 +105,7 @@ class BlenderLauncher(private val project: Project) {
         }
         
         // Copy special directories if they exist (pycharm, sedaia)
+        // TODO: Change the loop to dynamically detect and copy special directories, instead of the directories being hard-coded.
         for (dirName in listOf("pycharm", "sedaia")) {
             val sourceDir = sourceConfigDir.resolve(dirName)
             if (sourceDir.exists() && sourceDir.isDirectory()) {

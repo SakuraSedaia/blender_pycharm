@@ -24,6 +24,23 @@ This project was developed almost exclusively using the AI integration tools by 
 - **Blender Management Tool Window**: A new tool window (right side) to manage global Blender installations (Download/Delete) and clear the project-local sandbox.
 - **Configurable**: Easily set the path to your Blender executable and toggle auto-reload.
 
+---
+
+## Build Instructions
+
+Currently, the plugin is not published on the JetBrains Marketplace, and as such it must be built from source and installed manually.
+
+1. Ensure you have the latest version of Intellij IDEA (Community or Pro) installed.
+2. Clone this repository and open it in Intellij IDEA.
+3. Run `./gradlew buildPlugin` or the "Build Plugin" run configuration.
+    - The plugin will be built in the `build/distributions` directory.
+4. In PyCharm, open **Settings** (or **Preferences** on macOS) > **Plugins**.
+5. Click the gear icon (⚙️) next to the "Installed" tab and select **Install Plugin from Disk...**.
+6. Navigate to the downloaded ZIP file and click **OK**.
+7. Restart PyCharm to complete the installation.
+
+---
+
 ## Operating Instructions
 
 ### Setup
@@ -95,20 +112,9 @@ The plugin starts a local TCP server when Blender is launched. It injects a star
 
 This ensures that your code changes are always picked up, avoiding common caching issues in Blender's Python environment.
 
-## Installation
-
-As the plugin is not yet published on the JetBrains Marketplace, it must be installed manually:
-
-1. Download the latest plugin distribution ZIP file from the [Releases](https://github.com/Sakura-Sedaia/BlenderExtensions/releases) page.
-2. In PyCharm, open **Settings** (or **Preferences** on macOS) > **Plugins**.
-3. Click the gear icon (⚙️) next to the "Installed" tab and select **Install Plugin from Disk...**.
-4. Navigate to the downloaded ZIP file and click **OK**.
-5. Restart PyCharm to complete the installation.
-
 ---
 
 ## Acknowledgments
-
 
 1. This extension is **heavily** based on and inspired by [Jacques Lucke's blender_vscode](https://github.com/JacquesLucke/blender_vscode) extension for Visual Studio Code. Some of the core functions are pulled directly from his extension, those include in this project are:
 - Extension repository management.
