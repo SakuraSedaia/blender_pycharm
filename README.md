@@ -6,7 +6,17 @@ Blender Extension Development integration for PyCharm. This plugin allows you to
 
 This project was developed almost exclusively using the AI integration tools by JetBrains s.r.o. in Intellij IDEA. The AI tools were used to generate the initial code, documentation, and some of the content in this README. The final review and editing were done by a human to ensure accuracy and clarity.
 
+## Documentation
+
+Visit our [GitHub Wiki](https://github.com/Sakura-Sedaia/BlenderExtensions/wiki) for in-depth documentation:
+- [Installation Guide](docs/wiki/Installation.md)
+- [Usage Guide](docs/wiki/Usage-Guide.md)
+- [Architecture Overview](docs/wiki/Architecture.md)
+- [Coding Guidelines](docs/wiki/Coding-Guidelines.md)
+
 ## Features
+
+For a detailed look at all features, check out our [[Wiki|Features]].
 
 - **Testing**: Launch a Blender instance in a development environment with auto-reload, sandboxing, and symlinking enabled.
 - **Auto-Reload**: Automatically reload your extension in Blender whenever you save a file in PyCharm.

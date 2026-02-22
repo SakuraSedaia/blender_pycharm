@@ -51,7 +51,7 @@
         <directoryProjectGenerator implementation="com.sakurasedaia.blenderextensions.project.BlenderAddonProjectGenerator"/>
         <iconProvider implementation="com.sakurasedaia.blenderextensions.icons.BlenderIconProvider"/>
         
-        <toolWindow id="Blender Management" 
+        <toolWindow id="MBVS"
                     anchor="right" 
                     factoryClass="com.sakurasedaia.blenderextensions.ui.BlenderToolWindowFactory" 
                     icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender"/>
