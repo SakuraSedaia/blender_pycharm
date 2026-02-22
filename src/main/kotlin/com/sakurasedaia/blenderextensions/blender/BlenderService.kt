@@ -33,7 +33,7 @@ class BlenderService(private val project: Project) {
 
     fun clearSandbox() {
         val projectPath = project.basePath ?: return
-        val sandboxDir = Path.of(projectPath, ".blender_sandbox")
+        val sandboxDir = Path.of(projectPath, ".blender-sandbox")
         if (sandboxDir.exists()) {
             sandboxDir.toFile().deleteRecursively()
             logger.log("Cleared sandbox directory: $sandboxDir")

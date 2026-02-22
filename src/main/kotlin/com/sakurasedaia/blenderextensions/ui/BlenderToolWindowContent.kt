@@ -69,11 +69,11 @@ class BlenderToolWindowContent(private val project: Project) {
             font = font.deriveFont(java.awt.Font.BOLD)
         }
         
-        val clearSandboxButton = JButton("Clear Sandbox (.blender_sandbox)").apply {
+        val clearSandboxButton = JButton("Clear Sandbox (.blender-sandbox)").apply {
             addActionListener {
                 val confirm = Messages.showYesNoDialog(
                     project,
-                    "Are you sure you want to delete the .blender_sandbox directory? This will remove all local configuration and scripts for this project's sandbox.",
+                    "Are you sure you want to delete the .blender-sandbox directory? This will remove all local configuration and scripts for this project's sandbox.",
                     "Clear Sandbox",
                     Messages.getQuestionIcon()
                 )

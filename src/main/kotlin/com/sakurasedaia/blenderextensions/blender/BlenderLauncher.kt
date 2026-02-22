@@ -54,7 +54,7 @@ class BlenderLauncher(private val project: Project) {
     private fun setupSandbox(commandLine: GeneralCommandLine, importUserConfig: Boolean, blenderVersion: String?) {
         logger.log("Using sandboxed environment")
         val projectPath = project.basePath ?: return
-        val sandboxDir = Paths.get(projectPath, ".blender_sandbox")
+        val sandboxDir = Paths.get(projectPath, ".blender-sandbox")
         val configDir = sandboxDir.resolve("config")
         val scriptsDir = sandboxDir.resolve("scripts")
         
@@ -66,7 +66,7 @@ class BlenderLauncher(private val project: Project) {
         }
 
         // Create a simple app template
-        val templatesDir = scriptsDir.resolve("startup/bl_app_templates/blender_extensions_dev")
+        val templatesDir = scriptsDir.resolve("startup/bl_app_templates/pycharm")
         templatesDir.createDirectories()
         val initFile = templatesDir.resolve("__init__.py")
         if (!initFile.exists()) {
@@ -77,7 +77,7 @@ class BlenderLauncher(private val project: Project) {
         
         commandLine.withEnvironment("BLENDER_USER_CONFIG", configDir.absolutePathString())
         commandLine.withEnvironment("BLENDER_USER_SCRIPTS", scriptsDir.absolutePathString())
-        commandLine.addParameters("--app-template", "blender_extensions_dev")
+        commandLine.addParameters("--app-template", "pycharm")
     }
 
     private fun importBlenderConfig(targetConfigDir: Path, version: String?) {

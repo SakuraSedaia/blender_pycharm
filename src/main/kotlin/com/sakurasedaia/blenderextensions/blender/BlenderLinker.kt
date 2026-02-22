@@ -68,7 +68,7 @@ class BlenderLinker(private val project: Project) {
     fun getExtensionsRepoDir(isSandboxed: Boolean = false): Path? {
         if (isSandboxed) {
             val projectPath = project.basePath ?: return null
-            return Path.of(projectPath, ".blender_sandbox", "extensions", "blender_pycharm")
+            return Path.of(projectPath, ".blender-sandbox", "extensions", "blender_pycharm")
         }
         
         val osName = System.getProperty("os.name").lowercase()

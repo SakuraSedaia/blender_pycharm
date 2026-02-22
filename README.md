@@ -47,7 +47,7 @@ Currently, the plugin is not published on the JetBrains Marketplace, and as such
 
 1. Open **Run/Debug Configurations** (Run > Edit Configurations...).
 2. Click **+** and select **Blender**.
-3. (Optional) Open the **Blender Management** tool window on the right sidebar to view, download, or delete managed Blender versions, or to clear the project's `.blender_sandbox` folder.
+3. (Optional) Open the **Blender Management** tool window on the right sidebar to view, download, or delete managed Blender versions, or to clear the project's `.blender-sandbox` folder.
 4. Choose a configuration template:
     - **Testing**: Launch Blender in a development environment with auto-reload, sandboxing, and symlinking. This is the primary mode for active development.
     - **Build**: Build your extension using `blender --command extensions build`.
@@ -107,7 +107,7 @@ The plugin starts a local TCP server when Blender is launched. It injects a star
     - Purges the module and all its submodules from Python's `sys.modules` to clear the module cache.
     - Forces a refresh of all extension repositories (`bpy.ops.extensions.repo_refresh_all()`).
     - Re-enables the extension, forcing a fresh import of your code changes.
-4. **Sandboxing and Configuration**: Creates a project-local Blender user environment (`.blender_sandbox`) that isolates development settings. This includes custom splash screens and optionally imported user configurations (preferences, startup file).
+4. **Sandboxing and Configuration**: Creates a project-local Blender user environment (`.blender-sandbox`) that isolates development settings. This includes custom splash screens and optionally imported user configurations (preferences, startup file).
 5. **Global Version Management**: Automatically handles multi-version downloads (4.2+ and 5.0) and global installation management through the dedicated tool window.
 
 This ensures that your code changes are always picked up, avoiding common caching issues in Blender's Python environment.
