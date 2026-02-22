@@ -9,12 +9,15 @@ import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
+import com.sakurasedaia.blenderextensions.blender.BlenderDownloader
 import com.sakurasedaia.blenderextensions.blender.BlenderVersions
+import javax.swing.DefaultComboBoxModel
 import javax.swing.JComponent
 import javax.swing.JPanel
 
 class BlenderSettingsEditor(private val project: Project) : SettingsEditor<BlenderRunConfiguration>() {
-    private val myBlenderVersionComboBox = ComboBox(BlenderVersions.getSupportedVersionsWithCustom())
+    private val downloader = BlenderDownloader.getInstance(project)
+    private val myBlenderVersionComboBox = ComboBox<String>()
     private val myBlenderPathField = TextFieldWithBrowseButton()
     private val myBlenderCommandField = JBTextField()
     private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxed Environment")
@@ -29,9 +32,16 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     private val myArgumentsComponent = LabeledComponent.create(myAdditionalArgumentsField, "Blender commandline arguments:")
 
     init {
+        val versions = BlenderVersions.getAllSelectableVersions(downloader)
+        myBlenderVersionComboBox.model = DefaultComboBoxModel(versions.toTypedArray())
+
         myBlenderVersionComboBox.addActionListener {
-            val isCustom = myBlenderVersionComboBox.selectedItem == "Custom/Pre-installed"
+            val selected = myBlenderVersionComboBox.selectedItem as? String
+            val isCustom = selected == "Custom/Pre-installed"
             myBlenderPathField.isEnabled = isCustom
+            
+            // If it's a path (contains separator), disable sandboxing/managed logic features? 
+            // Or just use it as the path.
         }
     }
 

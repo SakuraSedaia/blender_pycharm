@@ -37,8 +37,9 @@ If you don't need the full extension structure and manifest, you can create a si
 
 ### Blender Management Tool Window
 Located on the right sidebar (labeled **MBVS**), this tool window allows you to manage Blender installations globally:
-- **Refresh Status**: Scans the system path for already downloaded versions.
-- **Download/Delete**: Automatically fetch Blender 4.2+ or 5.0 versions directly from the Blender Foundation's servers.
+- **Refresh Status**: Scans the system path and standard installation directories for already installed Blender versions, as well as managed versions.
+- **Download/Delete**: Automatically fetch Blender 4.2+ or 5.0 versions directly from the Blender Foundation's servers. These are kept in a plugin-managed directory.
+- **System Blender Installations**: Displays a list of Blender executables found in standard system locations (e.g., `Program Files`, `/Applications`, `/usr/bin`).
 - **Clear Sandbox**: Quickly delete the project-local `.blender-sandbox` directory to reset your testing environment.
 
 ### Version Support
@@ -50,6 +51,7 @@ The plugin officially supports all major and minor versions after **Blender 4.2+
 
 ### The "Testing" Run Configuration
 Upon project creation, a **Start Blender** (Testing) configuration is created automatically. It is pre-configured for active development:
+- **Blender Version Dropdown**: Choose between Managed versions (automatically downloaded by the plugin), **System Discovered** versions (found on your machine), or **Custom/Pre-installed** (where you manually provide a path).
 - **Enable Sandboxed Environment**: (Recommended) Runs Blender using a project-local directory (`.blender-sandbox`). This prevents your development settings from affecting your main Blender installation.
 - **Import User Configuration**: When sandboxing is enabled, check this to copy your main Blender preferences, startup file, and bookmarks into the sandbox.
 - **Addon Source Directory**: Specifies where your source code is located (defaults to `src`).

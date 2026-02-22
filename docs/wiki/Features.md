@@ -4,8 +4,9 @@ The Blender Development for PyCharm plugin offers a rich set of features designe
 
 ## Automated Environment Management
 - **One-Click Downloads**: Automatically download and manage multiple Blender versions (4.2, 4.3, 4.4, 4.5, and 5.0) directly from the IDE.
-- **Version Switching**: Easily switch between different Blender versions for testing and validation.
-- **Global Management**: A dedicated tool window on the right sidebar allows you to see what's installed and delete versions you no longer need.
+- **System Version Detection**: Automatically scans your system for existing Blender installations (e.g., in `Program Files` or `/Applications`) and lets you use them instantly.
+- **Version Switching**: Easily switch between managed, system-wide, or custom Blender versions for testing and validation.
+- **Global Management**: A dedicated tool window on the right sidebar allows you to see what's installed, delete managed versions, or view discovered system versions.
 
 ## Sandboxed Development
 - **Isolation**: Launch Blender in a project-local environment (`.blender-sandbox`) to prevent conflicts with your main Blender installation.

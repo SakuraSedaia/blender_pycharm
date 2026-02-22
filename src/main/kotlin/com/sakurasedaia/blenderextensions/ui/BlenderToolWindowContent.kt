@@ -11,9 +11,13 @@ import com.intellij.util.ui.UIUtil
 import com.sakurasedaia.blenderextensions.blender.BlenderDownloader
 import com.sakurasedaia.blenderextensions.blender.BlenderService
 import com.sakurasedaia.blenderextensions.blender.BlenderVersions
+import com.sakurasedaia.blenderextensions.blender.BlenderInstallation
+import com.sakurasedaia.blenderextensions.blender.BlenderScanner
 import java.awt.BorderLayout
 import java.awt.Component
+import java.awt.Font
 import java.awt.event.ActionEvent
+import java.nio.file.Path
 import javax.swing.*
 import javax.swing.table.AbstractTableModel
 import javax.swing.table.DefaultTableCellRenderer
@@ -24,24 +28,33 @@ class BlenderToolWindowContent(private val project: Project) {
     private val service = BlenderService.getInstance(project)
     private val tableModel = BlenderVersionsTableModel()
     private val table = JBTable(tableModel)
+    private val systemTableModel = SystemBlenderTableModel()
+    private val systemTable = JBTable(systemTableModel)
 
     init {
+        configureTable(table, true)
+        configureTable(systemTable, false)
+    }
+
+    private fun configureTable(table: JBTable, isManaged: Boolean) {
         table.columnModel.getColumn(1).cellRenderer = object : DefaultTableCellRenderer() {
             override fun getTableCellRendererComponent(
                 table: JTable, value: Any, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
             ): Component {
                 val component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column)
                 if (value is String) {
-                    foreground = if (value == "Downloaded") JBUI.CurrentTheme.Label.foreground()
-                                else UIUtil.getLabelDisabledForeground()
+                    foreground = if (value == "Downloaded" || value == "Detected") JBUI.CurrentTheme.Label.foreground()
+                    else UIUtil.getLabelDisabledForeground()
                 }
                 return component
             }
         }
 
-        val buttonRenderer = ButtonRenderer()
-        table.columnModel.getColumn(2).cellRenderer = buttonRenderer
-        table.columnModel.getColumn(2).cellEditor = ButtonEditor(JCheckBox())
+        if (isManaged) {
+            val buttonRenderer = ButtonRenderer()
+            table.columnModel.getColumn(2).cellRenderer = buttonRenderer
+            table.columnModel.getColumn(2).cellEditor = ButtonEditor(JCheckBox())
+        }
     }
 
     fun getContent(): JComponent {
@@ -52,7 +65,10 @@ class BlenderToolWindowContent(private val project: Project) {
         }
 
         val refreshButton = JButton("Refresh Status").apply {
-            addActionListener { tableModel.refresh() }
+            addActionListener { 
+                tableModel.refresh()
+                systemTableModel.refresh()
+            }
         }
         
         val managedVersionsHeader = JPanel(BorderLayout()).apply {
@@ -62,7 +78,16 @@ class BlenderToolWindowContent(private val project: Project) {
         
         val managedVersionsPanel = FormBuilder.createFormBuilder()
             .addComponent(managedVersionsHeader)
-            .addComponent(JBScrollPane(table))
+            .addComponent(JBScrollPane(table).apply { preferredSize = JBUI.size(400, 150) })
+            .panel
+
+        val systemVersionsLabel = JBLabel("System Blender Installations").apply {
+            font = font.deriveFont(Font.BOLD)
+        }
+
+        val systemVersionsPanel = FormBuilder.createFormBuilder()
+            .addComponent(systemVersionsLabel)
+            .addComponent(JBScrollPane(systemTable).apply { preferredSize = JBUI.size(400, 150) })
             .panel
 
         val sandboxLabel = JBLabel("Project Sandbox Management").apply {
@@ -92,6 +117,8 @@ class BlenderToolWindowContent(private val project: Project) {
         val mainPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             add(managedVersionsPanel)
+            add(Box.createVerticalStrut(10))
+            add(systemVersionsPanel)
             add(Box.createVerticalStrut(20))
             add(sandboxPanel)
             add(Box.createVerticalGlue())
@@ -127,6 +154,36 @@ class BlenderToolWindowContent(private val project: Project) {
         }
         
         fun getVersionAt(row: Int) = versions[row]
+    }
+
+    private inner class SystemBlenderTableModel : AbstractTableModel() {
+        private val columnNames = arrayOf("Name", "Status", "Path")
+        private var installations = listOf<BlenderInstallation>()
+
+        init {
+            refresh()
+        }
+
+        override fun getRowCount(): Int = installations.size
+        override fun getColumnCount(): Int = columnNames.size
+        override fun getColumnName(column: Int): String = columnNames[column]
+
+        override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
+            val inst = installations[rowIndex]
+            return when (columnIndex) {
+                0 -> inst.name
+                1 -> "Detected"
+                2 -> inst.path
+                else -> ""
+            }
+        }
+
+        fun refresh() {
+            com.intellij.openapi.application.ApplicationManager.getApplication().executeOnPooledThread {
+                installations = BlenderScanner.scanSystemInstallations(force = true)
+                SwingUtilities.invokeLater { fireTableDataChanged() }
+            }
+        }
     }
 
     private inner class ButtonRenderer : JButton(), TableCellRenderer {
