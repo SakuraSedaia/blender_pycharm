@@ -55,6 +55,8 @@
                     anchor="right" 
                     factoryClass="com.sakurasedaia.blenderextensions.ui.BlenderToolWindowFactory" 
                     icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender"/>
+
+        <fileTemplateGroup implementation="com.sakurasedaia.blenderextensions.actions.BlenderTemplateGroupFactory"/>
     </extensions>
 
     <actions>
@@ -68,6 +70,14 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt R"/>
             </action>
         </group>
+
+        <action id="com.sakurasedaia.blenderextensions.actions.CreateBlenderAddonAction"
+                class="com.sakurasedaia.blenderextensions.actions.CreateBlenderAddonAction"
+                text="Blender Add-on"
+                description="Create a new single-script Blender add-on"
+                icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
+        </action>
     </actions>
 
     <applicationListeners>

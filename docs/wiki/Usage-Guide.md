@@ -18,8 +18,15 @@ To start a new Blender extension project:
 
 ### Bootstrapping Options
 - **Add automatic module/class registration script**: Includes `auto_load.py` and an autoload-ready `__init__.py` to simplify complex project structures.
-- **Append pre-made agent guidelines**: Adds a `.agent-guidelines.md` file to help AI coding agents understand your project structure.
+- **Append pre-made agent guidelines**: Adds a premade `.agent-guidelines.md` document to help AI coding agents understand your project structure.
 - **Create Git repository**: Automatically initializes a Git repository in the project folder.
+
+### Creating a Simple (Legacy) Add-on
+If you don't need the full extension structure and manifest, you can create a single-script add-on:
+1. Right-click on a directory in the **Project** view.
+2. Select **New** > **Blender Add-on**.
+3. Enter a filename.
+4. The plugin generates a boilerplate script with a `bl_info` dictionary, a sample operator, and registration logic.
 
 ---
 
@@ -32,7 +39,7 @@ Located on the right sidebar (labeled **MBVS**), this tool window allows you to 
 - **Clear Sandbox**: Quickly delete the project-local `.blender-sandbox` directory to reset your testing environment.
 
 ### Version Support
-The plugin officially supports **Blender 4.2+** and **Blender 5.0**. If you wish to use a version not managed by the plugin, select **Custom/Pre-installed** in the run configuration and point to your local executable.
+The plugin officially supports all major and minor versions after **Blender 4.2+**, which introduced the Blender Extension Platform. If you wish to use a version not managed by the plugin, select **Custom/Pre-installed** in the run configuration and point to your local executable.
 
 ---
 

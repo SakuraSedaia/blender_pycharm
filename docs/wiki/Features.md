@@ -21,6 +21,7 @@ The Blender Development for PyCharm plugin offers a rich set of features designe
 ## Smart Project Templates
 - **New Project Wizard**: Quickly bootstrap new extensions with a structure that mirrors PyCharm's Pure Python setup.
 - **Manifest Configuration**: Configure your `blender_manifest.toml` (metadata, permissions, compatibility) directly during project creation.
+- **Simple Add-on Template**: Quickly create a single-script Blender add-on with legacy `bl_info` support from the **New** menu.
 - **Auto-load Support**: Optionally include an `auto_load.py` helper to handle complex module structures automatically.
 - **Automatic Run Configs**: Gets you up and running immediately with pre-configured Testing, Build, and Validate profiles.
 
