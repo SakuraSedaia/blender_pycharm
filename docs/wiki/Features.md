@@ -31,5 +31,5 @@ The Blender Development for PyCharm plugin offers a rich set of features designe
 - **Custom Commands**: Run any `blender --command` directly from the IDE.
 
 ## Smart UI Integration
-- **Folder Icons**: Directories containing a `blender_manifest.toml` are automatically marked with a Blender icon for easy identification.
+- **Blender File Icons**: `.blend` and `.blend1` files are automatically marked with a custom Blender color icon.
 - **Integrated Logging**: A dedicated `blender_plugin.log` in your project root tracks all operations for easy troubleshooting.

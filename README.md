@@ -30,7 +30,7 @@ For a detailed look at all features, check out our [[Wiki|Features]].
     - **AI Integration**: Check “Append pre-made agent guidelines” to include standardized instructions for AI agents in a `.junie/` directory.
     - **Run Configurations**: The template automatically creates pre-configured Blender Run Configurations for Testing, Build, and Validate.
     - **Post-Creation**: The generated `README.md` provides clear instructions on configuring your Python interpreter and linting stubs using PyCharm's built-in tools.
-- **Automated Folder Icon Detection**: Directories containing a `blender_manifest.toml` file are automatically identified with a custom Blender extension folder icon for better project navigation.
+- **Blender File Icons**: `.blend` and `.blend1` files are automatically identified with a custom Blender color icon.
 - **Blender Management Tool Window**: A new tool window (right side) to manage global Blender installations (Download/Delete) and clear the project-local sandbox.
 - **Configurable**: Easily set the path to your Blender executable and toggle auto-reload.
 
