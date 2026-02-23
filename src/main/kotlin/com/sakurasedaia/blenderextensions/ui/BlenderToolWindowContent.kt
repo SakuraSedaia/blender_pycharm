@@ -5,7 +5,6 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
-import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
 import com.sakurasedaia.blenderextensions.blender.BlenderDownloader
@@ -16,6 +15,8 @@ import com.sakurasedaia.blenderextensions.blender.BlenderScanner
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Font
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
 import java.awt.event.ActionEvent
 import java.nio.file.Path
 import javax.swing.*
@@ -58,8 +59,6 @@ class BlenderToolWindowContent(private val project: Project) {
     }
 
     fun getContent(): JComponent {
-        val panel = JPanel(BorderLayout())
-        
         val managedVersionsLabel = JBLabel("Managed Blender Installations").apply {
             font = font.deriveFont(java.awt.Font.BOLD)
         }
@@ -75,20 +74,10 @@ class BlenderToolWindowContent(private val project: Project) {
             add(managedVersionsLabel, BorderLayout.WEST)
             add(refreshButton, BorderLayout.EAST)
         }
-        
-        val managedVersionsPanel = FormBuilder.createFormBuilder()
-            .addComponent(managedVersionsHeader)
-            .addComponent(JBScrollPane(table).apply { preferredSize = JBUI.size(400, 150) })
-            .panel
 
         val systemVersionsLabel = JBLabel("System Blender Installations").apply {
             font = font.deriveFont(Font.BOLD)
         }
-
-        val systemVersionsPanel = FormBuilder.createFormBuilder()
-            .addComponent(systemVersionsLabel)
-            .addComponent(JBScrollPane(systemTable).apply { preferredSize = JBUI.size(400, 150) })
-            .panel
 
         val sandboxLabel = JBLabel("Project Sandbox Management").apply {
             font = font.deriveFont(java.awt.Font.BOLD)
@@ -109,22 +98,59 @@ class BlenderToolWindowContent(private val project: Project) {
             }
         }
         
-        val sandboxPanel = FormBuilder.createFormBuilder()
-            .addComponent(sandboxLabel)
-            .addComponent(clearSandboxButton)
-            .panel
-
-        val mainPanel = JPanel().apply {
-            layout = BoxLayout(this, BoxLayout.Y_AXIS)
-            add(managedVersionsPanel)
-            add(Box.createVerticalStrut(10))
-            add(systemVersionsPanel)
-            add(Box.createVerticalStrut(20))
-            add(sandboxPanel)
-            add(Box.createVerticalGlue())
+        // Use GridBagLayout for vertical expandability of the table lists
+        val mainPanel = JPanel(GridBagLayout())
+        val c = GridBagConstraints().apply {
+            fill = GridBagConstraints.BOTH
+            gridx = 0
+            weightx = 1.0
         }
+
+        // Managed Header
+        c.gridy = 0
+        c.weighty = 0.0
+        c.insets = JBUI.insets(5)
+        mainPanel.add(managedVersionsHeader, c)
+
+        // Managed Table (Expandable)
+        c.gridy = 1
+        c.weighty = 1.0
+        c.insets = JBUI.insets(0, 5, 5, 5)
+        mainPanel.add(JBScrollPane(table).apply {
+            preferredSize = JBUI.size(400, 150)
+            minimumSize = JBUI.size(400, 100)
+        }, c)
+
+        // System Label
+        c.gridy = 2
+        c.weighty = 0.0
+        c.insets = JBUI.insets(15, 5, 5, 5)
+        mainPanel.add(systemVersionsLabel, c)
+
+        // System Table (Expandable)
+        c.gridy = 3
+        c.weighty = 1.0
+        c.insets = JBUI.insets(0, 5, 5, 5)
+        mainPanel.add(JBScrollPane(systemTable).apply {
+            preferredSize = JBUI.size(400, 150)
+            minimumSize = JBUI.size(400, 100)
+        }, c)
+
+        // Sandbox Section
+        c.gridy = 4
+        c.weighty = 0.0
+        c.insets = JBUI.insets(20, 5, 5, 5)
+        mainPanel.add(sandboxLabel, c)
+
+        c.gridy = 5
+        c.insets = JBUI.insets(0, 5, 5, 5)
+        mainPanel.add(clearSandboxButton, c)
+
+        // Wrap in a BorderLayout panel to respect expansion
+        val panel = JPanel(BorderLayout())
+        panel.add(mainPanel, BorderLayout.CENTER)
+        panel.border = JBUI.Borders.empty(5)
         
-        panel.add(mainPanel, BorderLayout.NORTH)
         return panel
     }
 
