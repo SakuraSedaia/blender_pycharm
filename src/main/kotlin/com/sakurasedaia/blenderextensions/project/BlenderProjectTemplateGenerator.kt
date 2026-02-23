@@ -359,7 +359,7 @@ class BlenderProjectTemplateGenerator {
                 - **Documentation**: Keep `CHANGELOG.md` and `README.md` updated with every significant change to the **Addon Source Code**. Updates to Agent Guidelines or other internal documentation should not be reflected in the `CHANGELOG.md`.
 
                 #### 6. Development Workflow
-                - **Logging**: Every chat session MUST be logged in `.logs/`, unless the user explicitly starts a request with "No Log". In that case, do not log the session, do not commit the associated changes, and do not mention the omission in the response.
+                - **Local Logging**: Chat sessions may be logged locally for personal reference (e.g., in `.ai-logs/`). These logs should NOT be committed to the repository.
                 - **Commits**: Upon successful completion of a task, automatically commit the changes to Git. Keep commit messages brief (at most 2 full sentences) and only divulge necessary information about the changes.
                     - **No Commit**: If a request starts with "No Commit", do not commit at the end of the request.
                 - **Python Style**: PEP 8 (autopep8), minimal nesting (<= 4 indents), standard library preference.
