@@ -28,7 +28,7 @@
 
         <p>Based on the <a href="https://github.com/JacquesLucke/blender_vscode">Blender Development extension for Visual Studio Code</a> by <b>Jacques Lucke</b> and adapted for use in PyCharm.</p>
 
-        <p><i>This Project is not sponsored, affiliated, nor associated with the Blender Foundation or JetBrains s.r.o. All Rights reserved.</i></p>
+        <p><i>The Blender Logo is a registered trademark of the Blender Foundation, and is only used in this project to denote functions which directly relate to developing, maintaining, and creation Blender Extensions</i></p>
     ]]></description>
 
     <!-- Product and plugin compatibility requirements.
