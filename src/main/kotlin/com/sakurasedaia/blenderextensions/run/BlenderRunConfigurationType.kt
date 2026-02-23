@@ -11,7 +11,7 @@ import javax.swing.Icon
 class BlenderRunConfigurationType : ConfigurationType {
     override fun getDisplayName(): String = "Blender"
     override fun getConfigurationTypeDescription(): String = "Blender Run Configuration"
-    override fun getIcon(): Icon = BlenderIcons.Blender
+    override fun getIcon(): Icon = BlenderIcons.BlenderColor
     override fun getId(): String = "BLENDER_RUN_CONFIGURATION"
     override fun getConfigurationFactories(): Array<ConfigurationFactory> = arrayOf(
         BlenderStartBlenderConfigurationFactory(this),
