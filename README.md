@@ -17,7 +17,7 @@ Visit our [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/) for in-dept
 
 ## Features
 
-For a detailed look at all features, check out our [[Wiki|Features]].
+For a detailed look at all features, check out the [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/Features.html).
 
 - **Testing**: Launch a Blender instance in a development environment with auto-reload, sandboxing, and symlinking enabled.
 - **Auto-Reload**: Automatically reload your extension in Blender whenever you save a file in PyCharm.
