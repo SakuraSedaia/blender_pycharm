@@ -8,11 +8,12 @@ This project was developed almost exclusively using the AI integration tools by 
 
 ## Documentation
 
-Visit our [GitHub Wiki](https://github.com/Sakura-Sedaia/BlenderExtensions/wiki) for in-depth documentation:
-- [Installation Guide](docs/wiki/Installation.md)
-- [Usage Guide](docs/wiki/Usage-Guide.md)
-- [Architecture Overview](docs/wiki/Architecture.md)
-- [Coding Guidelines](docs/wiki/Coding-Guidelines.md)
+Visit our [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/) for in-depth documentation:
+- [Installation Guide](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/Installation.html)
+- [Usage Guide](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/usage-guide/index.html)
+- [Architecture Overview](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/Architecture.html)
+- [Contributing](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/Contributing.html)
+- [Coding Guidelines](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/Coding-Guidelines.html)
 
 ## Features
 
