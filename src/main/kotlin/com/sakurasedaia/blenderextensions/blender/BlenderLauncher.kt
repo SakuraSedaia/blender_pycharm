@@ -70,7 +70,7 @@ class BlenderLauncher(private val project: Project) {
         templatesDir.createDirectories()
         val initFile = templatesDir.resolve("__init__.py")
         if (!initFile.exists()) {
-            initFile.writeText("\"\"\"\nBlender Extension Development App Template\nCreated by the Blender Extension Development for PyCharm plugin.\n\"\"\"\ndef register():\n    pass\n\ndef unregister():\n    pass\n")
+            initFile.writeText("\"\"\"\n# Blender Extension Development App Template\n# Created by the Blender Extension Development for PyCharm plugin.\n\"\"\"\ndef register():\n    pass\n\ndef unregister():\n    pass\n")
         }
 
         handleSandboxSplashScreen(templatesDir)
@@ -150,7 +150,7 @@ class BlenderLauncher(private val project: Project) {
 
     private fun handleSandboxSplashScreen(templatesDir: Path) {
         val projectPath = project.basePath ?: return
-        val projectSplash = Paths.get(projectPath, "splash.png")
+        val projectSplash = Paths.get(projectPath, "images/splash.png")
         val targetSplash = templatesDir.resolve("splash.png")
         
         if (projectSplash.exists()) {
@@ -163,7 +163,7 @@ class BlenderLauncher(private val project: Project) {
         } else {
             // Try to copy the default splash from plugin resources
             try {
-                this.javaClass.getResourceAsStream("/splash.png")?.use { input ->
+                this.javaClass.getResourceAsStream("/images/sandbox_splash.png")?.use { input ->
                     Files.copy(input, targetSplash, StandardCopyOption.REPLACE_EXISTING)
                 }
                 logger.log("Copied default splash screen from plugin resources to sandboxed app template")
