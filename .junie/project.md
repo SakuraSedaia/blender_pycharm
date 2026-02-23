@@ -33,5 +33,4 @@
 - `src/main/kotlin/com/sakurasedaia/blenderextensions/run/BlenderRunConfiguration.kt`: UI and entry point for launching Blender.
 - `src/main/kotlin/com/sakurasedaia/blenderextensions/run/BlenderRunProfileState.kt`: Execution logic for Blender run configurations.
 - `src/main/kotlin/com/sakurasedaia/blenderextensions/project/BlenderProjectGenerators.kt`: Logic for new project templates.
-- `.ai-logs/`: Historical logs and summaries of development sessions.
 - `.reference/blender_vscode`: Reference of the VS Code Blender extension.

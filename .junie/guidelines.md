@@ -21,13 +21,13 @@
 ## AI Agent Interaction & Workflow
 - AI Agent Interaction: At session start, review `.junie/` files (`project.md`, `context.md`, `guidelines.md`) to align with current architecture, language standards, and rules.
 - Logging & Summaries:
-  - Maintain logs of all chat sessions in `.ai-logs/`, organized by date.
+  - Maintain local-only logs of all chat sessions in `.ai-logs/`, organized by date. These files are for personal reference and should NOT be committed to the repository.
   - When asked for a "context summary" or "summary of the day/session", write `summary_YYYY-MM-DD.md` in `.ai-logs/` with highlights.
   - When adding rules to `.junie/`, place them in the correct file (generic rules and guidelines here; project-specific data in `project.md`; generic kotlin and python context in `context.md`).
   - Guideline Sync: When updating internal guidelines here that affect development style/structure/standards, also update the public `CONTRIBUTING.md` accordingly.
 - Documentation Maintenance: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated throughout the changes this project undergoes.
 - Development Workflow:
-  - Session Logging: Every chat session MUST be logged in `.ai-logs/` unless the user explicitly says "No Log".
+  - Session Logging: Every chat session should be logged locally in `.ai-logs/` unless the user explicitly says "No Log". Do NOT commit these logs.
   - Commits: Upon successful completion of a task, commit the changes to Git with brief messages (<= 2 sentences).
   - Resource Management: Download external assets locally (avoid CDNs) for reliability and offline availability.
   - SSH/Passphrase Handling: If a Git command or any process requires a passphrase or password, use the `ask_user` tool to request it from the user. Since the `bash` tool is non-interactive, use appropriate means (like `GIT_ASKPASS`, `expect`, or `ssh-add` if applicable) to proceed once the user provides it.
