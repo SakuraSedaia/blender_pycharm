@@ -36,7 +36,7 @@ class BlenderService(private val project: Project) {
         val projectPath = project.basePath ?: return
         val sandboxDir = Path.of(projectPath, ".blender-sandbox")
         if (sandboxDir.exists()) {
-            sandboxDir.toFile().deleteRecursively()
+            com.intellij.openapi.util.io.FileUtil.delete(sandboxDir.toFile())
             logger.log("Cleared sandbox directory: $sandboxDir")
         }
     }
