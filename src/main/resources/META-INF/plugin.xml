@@ -69,6 +69,12 @@
                     description="Reload Blender extension manually">
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt R"/>
             </action>
+            <action id="com.sakurasedaia.blenderextensions.actions.MarkAsBlenderSourceAction"
+                    class="com.sakurasedaia.blenderextensions.actions.MarkAsBlenderSourceAction"
+                    text="Mark as Blender Source"
+                    description="Designate this folder as a Blender extension source folder">
+                <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="MarkRootGroup"/>
+            </action>
         </group>
 
         <action id="com.sakurasedaia.blenderextensions.actions.CreateBlenderFileAction"

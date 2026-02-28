@@ -7,7 +7,9 @@ import com.intellij.openapi.project.Project
 @State(name = "BlenderSettings", storages = [Storage("blender_settings.xml")])
 class BlenderSettings : PersistentStateComponent<BlenderSettings.State> {
     data class State(
-        var autoReload: Boolean = true
+        var autoReload: Boolean = true,
+        var blenderSourceFolders: MutableSet<String> = mutableSetOf(),
+        var customBlenderPaths: MutableMap<String, String> = mutableMapOf() // path -> name
     )
 
     private var myState = State()
@@ -15,6 +17,29 @@ class BlenderSettings : PersistentStateComponent<BlenderSettings.State> {
     override fun getState(): State = myState
     override fun loadState(state: State) {
         myState = state
+    }
+
+    fun isSourceFolder(path: String): Boolean = myState.blenderSourceFolders.contains(path)
+
+    fun addSourceFolder(path: String) {
+        myState.blenderSourceFolders.add(path)
+    }
+
+    fun removeSourceFolder(path: String) {
+        myState.blenderSourceFolders.remove(path)
+    }
+
+    fun getSourceFolders(): Set<String> = myState.blenderSourceFolders
+
+    fun getCustomBlenderPaths(): Map<String, String> = myState.customBlenderPaths
+
+    fun addCustomBlenderPath(path: String, name: String? = null) {
+        val finalName = name ?: java.nio.file.Path.of(path).fileName?.toString() ?: "Custom Blender"
+        myState.customBlenderPaths[path] = finalName
+    }
+
+    fun removeCustomBlenderPath(path: String) {
+        myState.customBlenderPaths.remove(path)
     }
 
     companion object {

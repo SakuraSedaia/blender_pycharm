@@ -12,13 +12,14 @@ data class BlenderInstallation(
     val name: String,
     val path: String,
     val version: String,
-    val isManaged: Boolean = false
+    val isManaged: Boolean = false,
+    val isCustom: Boolean = false
 )
 
 object BlenderScanner {
     private var cachedInstallations: List<BlenderInstallation>? = null
 
-    fun scanSystemInstallations(force: Boolean = false): List<BlenderInstallation> {
+    fun scanSystemInstallations(force: Boolean = false, customPaths: Map<String, String> = emptyMap()): List<BlenderInstallation> {
         if (!force && cachedInstallations != null) return cachedInstallations!!
         
         val installations = mutableListOf<BlenderInstallation>()
@@ -27,6 +28,16 @@ object BlenderScanner {
             SystemInfo.isWindows -> installations.addAll(scanWindows())
             SystemInfo.isMac -> installations.addAll(scanMac())
             SystemInfo.isLinux -> installations.addAll(scanLinux())
+        }
+
+        customPaths.forEach { (pathStr, customName) ->
+            val path = Path.of(pathStr)
+            if (path.exists()) {
+                val exe = if (path.isDirectory()) findBlenderExecutable(path) else path
+                if (exe != null && exe.exists()) {
+                    installations.add(BlenderInstallation(customName, exe.toString(), "Unknown", isCustom = true))
+                }
+            }
         }
         
         val result = installations.distinctBy { it.path }.map { 
@@ -38,6 +49,23 @@ object BlenderScanner {
         }
         cachedInstallations = result
         return result
+    }
+
+    private fun findBlenderExecutable(path: Path): Path? {
+        val exeName = if (SystemInfo.isWindows) "blender.exe" else if (SystemInfo.isMac) "Blender.app/Contents/MacOS/Blender" else "blender"
+        val exe = path.resolve(exeName)
+        if (exe.exists()) return exe
+
+        // Deep search if not immediately found in root
+        try {
+            Files.walk(path, 3).use { stream ->
+                return stream.filter { it.name == (if (SystemInfo.isWindows) "blender.exe" else "blender") && !it.isDirectory() }
+                    .findFirst()
+                    .orElse(null)
+            }
+        } catch (e: Exception) {
+            return null
+        }
     }
 
     private fun tryGetVersion(path: String): String {

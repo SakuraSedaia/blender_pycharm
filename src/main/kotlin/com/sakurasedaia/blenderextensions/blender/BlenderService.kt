@@ -5,6 +5,7 @@ import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
@@ -64,7 +65,12 @@ class BlenderService(private val project: Project) {
                 blenderVersion = blenderVersion
             )
         } else {
-            val sourcePath = if (!addonSourceDir.isNullOrEmpty()) Path.of(addonSourceDir) else Path.of(projectPath)
+            val sourcePath = if (!addonSourceDir.isNullOrEmpty()) {
+                Path.of(addonSourceDir)
+            } else {
+                val markedSource = BlenderSettings.getInstance(project).getSourceFolders().firstOrNull()
+                if (markedSource != null) Path.of(markedSource) else Path.of(projectPath)
+            }
 
             if (!sourcePath.exists()) {
                 logger.log("Source directory does not exist: $sourcePath")

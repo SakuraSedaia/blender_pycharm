@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.sakurasedaia.blenderextensions.run.*
+import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.Icon
@@ -60,6 +61,7 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
 
         val srcDir = projectPath.resolve("src")
         Files.createDirectories(srcDir)
+        BlenderSettings.getInstance(project).addSourceFolder(srcDir.toAbsolutePath().toString().replace("\\", "/"))
 
         val permissionsMap = mutableMapOf<String, String>()
         if (settings.permissionNetwork && !settings.permissionNetworkReason.isNullOrBlank()) permissionsMap["network"] = settings.permissionNetworkReason!!
