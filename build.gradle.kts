@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.sakura-sedaia"
-version = "1.0.0"
+version = "0.1.0-SNAPSHOT-01"
 
 repositories {
 	mavenCentral()
@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
 	intellijPlatform {
-		pycharm("2025.3.3")
+		pycharm("2025.2.4")
 		testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
 		
 		bundledPlugin("PythonCore")
