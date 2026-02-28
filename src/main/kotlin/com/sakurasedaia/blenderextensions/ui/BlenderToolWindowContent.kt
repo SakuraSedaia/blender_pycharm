@@ -49,6 +49,9 @@ class BlenderToolWindowContent(private val project: Project) {
                         icon = value
                         text = ""
                         horizontalAlignment = SwingConstants.CENTER
+                        
+                        val inst = (table.model as? SystemBlenderTableModel)?.getInstallationAt(row)
+                        toolTipText = if (inst?.isCustom == true) "Added manually" else "Auto-detected"
                     } else if (value is String) {
                         icon = null
                         text = value
@@ -61,7 +64,7 @@ class BlenderToolWindowContent(private val project: Project) {
             
             // Setup the remove button in the 4th column (index 3)
             val systemButtonRenderer = SystemButtonRenderer()
-            val systemButtonEditor = SystemButtonEditor(JCheckBox())
+            val systemButtonEditor = SystemButtonEditor()
             table.columnModel.getColumn(3).cellRenderer = systemButtonRenderer
             table.columnModel.getColumn(3).cellEditor = systemButtonEditor
             table.columnModel.getColumn(3).maxWidth = 60
@@ -232,7 +235,7 @@ class BlenderToolWindowContent(private val project: Project) {
         override fun getValueAt(rowIndex: Int, columnIndex: Int): Any {
             val inst = installations[rowIndex]
             return when (columnIndex) {
-                0 -> BlenderIcons.Checkmark
+                0 -> if (inst.isCustom) BlenderIcons.Custom else BlenderIcons.System
                 1 -> inst.name
                 2 -> inst.path
                 3 -> if (inst.isCustom) "Remove" else ""
@@ -248,18 +251,10 @@ class BlenderToolWindowContent(private val project: Project) {
         override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
             if (columnIndex == 1) {
                 val inst = installations[rowIndex]
-                if (inst.isCustom) {
+                if (inst.isCustom && inst.originPath != null) {
                     val settings = BlenderSettings.getInstance(project)
-                    val customPaths = settings.getCustomBlenderPaths()
-                    // Need to find the original key path for this installation.
-                    // The inst.path might be the executable, but settings might store the folder.
-                    val originalKey = customPaths.keys.find { key ->
-                        key == inst.path || inst.path.startsWith(key)
-                    }
-                    if (originalKey != null) {
-                        settings.addCustomBlenderPath(originalKey, aValue.toString())
-                        refresh()
-                    }
+                    settings.addCustomBlenderPath(inst.originPath, aValue.toString())
+                    refresh()
                 }
             }
         }
@@ -297,7 +292,7 @@ class BlenderToolWindowContent(private val project: Project) {
         }
     }
 
-    private inner class SystemButtonEditor(checkBox: JCheckBox) : DefaultCellEditor(checkBox) {
+    private inner class SystemButtonEditor : AbstractCellEditor(), TableCellEditor {
         private val button = JButton()
         private var row = 0
 
@@ -306,7 +301,7 @@ class BlenderToolWindowContent(private val project: Project) {
             button.border = BorderFactory.createEmptyBorder()
             button.addActionListener {
                 val inst = systemTableModel.getInstallationAt(row)
-                if (inst.isCustom) {
+                if (inst.isCustom && inst.originPath != null) {
                     val confirm = Messages.showYesNoDialog(
                         project,
                         "Are you sure you want to remove this Blender Path?",
@@ -315,13 +310,8 @@ class BlenderToolWindowContent(private val project: Project) {
                     )
                     if (confirm == Messages.YES) {
                         val settings = BlenderSettings.getInstance(project)
-                        val pathToRemove = settings.getCustomBlenderPaths().keys.find { 
-                            it == inst.path || inst.path.startsWith(it)
-                        }
-                        if (pathToRemove != null) {
-                            settings.removeCustomBlenderPath(pathToRemove)
-                            systemTableModel.refresh()
-                        }
+                        settings.removeCustomBlenderPath(inst.originPath)
+                        systemTableModel.refresh()
                     }
                 }
                 fireEditingStopped()

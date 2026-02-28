@@ -34,4 +34,10 @@ object BlenderIcons {
 
     @JvmField
     val Add: Icon = AllIcons.General.Add
+
+    @JvmField
+    val System: Icon = AllIcons.Nodes.HomeFolder
+
+    @JvmField
+    val Custom: Icon = AllIcons.General.User
 }

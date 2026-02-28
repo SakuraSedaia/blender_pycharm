@@ -13,7 +13,8 @@ data class BlenderInstallation(
     val path: String,
     val version: String,
     val isManaged: Boolean = false,
-    val isCustom: Boolean = false
+    val isCustom: Boolean = false,
+    val originPath: String? = null
 )
 
 object BlenderScanner {
@@ -35,7 +36,7 @@ object BlenderScanner {
             if (path.exists()) {
                 val exe = if (path.isDirectory()) findBlenderExecutable(path) else path
                 if (exe != null && exe.exists()) {
-                    installations.add(BlenderInstallation(customName, exe.toString(), "Unknown", isCustom = true))
+                    installations.add(BlenderInstallation(customName, exe.toString(), "Unknown", isCustom = true, originPath = pathStr))
                 }
             }
         }

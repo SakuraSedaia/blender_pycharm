@@ -34,8 +34,9 @@ class BlenderSettings : PersistentStateComponent<BlenderSettings.State> {
     fun getCustomBlenderPaths(): Map<String, String> = myState.customBlenderPaths
 
     fun addCustomBlenderPath(path: String, name: String? = null) {
-        val finalName = name ?: java.nio.file.Path.of(path).fileName?.toString() ?: "Custom Blender"
-        myState.customBlenderPaths[path] = finalName
+        val pathOf = java.nio.file.Path.of(path)
+        val finalName = name ?: pathOf.fileName?.toString() ?: "Custom Blender"
+        myState.customBlenderPaths[pathOf.toString()] = finalName
     }
 
     fun removeCustomBlenderPath(path: String) {

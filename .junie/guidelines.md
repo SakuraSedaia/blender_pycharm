@@ -16,6 +16,9 @@
 - Function Size: Aim for small, focused functions. If a function is too long, extract sub-functions.
 - DRY (Don't Repeat Yourself): Extract common logic into helper methods or utility classes.
 - Constant Extraction: Avoid hardcoded strings or numbers. Extract them into meaningful constants.
+- Icon Management: All icons must be declared in `BlenderIcons.kt` and referenced as `BlenderIcons.Icon` in the codebase.
+  - For custom icons, use: `@JvmField val IconName: Icon = IconLoader.getIcon("/images/icon_name.svg", BlenderIcons::class.java)`
+  - For JetBrains icons, use: `@JvmField val IconName: Icon = AllIcons.Icon.IconName`
 - Comments: Write code that is self-documenting. Use comments only to explain "why" something is done if it's not obvious from the "what" and "how".
 
 ## AI Agent Interaction & Workflow
@@ -28,6 +31,6 @@
 - Documentation Maintenance: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated throughout the changes this project undergoes.
 - Development Workflow:
   - Session Logging: Every chat session should be logged locally in `.ai-logs/` unless the user explicitly says "No Log". Do NOT commit these logs.
-  - Commits: Upon successful completion of a task, commit the changes to Git with brief messages (<= 2 sentences).
+  - Commits: Upon successful completion of a task, commit the changes to Git with brief messages (<= 2 sentences). Use prefixes like `Fix:`, `Feature:`, `Docs:`, or `Refactor:` to clarify the purpose of the commit.
   - Resource Management: Download external assets locally (avoid CDNs) for reliability and offline availability.
   - SSH/Passphrase Handling: If a Git command or any process requires a passphrase or password, use the `ask_user` tool to request it from the user. Since the `bash` tool is non-interactive, use appropriate means (like `GIT_ASKPASS`, `expect`, or `ssh-add` if applicable) to proceed once the user provides it.
