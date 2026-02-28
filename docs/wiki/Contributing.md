@@ -1,6 +1,6 @@
 # Contributing
 
-Thank you for your interest in contributing to the Blender Development for PyCharm plugin!
+Thank you for your interest in contributing to the Blender Dev Tools for PyCharm plugin!
 
 ## Getting Started
 

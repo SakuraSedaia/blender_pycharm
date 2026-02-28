@@ -5,7 +5,7 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Blender Development</name>
+    <name>Blender Dev Tools</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://www.sakura-sedaia.com">Sakura Sedaia</vendor>
@@ -13,8 +13,8 @@
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        <h1>Blender Development for PyCharm</h1>
-        <p>Integrate Blender extension development directly into your PyCharm workflow. This plugin provides a comprehensive suite of tools to streamline the creation, testing, and deployment of Blender extensions.</p>
+        <h1>Blender Dev Tools for PyCharm</h1>
+        <p>Integrate Blender extension development directly into your PyCharm workflow. This plugin provides a comprehensive suite of tools to streamline the creation, testing, and deployment of Blender extensions using the new "Blender Dev Tools".</p>
 
         <h3>Core Features:</h3>
         <ul>
@@ -43,7 +43,7 @@
         <projectConfigurable
                 instance="com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
                 id="com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
-                displayName="Blender Extension Integration"/>
+                displayName="Blender Dev Tools"/>
 
         <configurationType implementation="com.sakurasedaia.blenderextensions.run.BlenderRunConfigurationType"/>
         <defaultLiveTemplates file="liveTemplates/Blender.xml"/>
@@ -60,7 +60,7 @@
     </extensions>
 
     <actions>
-        <group id="BlenderExtensions.Menu" text="Blender" description="Blender extension integration"
+        <group id="BlenderExtensions.Menu" text="Blender" description="Blender dev tools"
                icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender">
             <add-to-group group-id="MainMenu" anchor="last"/>
             <action id="com.sakurasedaia.blenderextensions.actions.ReloadExtensionAction"

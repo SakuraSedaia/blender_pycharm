@@ -1,1 +1,1 @@
-rootProject.name = "BlenderExtensions"
+rootProject.name = "BlenderDevTools"

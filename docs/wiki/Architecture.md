@@ -1,6 +1,6 @@
 # Architecture
 
-The Blender Development for PyCharm plugin is built as a set of services within the IntelliJ Platform.
+The Blender Dev Tools for PyCharm plugin is built as a set of services within the IntelliJ Platform.
 
 ## Core Services
 

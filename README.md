@@ -1,6 +1,6 @@
-# Blender Extension Development for PyCharm
+# Blender Dev Tools for PyCharm
 
-Blender Extension Development integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
+Blender Dev Tools integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
 
 ## AI Content Notice
 
@@ -67,7 +67,7 @@ Currently, the plugin is not published on the JetBrains Marketplace, and as such
 5. Choose a Blender version from the **Blender version** dropdown (4.2+). Blender 5.0 is the default version. The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
 6. (Testing only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time. Additionally, check **Import User Configuration** to copy your standard Blender settings (user preferences, startup file, etc.) into the sandbox. Note that fields not relevant to the selected mode (like sandboxing for Build/Validate) are automatically hidden.
 7. (Testing only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
-8. (Optional) In **Settings** > **Tools** > **Blender Extension Integration**, check **Auto-reload extension on save** to enable automatic reloads.
+8. (Optional) In **Settings** > **Tools** > **Blender Dev Tools**, check **Auto-reload extension on save** to enable automatic reloads.
 
 ### Logging and Troubleshooting
 The plugin maintains a runtime log in the project root: `blender_plugin.log`. This log contains detailed information about:

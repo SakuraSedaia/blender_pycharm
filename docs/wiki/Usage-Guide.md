@@ -1,6 +1,6 @@
 # Usage Guide
 
-This guide provides a detailed walkthrough of the features and workflows available in the Blender Development for PyCharm plugin.
+This guide provides a detailed walkthrough of the features and workflows available in the Blender Dev Tools for PyCharm plugin.
 
 ## 1. Project Lifecycle
 
@@ -67,7 +67,7 @@ In sandboxed mode, the plugin uses a default splash screen to remind you you're 
 The plugin features a robust hot-reloading mechanism that ensures your changes are immediately visible in Blender without needing to restart it.
 
 ### Automatic Reload
-1. Go to **Settings** > **Tools** > **Blender Extension Integration**.
+1. Go to **Settings** > **Tools** > **Blender Dev Tools**.
 2. Check **Auto-reload extension on save**.
 3. Now, whenever you save a file (`Ctrl+S`), the plugin sends a reload command to Blender.
 

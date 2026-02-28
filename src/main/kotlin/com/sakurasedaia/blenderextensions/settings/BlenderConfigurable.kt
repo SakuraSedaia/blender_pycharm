@@ -10,7 +10,7 @@ import javax.swing.JPanel
 class BlenderConfigurable(private val project: Project) : Configurable {
     private var myAutoReloadCheckbox = JBCheckBox("Auto-reload extension on save")
 
-    override fun getDisplayName(): String = "Blender Extension Integration"
+    override fun getDisplayName(): String = "Blender Dev Tools"
 
     override fun createComponent(): JComponent {
         return FormBuilder.createFormBuilder()

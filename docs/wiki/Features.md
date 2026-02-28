@@ -1,6 +1,6 @@
 # Features
 
-The Blender Development for PyCharm plugin offers a rich set of features designed to make extension development as smooth as possible.
+The Blender Dev Tools for PyCharm plugin offers a rich set of features designed to make extension development as smooth as possible.
 
 ## Automated Environment Management
 - **One-Click Downloads**: Automatically download and manage multiple Blender versions (4.2, 4.3, 4.4, 4.5, and 5.0) directly from the IDE.

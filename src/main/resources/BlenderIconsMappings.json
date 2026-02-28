@@ -1,0 +1,14 @@
+{
+  "images": {
+    "expui": {
+      "build": {
+        "addonFolder": "/images/addonFolder.svg",
+        "blender": "/images/blender.svg",
+        "blenderColor": "/images/blender_color.svg"
+      },
+      "fileTypes":{
+        "blendAssetFile": "/images/blendFile.svg"
+      }
+    }
+  }
+}

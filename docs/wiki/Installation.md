@@ -29,4 +29,4 @@ Currently, the plugin is not published on the JetBrains Marketplace, and as such
 
 ## Configuration
 
-After installation, go to **Settings** > **Tools** > **Blender Extension Integration** to enable **Auto-reload extension on save**.
+After installation, go to **Settings** > **Tools** > **Blender Dev Tools** to enable **Auto-reload extension on save**.
