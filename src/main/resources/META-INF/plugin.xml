@@ -16,6 +16,8 @@
         <h1>Blender Dev Tools for PyCharm</h1>
         <p>Integrate Blender extension development directly into your PyCharm workflow. This plugin provides a comprehensive suite of tools to streamline the creation, testing, and deployment of Blender extensions using the new "Blender Dev Tools".</p>
 
+        <p>WARNING: This Plugin is still in development, please use with caution and report any bugs, issues, and feature requests to the <a href="https://github.com/SakuraSedaia/blender_pycharm/issues">Github Repository</a></p>
+
         <h3>Core Features:</h3>
         <ul>
             <li><b>Automated Environment Management:</b> Automatically download and manage multiple Blender versions (4.2+ and 5.0) directly from the IDE.</li>
