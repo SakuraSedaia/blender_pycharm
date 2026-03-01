@@ -197,11 +197,11 @@ class BlenderProjectTemplateGenerator {
             """.trimIndent()
         }
 
-        fun generateReadme(): String {
+        fun generateReadme(name: String, author: String, tagline: String): String {
             return """
-                # Blender Extension
+                # $name
 
-                This is a Blender extension developed in PyCharm.
+                $tagline
 
                 ## Setup Instructions
 

@@ -83,7 +83,6 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
             permissions = if (permissionsMap.isNotEmpty()) permissionsMap else null,
             buildPathsExcludePattern = settings.buildPathsExcludePattern?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() }
         )
-
         srcDir.resolve("blender_manifest.toml").writeText(
             BlenderProjectTemplateGenerator.generateManifest(manifestSettings)
         )
@@ -184,7 +183,8 @@ data class BlenderAddonProjectSettings(
     var permissionMicrophoneReason: String? = null,
     var buildPathsExcludePattern: String? = null,
     var createGitRepo: Boolean = false,
-    val agentGuidelines: Boolean
+    val agentGuidelines: Boolean,
+    val sandbox: Boolean = true
 )
 
 private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjectSettings> {
@@ -221,8 +221,9 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     }
 
     private val autoLoadCheckbox = JBCheckBox("Add automatic module/class registration script", false)
-    private val includeAgentGuidelines = JBCheckBox("Append pre-made agent guidelines", false)
+    private val includeAgentGuidelines = JBCheckBox("Append pre-made agent guidelines", true)
     private val createGitRepoCheckbox = JBCheckBox("Create Git repository", false)
+    private val sandboxEnvironment = JBCheckBox("Enable sandbox environment", true)
     private val projectNameField = JBTextField()
     private val addonIdField = JBTextField()
     private val addonTaglineField = JBTextField("A Blender extension")
@@ -390,6 +391,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
             .addComponent(autoLoadCheckbox)
             .addComponent(includeAgentGuidelines)
             .addComponent(createGitRepoCheckbox)
+            .addComponent(sandboxEnvironment)
             .addSeparator()
             .addLabeledComponent("Project name:", projectNameField)
             .addLabeledComponent("Addon ID:", addonIdField)
@@ -486,7 +488,8 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
         permissionMicrophone = permissionMicrophoneCheckbox.isSelected,
         permissionMicrophoneReason = permissionMicrophoneReasonField.text?.trim(),
         buildPathsExcludePattern = buildPathsExcludePatternField.text?.trim(),
-        createGitRepo = createGitRepoCheckbox.isSelected
+        createGitRepo = createGitRepoCheckbox.isSelected,
+        sandbox = sandboxEnvironment.isSelected
     )
 
     override fun validate(): ValidationInfo? {
@@ -526,7 +529,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
         checkReason(permissionCameraCheckbox, permissionCameraReasonField, "Camera")?.let { return it }
         checkReason(permissionMicrophoneCheckbox, permissionMicrophoneReasonField, "Microphone")?.let { return it }
         // Validate platforms
-        val allowedPlatforms = setOf("windows-x64", "macos-arm64", "linux-x64", "windows-arm64", "macos-x64")
+        val allowedPlatforms = setOf("windows-x64", "macos-arm64", "linux-x64", "windows-arm64", "macos-x64", "linux-arm64")
         val platforms = addonPlatformsField.text?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
         if (platforms.any { it !in allowedPlatforms }) {
             return ValidationInfo("Unsupported platform found. Allowed: ${'$'}allowedPlatforms", addonPlatformsField)

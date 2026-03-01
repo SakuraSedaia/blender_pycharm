@@ -33,7 +33,7 @@ class BlenderStartBlenderConfigurationFactory(type: ConfigurationType) : Configu
 class BlenderBuildConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
     override fun createTemplateConfiguration(project: Project): RunConfiguration {
         val config = BlenderRunConfiguration(project, this, "Build")
-        config.getOptions().blenderCommand = "extension build"
+        config.getOptions().blenderCommand = "extension build --source-dir src --output-dir builds"
         return config
     }
 
@@ -45,7 +45,7 @@ class BlenderBuildConfigurationFactory(type: ConfigurationType) : ConfigurationF
 class BlenderValidateConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
     override fun createTemplateConfiguration(project: Project): RunConfiguration {
         val config = BlenderRunConfiguration(project, this, "Validate")
-        config.getOptions().blenderCommand = "extension validate"
+        config.getOptions().blenderCommand = "extension validate --source-dir src --output-dir builds"
         return config
     }
 
