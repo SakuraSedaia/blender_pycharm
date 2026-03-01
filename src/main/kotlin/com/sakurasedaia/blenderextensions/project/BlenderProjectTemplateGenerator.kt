@@ -242,16 +242,8 @@ class BlenderProjectTemplateGenerator {
         }
 
         fun generateLicense(): String {
-            return """
-                GNU GENERAL PUBLIC LICENSE
-                Version 3, 29 June 2007
-
-                Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
-                Everyone is permitted to copy and distribute verbatim copies
-                of this license document, but changing it is not allowed.
-
-                [Shortened for brevity. Full text of GPLv3 would go here.]
-            """.trimIndent()
+            val resource = BlenderProjectTemplateGenerator::class.java.getResourceAsStream("/templates/LICENSE")
+            return resource?.bufferedReader()?.use { it.readText() } ?: ""
         }
 
         fun generateGitignore(): String {
@@ -298,6 +290,7 @@ class BlenderProjectTemplateGenerator {
 
                 # Blender
                 *.blend*
+                .blender-sandbox/
             """.trimIndent()
         }
         
@@ -352,19 +345,20 @@ class BlenderProjectTemplateGenerator {
 
                 #### 5. Best Practices & Efficiency
                 - **Error Handling**: Implement proper error handling for file I/O and network operations.
-                - **Local File Storage**: When creating options relating to local file storage for the addon, use the method `U.extension_path_user(__package__, create=True, path="")` to ensure compliance with [Blender Extension guidelines](https://developer.blender.org/docs/handbook/extensions/addon_guidelines/).
+                - **Local File Storage**: When creating options relating to local file storage for the addon, use the method `bpy.utils.extension_path_user(__package__, create=True, path="")` to ensure compliance with [Blender Extension guidelines](https://developer.blender.org/docs/handbook/extensions/addon_guidelines/).
                 - **UI Layout**: Maintain consistent spacing and alignment as per Blender's UI guidelines.
                 - **No Redundancy**: Avoid duplicate classes or functions; use utility modules for shared logic.
-                - **Old Versions**: Do not reference the old version (located in `archives/`) for existing code unless explicitly asked by the user.
                 - **Documentation**: Keep `CHANGELOG.md` and `README.md` updated with every significant change to the **Addon Source Code**. Updates to Agent Guidelines or other internal documentation should not be reflected in the `CHANGELOG.md`.
 
                 #### 6. Development Workflow
-                - **Local Logging**: Chat sessions may be logged locally for personal reference (e.g., in `.ai-logs/`). These logs should NOT be committed to the repository.
-                - **Commits**: Upon successful completion of a task, automatically commit the changes to Git. Keep commit messages brief (at most 2 full sentences) and only divulge necessary information about the changes.
+                - **Local Logging**: Chat sessions may be logged locally for personal and agent reference (e.g., in `.ai-logs/`). These logs should NOT be committed to the repository.
+                - **Commits**: Upon successful completion of a task, automatically commit the changes to Git. 
+                    - **Message**: Keep commit messages brief (at most 2 full sentences) and only divulge necessary information about the changes.
                     - **No Commit**: If a request starts with "No Commit", do not commit at the end of the request.
+                    - **Prefix**: Prefix commit messages with the task type (e.g., "feat:", "fix:", "docs:") and a brief description.
                 - **Python Style**: PEP 8 (autopep8), minimal nesting (<= 4 indents), standard library preference.
                 - **Resource Management**: Download fonts and images locally (e.g., `src/fonts`) instead of using CDNs to ensure reliability and offline availability.
-                - **Validation**: Before submitting, verify that the code complies with the `blender_manifest.toml` and that all class names follow the project's specific naming standards (e.g., category and function).
+                - **Validation**: Before submitting, verify that the code complies with the `blender_manifest.toml` and that all class names follow the project's specific naming standards (e.g., category and function), run `blender --command extension validate` to ensure code runs without errors in Blender.
                 - **Cleanup**: Remove unused variables, redundant parentheses, and debug print statements (use `self.report()` instead).
             """.trimIndent()
         }

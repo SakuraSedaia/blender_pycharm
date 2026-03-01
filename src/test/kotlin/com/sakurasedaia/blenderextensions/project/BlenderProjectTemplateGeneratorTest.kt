@@ -74,4 +74,14 @@ class BlenderProjectTemplateGeneratorTest {
         assertTrue(init.contains("from . import auto_load"))
         assertTrue(init.contains("auto_load.init()"))
     }
+
+    @Test
+    fun testGenerateLicense() {
+        val license = BlenderProjectTemplateGenerator.generateLicense()
+        assertTrue(license.contains("GNU GENERAL PUBLIC LICENSE"))
+        assertTrue(license.contains("Version 3, 29 June 2007"))
+        assertTrue(license.contains("Copyright © 2007 Free Software Foundation, Inc."))
+        // Check if it's the full version, which should be quite long
+        assertTrue(license.length > 30000)
+    }
 }
