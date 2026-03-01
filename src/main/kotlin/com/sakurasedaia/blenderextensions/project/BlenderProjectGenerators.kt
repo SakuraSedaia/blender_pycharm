@@ -88,7 +88,11 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
             BlenderProjectTemplateGenerator.generateManifest(manifestSettings)
         )
         projectPath.resolve("LICENSE").writeText(BlenderProjectTemplateGenerator.generateLicense())
-        projectPath.resolve("README.md").writeText(BlenderProjectTemplateGenerator.generateReadme())
+        projectPath.resolve("README.md").writeText(BlenderProjectTemplateGenerator.generateReadme(
+            name = manifestSettings.name,
+            author = manifestSettings.maintainer,
+            tagline = manifestSettings.tagline
+        ))
         projectPath.resolve(".gitignore").writeText(BlenderProjectTemplateGenerator.generateGitignore())
 
         if (settings.agentGuidelines) {
