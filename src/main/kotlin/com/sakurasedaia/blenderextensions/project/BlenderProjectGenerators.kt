@@ -28,11 +28,11 @@ import java.lang.ref.WeakReference
 import kotlin.io.path.writeText
 
 private fun formatToId(name: String, allowCapitals: Boolean = false): String {
-    val replaced = name.replace(" ", "-")
+    val replaced = name.replace(" ", "_")
     return if (allowCapitals) {
-        replaced.replace(Regex("[^a-zA-Z0-9-]"), "")
+        replaced.replace(Regex("[^a-zA-Z0-9_]"), "")
     } else {
-        replaced.lowercase().replace(Regex("[^a-z0-9-]"), "")
+        replaced.lowercase().replace(Regex("[^a-z0-9_]"), "")
     }
 }
 
@@ -488,9 +488,9 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     override fun validate(): ValidationInfo? {
         // Validate Addon ID
         val id = addonIdField.text?.trim().orEmpty()
-        val idRegex = Regex("^[a-z0-9-]{3,32}$")
+        val idRegex = Regex("^[a-z0-9_]{3,32}$")
         if (id.isEmpty() || !idRegex.matches(id)) {
-            return ValidationInfo("Addon ID must be kebab-case (lowercase letters, numbers, hyphens), 3–32 chars.", addonIdField)
+            return ValidationInfo("Addon ID must be snake-case (lowercase letters, underscore), 3–32 chars.", addonIdField)
         }
         // Validate Blender min version
         val minVer = blenderVersionMinField.text?.trim().orEmpty()
