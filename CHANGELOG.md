@@ -13,6 +13,7 @@
 
 ### Changed
 - **Branding**: Renamed the plugin to **Blender Dev Tools** and updated all icons to comply with JetBrains Icon guidelines. Added standardized scaling and positioning for Blender logo icons.
+- **Enhanced Wiki Configuration**: Added a dedicated "Wiki Project Path" section to `.junie/wiki_guidelines.md` for seamless multi-OS development (Windows/Linux).
 - **Improved**: Added folder icons for directories marked as Blender source folders in the project view.
 - **Environment Setup**: Automated the detection and replication of system Blender configuration subdirectories to ensure a consistent sandboxed environment.
 - **Diagnostics**: Improved logging with per-day rotation and more detailed configuration.
