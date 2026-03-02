@@ -38,18 +38,32 @@ For a detailed look at all features, check out the [Wiki](https://sakurasedaia.g
 
 ---
 
-## Build Instructions
+## Installation
 
-Currently, the plugin is not published on the JetBrains Marketplace, and as such it must be built from source and installed manually.
+The plugin can be installed either by downloading a prebuilt binary or by building it from source.
 
-1. Ensure you have the latest version of Intellij IDEA (Community or Pro) installed.
-2. Clone this repository and open it in Intellij IDEA.
-3. Run `./gradlew buildPlugin` or the "Build Plugin" run configuration.
-    - The plugin will be built in the `build/distributions` directory.
-4. In PyCharm, open **Settings** (or **Preferences** on macOS) > **Plugins**.
-5. Click the gear icon (⚙️) next to the "Installed" tab and select **Install Plugin from Disk...**.
-6. Navigate to the downloaded ZIP file and click **OK**.
-7. Restart PyCharm to complete the installation.
+### Option 1: Install Prebuilt Binary (Recommended)
+
+Installing a prebuilt binary is the **safe and stable** option for most users.
+
+1. Download the latest plugin ZIP file from the [GitHub Releases](https://github.com/Sakura-Sedaia/BlenderExtensions/releases) page.
+2. In PyCharm, open **Settings** (or **Preferences** on macOS) > **Plugins**.
+3. Click the gear icon (⚙️) next to the "Installed" tab and select **Install Plugin from Disk...**.
+4. Navigate to the downloaded ZIP file and click **OK**.
+5. Restart PyCharm to complete the installation.
+
+### Option 2: Build from Source
+
+Building from source provides the **most up-to-date** features but may be **unstable** as it reflects the current development state.
+
+1. Ensure you have the latest version of IntelliJ IDEA (Community or Pro) installed and JDK 21+.
+2. Clone this repository and open it in IntelliJ IDEA:
+   ```bash
+   git clone https://github.com/Sakura-Sedaia/BlenderExtensions.git
+   ```
+3. Run `./gradlew buildPlugin` or use the **Build Plugin** run configuration in IntelliJ.
+   - The built plugin will be located in the `build/distributions` directory.
+4. Follow steps 2-5 from **Option 1** to install the generated ZIP file from the `build/distributions` folder.
 
 ---
 
