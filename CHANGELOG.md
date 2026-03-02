@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.1] - 2026-03-02
+### Added
+- **Blender Scanner**: Improved macOS Blender detection by utilizing the `which` command.
+
+### Changed
+- **Sandboxing**: Dynamically detect and copy all subdirectories from the system's Blender configuration directory, ensuring a more complete and automated environment setup.
+- **Run Configurations**: Refactored the internal handling of the `src` path to use standard Kotlin Path utilities for improved reliability across operating systems.
+
+### Fixed
+- **Run Configuration Fatal Error**: Fixed the `FATAL_ERROR: Missing local "src"` error by using absolute paths for the `--source-dir` argument in "Build" and "Validate" configurations.
+- **Blender Launcher**: Added a working directory to `GeneralCommandLine` for proper resolution of relative paths.
+- **Sandboxing Toggle**: Corrected a bug where the `--app-template` argument was being incorrectly added to CLI-based extension commands.
+- **Project Generation**: Fixed a missing argument in the README generator's template call.
+
 ## [0.2.0] - 2026-03-01
 ### Added
 - New **Blender Dev Tools** project type and icon updates.
