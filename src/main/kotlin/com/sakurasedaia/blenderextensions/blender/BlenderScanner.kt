@@ -20,11 +20,14 @@ data class BlenderInstallation(
 object BlenderScanner {
     private var cachedInstallations: List<BlenderInstallation>? = null
 
-    fun scanSystemInstallations(force: Boolean = false, customPaths: Map<String, String> = emptyMap()): List<BlenderInstallation> {
+    fun scanSystemInstallations(
+        force: Boolean = false,
+        customPaths: Map<String, String> = emptyMap()
+    ): List<BlenderInstallation> {
         if (!force && cachedInstallations != null) return cachedInstallations!!
-        
+
         val installations = mutableListOf<BlenderInstallation>()
-        
+
         when {
             SystemInfo.isWindows -> installations.addAll(scanWindows())
             SystemInfo.isMac -> installations.addAll(scanMac())
@@ -36,12 +39,20 @@ object BlenderScanner {
             if (path.exists()) {
                 val exe = if (path.isDirectory()) findBlenderExecutable(path) else path
                 if (exe != null && exe.exists()) {
-                    installations.add(BlenderInstallation(customName, exe.toString(), "Unknown", isCustom = true, originPath = pathStr))
+                    installations.add(
+                        BlenderInstallation(
+                            customName,
+                            exe.toString(),
+                            "Unknown",
+                            isCustom = true,
+                            originPath = pathStr
+                        )
+                    )
                 }
             }
         }
-        
-        val result = installations.distinctBy { it.path }.map { 
+
+        val result = installations.distinctBy { it.path }.map {
             if (it.version == "Unknown") {
                 it.copy(version = tryGetVersion(it.path))
             } else {
@@ -53,7 +64,8 @@ object BlenderScanner {
     }
 
     private fun findBlenderExecutable(path: Path): Path? {
-        val exeName = if (SystemInfo.isWindows) "blender.exe" else if (SystemInfo.isMac) "Blender.app/Contents/MacOS/Blender" else "blender"
+        val exeName =
+            if (SystemInfo.isWindows) "blender.exe" else if (SystemInfo.isMac) "Blender.app/Contents/MacOS/Blender" else "blender"
         val exe = path.resolve(exeName)
         if (exe.exists()) return exe
 
@@ -86,7 +98,7 @@ object BlenderScanner {
         val paths = mutableListOf<BlenderInstallation>()
         val programFiles = System.getenv("ProgramFiles") ?: "C:\\Program Files"
         val programFilesX86 = System.getenv("ProgramFiles(x86)") ?: "C:\\Program Files (x86)"
-        
+
         listOf(programFiles, programFilesX86).forEach { base ->
             val blenderFoundation = Path.of(base, "Blender Foundation")
             if (blenderFoundation.exists() && blenderFoundation.isDirectory()) {
@@ -107,20 +119,19 @@ object BlenderScanner {
 
     private fun scanMac(): List<BlenderInstallation> {
         val installations = mutableListOf<BlenderInstallation>()
-        val searchPaths = listOf("/Applications", System.getProperty("user.home") + "/Applications")
-        
-        searchPaths.forEach { base ->
+
+        // 1. Try which command
+        tryWhich("Blender")?.let { addIfValid(installations, it, "Native") }
+
+        // 2. Scan standard Application folders
+        listOf("/Applications", System.getProperty("user.home") + "/Applications").forEach { base ->
             val basePath = Path.of(base)
             if (basePath.exists() && basePath.isDirectory()) {
                 Files.list(basePath).use { stream ->
                     stream.filter { it.isDirectory() && it.name == "Blender.app" }
                         .forEach { app ->
                             val exe = app.resolve("Contents/MacOS/Blender")
-                            if (exe.exists()) {
-                                // On Mac, version is harder to get from folder name, we'd need to check Info.plist
-                                // For now, just call it "Blender (System)" or try to find version via CLI
-                                installations.add(BlenderInstallation("Blender (System: $base)", exe.toString(), "Unknown"))
-                            }
+                            addIfValid(installations, exe.toString(), "System: $base")
                         }
                 }
             }
@@ -130,16 +141,14 @@ object BlenderScanner {
 
     private fun scanLinux(): List<BlenderInstallation> {
         val installations = mutableListOf<BlenderInstallation>()
-        
-        // Common binaries in PATH
-        val commonBinaries = listOf("/usr/bin/blender", "/usr/local/bin/blender", System.getProperty("user.home") + "/bin/blender")
-        commonBinaries.forEach { pathStr ->
-            val path = Path.of(pathStr)
-            if (path.exists() && Files.isExecutable(path)) {
-                installations.add(BlenderInstallation("Blender (System: $pathStr)", path.toString(), "Unknown"))
-            }
-        }
-        
+
+        // 1. Try which command
+        tryWhich("blender")?.let { addIfValid(installations, it, "Native") }
+
+        // 2. Common binaries in PATH
+        listOf("/usr/bin/blender", "/usr/local/bin/blender", System.getProperty("user.home") + "/bin/blender")
+            .forEach { addIfValid(installations, it, "System") }
+
         // Check /opt
         val opt = Path.of("/opt")
         if (opt.exists() && opt.isDirectory()) {
@@ -147,13 +156,33 @@ object BlenderScanner {
                 stream.filter { it.isDirectory() && it.name.lowercase().contains("blender") }
                     .forEach { dir ->
                         val exe = dir.resolve("blender")
-                        if (exe.exists() && Files.isExecutable(exe)) {
-                            installations.add(BlenderInstallation("Blender (${dir.name})", exe.toString(), "Unknown"))
-                        }
+                        addIfValid(installations, exe.toString(), dir.name)
                     }
             }
         }
-        
+
         return installations
     }
+
+    private fun addIfValid(list: MutableList<BlenderInstallation>, pathStr: String, suffix: String) {
+        val path = Path.of(pathStr)
+        if (path.exists() && Files.isExecutable(path)) {
+            list.add(BlenderInstallation("Blender ($suffix: $pathStr)", path.toString(), "Unknown"))
+        }
+    }
+
+    private fun tryWhich(exec: String): String? {
+        return try {
+            val process = ProcessBuilder("which", exec).redirectErrorStream(true).start()
+            val output = process.inputStream.bufferedReader().readText().trim()
+            if (process.waitFor() == 0 && output.isNotEmpty() && !output.contains("not found")) {
+                output
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
+
