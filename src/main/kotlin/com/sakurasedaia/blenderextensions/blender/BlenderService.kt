@@ -3,6 +3,8 @@ package com.sakurasedaia.blenderextensions.blender
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessEvent
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
@@ -14,6 +16,7 @@ import kotlin.io.path.name
 
 @Service(Service.Level.PROJECT)
 class BlenderService(private val project: Project) {
+    private val NOTIFICATION_GROUP = "Blender Extensions"
     private val logger = BlenderLogger.getInstance(project)
     private val downloader = BlenderDownloader.getInstance(project)
     private val linker = BlenderLinker.getInstance(project)
@@ -100,6 +103,12 @@ class BlenderService(private val project: Project) {
             if (blenderCommand.isNullOrBlank()) {
                 communicationService.stopServer()
             }
+            
+            NotificationGroupManager.getInstance()
+                .getNotificationGroup(NOTIFICATION_GROUP)
+                .createNotification("Failed to start Blender", "Please check the Blender path and logs for more details.", NotificationType.ERROR)
+                .notify(project)
+                
             return null
         }
 
@@ -118,7 +127,15 @@ class BlenderService(private val project: Project) {
 
     fun reloadExtension() {
         val extensionName = currentExtensionName ?: "unknown"
-        communicationService.sendReloadCommand(extensionName)
+        try {
+            communicationService.sendReloadCommand(extensionName)
+        } catch (e: Exception) {
+            NotificationGroupManager.getInstance()
+                .getNotificationGroup(NOTIFICATION_GROUP)
+                .createNotification("Reload Failed", "Could not send reload command to Blender: ${e.message}", NotificationType.WARNING)
+                .notify(project)
+            logger.log("Failed to send reload command: ${e.message}")
+        }
     }
 
     companion object {

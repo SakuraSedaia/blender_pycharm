@@ -4,6 +4,7 @@ import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
@@ -14,6 +15,7 @@ import com.sakurasedaia.blenderextensions.icons.BlenderIcons
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 import java.awt.BorderLayout
 import java.awt.Component
+import java.awt.FlowLayout
 import java.awt.Font
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
@@ -27,14 +29,34 @@ import javax.swing.table.TableCellRenderer
 class BlenderToolWindowContent(private val project: Project) {
     private val downloader = BlenderDownloader.getInstance(project)
     private val service = BlenderService.getInstance(project)
+    private val communicationService = BlenderCommunicationService.getInstance(project)
     private val tableModel = BlenderVersionsTableModel()
     private val table = JBTable(tableModel)
     private val systemTableModel = SystemBlenderTableModel()
     private val systemTable = JBTable(systemTableModel)
+    private val statusLabel = JBLabel("Status: Disconnected")
+    private val timer: Timer
 
     init {
         configureTable(table, true)
         configureTable(systemTable, false)
+        
+        statusLabel.foreground = UIUtil.getLabelDisabledForeground()
+        
+        timer = Timer(2000) {
+            updateStatus()
+        }
+        timer.start()
+    }
+
+    private fun updateStatus() {
+        if (communicationService.isConnected()) {
+            statusLabel.text = "Status: Connected"
+            statusLabel.foreground = JBColor.GREEN
+        } else {
+            statusLabel.text = "Status: Disconnected"
+            statusLabel.foreground = UIUtil.getLabelDisabledForeground()
+        }
     }
 
     private fun configureTable(table: JBTable, isManaged: Boolean) {
@@ -91,7 +113,10 @@ class BlenderToolWindowContent(private val project: Project) {
         }
         
         val managedVersionsHeader = JPanel(BorderLayout()).apply {
-            add(managedVersionsLabel, BorderLayout.WEST)
+            val leftPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 0))
+            leftPanel.add(managedVersionsLabel)
+            leftPanel.add(statusLabel)
+            add(leftPanel, BorderLayout.WEST)
             add(refreshButton, BorderLayout.EAST)
         }
 

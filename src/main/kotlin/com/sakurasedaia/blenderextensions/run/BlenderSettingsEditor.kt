@@ -2,6 +2,9 @@ package com.sakurasedaia.blenderextensions.run
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.SettingsEditor
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
@@ -11,9 +14,13 @@ import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.FormBuilder
 import com.sakurasedaia.blenderextensions.blender.BlenderDownloader
 import com.sakurasedaia.blenderextensions.blender.BlenderVersions
+import com.sakurasedaia.blenderextensions.icons.BlenderIcons
+import java.awt.BorderLayout
 import javax.swing.DefaultComboBoxModel
+import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.SwingUtilities
 
 class BlenderSettingsEditor(private val project: Project) : SettingsEditor<BlenderRunConfiguration>() {
     private val downloader = BlenderDownloader.getInstance(project)
@@ -25,6 +32,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     private val myAddonSymlinkNameField = JBTextField()
     private val myAddonSourceDirectoryField = TextFieldWithBrowseButton()
     private val myAdditionalArgumentsField = JBTextField()
+    private val myDownloadButton = JButton("Download", BlenderIcons.Install)
 
     private val myBlenderCommandComponent = LabeledComponent.create(myBlenderCommandField, "Blender command ($ blender --command <command>):")
     private val myAddonSymlinkComponent = LabeledComponent.create(myAddonSymlinkNameField, "Addon symlink name:")
@@ -36,18 +44,40 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         myBlenderVersionComboBox.model = DefaultComboBoxModel(versions.toTypedArray())
 
         myBlenderVersionComboBox.addActionListener {
+            updateDownloadButtonVisibility()
             val selected = myBlenderVersionComboBox.selectedItem as? String
             val isCustom = selected == "Custom/Pre-installed"
             myBlenderPathField.isEnabled = isCustom
-            
-            // If it's a path (contains separator), disable sandboxing/managed logic features? 
-            // Or just use it as the path.
+        }
+        
+        myDownloadButton.addActionListener {
+            val selected = myBlenderVersionComboBox.selectedItem as? String ?: return@addActionListener
+            if (!downloader.isDownloaded(selected)) {
+                ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Downloading Blender $selected") {
+                    override fun run(indicator: ProgressIndicator) {
+                        downloader.getOrDownloadBlenderPath(selected)
+                        SwingUtilities.invokeLater {
+                            updateDownloadButtonVisibility()
+                        }
+                    }
+                })
+            }
+        }
+    }
+
+    private fun updateDownloadButtonVisibility() {
+        val selected = myBlenderVersionComboBox.selectedItem as? String
+        if (selected != null && selected != "Custom/Pre-installed") {
+            myDownloadButton.isVisible = !downloader.isDownloaded(selected)
+        } else {
+            myDownloadButton.isVisible = false
         }
     }
 
     override fun resetEditorFrom(s: BlenderRunConfiguration) {
         val options = s.getOptions()
         myBlenderVersionComboBox.selectedItem = options.blenderVersion ?: "5.0"
+        updateDownloadButtonVisibility()
         myIsSandboxedCheckBox.isSelected = options.isSandboxed
         myImportUserConfigCheckBox.isSelected = options.importUserConfig
         myBlenderPathField.text = options.blenderExecutablePath ?: ""
@@ -99,8 +129,12 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
             )
         )
 
+        val versionPanel = JPanel(BorderLayout())
+        versionPanel.add(myBlenderVersionComboBox, BorderLayout.CENTER)
+        versionPanel.add(myDownloadButton, BorderLayout.EAST)
+
         return FormBuilder.createFormBuilder()
-            .addLabeledComponent("Blender version:", myBlenderVersionComboBox)
+            .addLabeledComponent("Blender version:", versionPanel)
             .addLabeledComponent("Manual Blender path:", myBlenderPathField)
             .addComponent(myBlenderCommandComponent)
             .addComponent(myIsSandboxedCheckBox)
