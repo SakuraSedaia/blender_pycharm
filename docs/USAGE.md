@@ -1,6 +1,6 @@
 # Operating Instructions
 
-This guide provides detailed instructions on how to set up and use the Blender Dev Tools for PyCharm. For more in-depth documentation, please visit our [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/).
+This guide provides detailed instructions on how to set up and use the Blender Development for PyCharm. For more in-depth documentation, please visit our [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/).
 
 ## Setup
 
@@ -15,7 +15,7 @@ This guide provides detailed instructions on how to set up and use the Blender D
 5. Choose a Blender version from the **Blender version** dropdown (4.2+). Blender 5.0 is the default version. The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
 6. (Testing only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time. Additionally, check **Import User Configuration** to copy your standard Blender settings (user preferences, startup file, etc.) into the sandbox. Note that fields not relevant to the selected mode (like sandboxing for Build/Validate) are automatically hidden. Inline **Download** buttons are available if a specific Blender version is missing.
 7. (Testing only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**. Multiple source directories can be specified (comma-separated or through the UI) to be linked into Blender.
-8. (Optional) In **Settings** > **Tools** > **Blender Dev Tools**, check **Auto-reload extension on save** to enable automatic reloads.
+8. (Optional) In **Settings** > **Tools** > **Blender Development**, check **Auto-reload extension on save** to enable automatic reloads.
 
 ## Usage
 

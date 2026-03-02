@@ -5,16 +5,17 @@
 
     <!-- Public plugin name should be written in Title Case.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-name -->
-    <name>Blender Dev Tools</name>
+    <name>Blender Development</name>
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://www.sakura-sedaia.com">Sakura Sedaia</vendor>
+    <resource-bundle>messages.BlenderBundle</resource-bundle>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
-        <h1>Blender Dev Tools for PyCharm</h1>
-        <p><b>Blender Dev Tools</b> seamlessly integrates professional Blender extension development into the PyCharm IDE. This project is licensed under the <b>GNU GPL v3</b>.</p>
+        <h1>Blender Development for PyCharm</h1>
+        <p><b>Blender Development</b> seamlessly integrates professional Blender extension development into the PyCharm IDE. This project is licensed under the <b>GNU GPL v3</b>.</p>
         <p>This plugin provides a powerful suite of tools designed to streamline the entire lifecycle of creating, testing, and deploying Blender extensions (v4.2+) using modern development practices.</p>
 
         <p><i><b>Note:</b> This plugin is currently in active development. Please report bugs or feature requests at the <a href="https://github.com/SakuraSedaia/blender_pycharm/issues">GitHub Repository</a>.</i></p>
@@ -46,7 +47,8 @@
         <projectConfigurable
                 instance="com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
                 id="com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
-                displayName="Blender Dev Tools"/>
+                key="settings.display.name"
+                nonDefaultProject="true"/>
 
         <configurationType implementation="com.sakurasedaia.blenderextensions.run.BlenderRunConfigurationType"/>
         <defaultLiveTemplates file="liveTemplates/Blender.xml"/>
@@ -63,27 +65,22 @@
     </extensions>
 
     <actions>
-        <group id="BlenderExtensions.Menu" text="Blender" description="Blender dev tools"
+        <group id="BlenderExtensions.Menu"
                icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender">
             <add-to-group group-id="MainMenu" anchor="last"/>
             <action id="com.sakurasedaia.blenderextensions.actions.ReloadExtensionAction"
                     class="com.sakurasedaia.blenderextensions.actions.ReloadExtensionAction"
-                    text="Reload Extension"
-                    description="Reload Blender extension manually">
+                    icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Refresh">
                 <keyboard-shortcut keymap="$default" first-keystroke="control alt R"/>
             </action>
             <action id="com.sakurasedaia.blenderextensions.actions.MarkAsBlenderSourceAction"
-                    class="com.sakurasedaia.blenderextensions.actions.MarkAsBlenderSourceAction"
-                    text="Mark as Blender Source"
-                    description="Designate this folder as a Blender extension source folder">
+                    class="com.sakurasedaia.blenderextensions.actions.MarkAsBlenderSourceAction">
                 <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="MarkRootGroup"/>
             </action>
         </group>
 
         <action id="com.sakurasedaia.blenderextensions.actions.CreateBlenderFileAction"
                 class="com.sakurasedaia.blenderextensions.actions.CreateBlenderFileAction"
-                text="Blender File"
-                description="Create a new Blender Python file (Add-on or Module)"
                 icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFile"/>
         </action>

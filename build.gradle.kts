@@ -39,7 +39,7 @@ intellijPlatform {
 		changeNotes = """
 			<b>Added</b>
 			<ul>
-				<li><b>Blender Dev Tools Project</b>: New specialized project type for Blender extension development.</li>
+				<li><b>Blender Development Project</b>: New specialized project type for Blender extension development.</li>
 				<li><b>Improved Scanner</b>: Enhanced macOS and Linux Blender detection using the <code>which</code> command.</li>
 				<li><b>Custom Versions</b>: Support for manual specification of Blender executable paths and versioning.</li>
 				<li><b>Source Management</b>: Option to mark project folders as Blender source directories for better organization.</li>
@@ -50,7 +50,7 @@ intellijPlatform {
 			</ul>
 			<b>Changed</b>
 			<ul>
-				<li><b>Branding</b>: Renamed the plugin to <b>Blender Dev Tools</b> and updated all icons.</li>
+				<li><b>Branding</b>: Renamed the plugin to <b>Blender Development</b> and updated all icons.</li>
 				<li><b>Environment Setup</b>: Automated the detection and replication of system Blender configuration subdirectories to ensure a consistent sandboxed environment.</li>
 				<li><b>Diagnostics</b>: Improved logging with per-day rotation and more detailed configuration.</li>
 				<li><b>Run Configurations</b>: Updated templates for testing, building, and validation with a dynamic UI.

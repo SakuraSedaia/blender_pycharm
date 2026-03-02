@@ -1,16 +1,20 @@
 package com.sakurasedaia.blenderextensions.settings
 
+import com.sakurasedaia.blenderextensions.BlenderBundle
 import com.intellij.openapi.options.Configurable
+import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
 import com.intellij.util.ui.FormBuilder
 import com.intellij.ui.components.JBCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-class BlenderConfigurable(private val project: Project) : Configurable {
-    private var myAutoReloadCheckbox = JBCheckBox("Auto-reload extension on save")
+class BlenderConfigurable(private val project: Project) : SearchableConfigurable, Configurable.NoScroll {
+    private var myAutoReloadCheckbox = JBCheckBox(BlenderBundle.message("settings.auto.reload.checkbox"))
 
-    override fun getDisplayName(): String = "Blender Development"
+    override fun getDisplayName(): String = BlenderBundle.message("settings.display.name")
+
+    override fun getId(): String = "com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
 
     override fun createComponent(): JComponent {
         return FormBuilder.createFormBuilder()

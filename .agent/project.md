@@ -1,4 +1,4 @@
-# Blender Dev Tools Project Overview
+# Blender Development Project Overview
 
 ## Goal
 - Provide a first-class development experience for Blender Extensions (4.2+) within PyCharm/IntelliJ, including reliable hot-reloading and project management.

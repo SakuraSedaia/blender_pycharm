@@ -2,17 +2,17 @@
 
 ## [0.2.0] - 2026-03-01
 ### Added
-- **Blender Dev Tools Project**: New specialized project type for Blender extension development.
+- **Blender Development Project**: New specialized project type for Blender extension development.
 - **Improved Scanner**: Enhanced macOS and Linux Blender detection using the `which` command.
 - **Custom Versions**: Support for manual specification of Blender executable paths and versioning.
 - **Source Management**: Option to mark project folders as Blender source directories for better organization.
 - **Cross-Platform Compatibility**: Refined path handling for Windows, macOS, and Linux.
-- **Documentation**: Moved comprehensive guides to the [external documentation site](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html).
+- **Documentation**: Simplified internal documentation to English-only to ensure maintainability. Moved comprehensive and localized guides to the [external documentation site](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html). Localized wiki links are available in [WIKI_LOCALIZED.md](docs/WIKI_LOCALIZED.md).
 - **Unit Testing**: Initial suite of unit tests for core plugin functionality.
 - **Sandbox Control**: New setting to toggle sandboxing for Blender instances within the New Project Wizard.
 
 ### Changed
-- **Branding**: Renamed the plugin to **Blender Dev Tools** and updated all icons to comply with JetBrains Icon guidelines. Added standardized scaling and positioning for Blender logo icons.
+- **Branding**: Renamed the plugin to **Blender Development** and updated all icons to comply with JetBrains Icon guidelines. Added standardized scaling and positioning for Blender logo icons.
 - **Enhanced Wiki Configuration**: Added a dedicated "Wiki Project Path" section to `.junie/wiki_guidelines.md` for seamless multi-OS development (Windows/Linux).
 - **Improved**: Added folder icons for directories marked as Blender source folders in the project view.
 - **Environment Setup**: Automated the detection and replication of system Blender configuration subdirectories to ensure a consistent sandboxed environment.

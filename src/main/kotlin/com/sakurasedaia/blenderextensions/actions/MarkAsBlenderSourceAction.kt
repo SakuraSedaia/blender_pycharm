@@ -5,9 +5,14 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.vfs.VirtualFile
+import com.sakurasedaia.blenderextensions.BlenderBundle
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 
-class MarkAsBlenderSourceAction : ToggleAction("Mark as Blender Source", "Designate this folder as a Blender extension source folder", null) {
+class MarkAsBlenderSourceAction : ToggleAction(
+    BlenderBundle.messagePointer("action.MarkAsBlenderSourceAction.text"),
+    BlenderBundle.messagePointer("action.MarkAsBlenderSourceAction.description"),
+    null
+) {
 
     override fun getActionUpdateThread(): ActionUpdateThread {
         return ActionUpdateThread.BGT

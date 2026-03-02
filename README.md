@@ -2,11 +2,12 @@
 
 Blender Development integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
 
-## Quick Links
+## Documentation
 
 - [Installation Guide](#installation)
-- [Operating Instructions](docs/USAGE.md)
-- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Operating Instructions](docs/USAGE.md) ([Localized Wiki](docs/WIKI_LOCALIZED.md))
+- [Architecture Overview](docs/ARCHITECTURE.md) ([Localized Wiki](docs/WIKI_LOCALIZED.md))
+- [Localized Wiki Links](docs/WIKI_LOCALIZED.md)
 - [Contributing](CONTRIBUTING.md)
 - [Notices and Acknowledgments](docs/NOTICE.md)
 - [External Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/)
