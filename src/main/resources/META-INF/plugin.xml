@@ -14,7 +14,8 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
         <h1>Blender Dev Tools for PyCharm</h1>
-        <p><b>Blender Dev Tools</b> seamlessly integrates professional Blender extension development into the PyCharm IDE. This plugin provides a powerful suite of tools designed to streamline the entire lifecycle of creating, testing, and deploying Blender extensions (v4.2+) using modern development practices.</p>
+        <p><b>Blender Dev Tools</b> seamlessly integrates professional Blender extension development into the PyCharm IDE. This project is licensed under the <b>GNU GPL v3</b>.</p>
+        <p>This plugin provides a powerful suite of tools designed to streamline the entire lifecycle of creating, testing, and deploying Blender extensions (v4.2+) using modern development practices.</p>
 
         <p><i><b>Note:</b> This plugin is currently in active development. Please report bugs or feature requests at the <a href="https://github.com/SakuraSedaia/blender_pycharm/issues">GitHub Repository</a>.</i></p>
 

@@ -26,8 +26,13 @@ dependencies {
 }
 
 intellijPlatform {
-	pluginConfiguration {
-		ideaVersion {
+		pluginConfiguration {
+			vendor {
+				name = "Sakura Sedaia"
+				url = "https://www.sakura-sedaia.com"
+			}
+
+			ideaVersion {
 			sinceBuild = "252.25557"
 		}
 		
@@ -55,7 +60,7 @@ intellijPlatform {
 						<li>Standardized internal <code>src</code> path handling using Kotlin NIO.2 utilities for better OS reliability.</li>
 					</ul>
 				</li>
-				<li><b>Licensing</b>: Transitioned to GNU GPL v3 and moved license text to a standalone template.</li>
+				<li><b>Licensing</b>: Updated project license to GNU GPL v3.</li>
 			</ul>
 			<b>Fixed</b>
 			<ul>
@@ -67,6 +72,7 @@ intellijPlatform {
 				<li><b>Process Management</b>: Configured the <code>GeneralCommandLine</code> working directory to ensure correct resolution of relative paths.</li>
 				<li><b>Extension Logic</b>: Fixed a bug where <code>--app-template</code> was incorrectly applied to CLI-based extension operations.</li>
 				<li><b>Readme Generation</b>: Resolved a missing argument error in the README generator template call.</li>
+				<li><b>Licensing</b>: Updated project license to GNU GPL v3.</li>
 			</ul>
 		""".trimIndent()
 	}

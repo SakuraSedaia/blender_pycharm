@@ -1,6 +1,6 @@
-# Blender Dev Tools for PyCharm
+# Blender Development for PyCharm
 
-Blender Dev Tools integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
+Blender Development integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
 
 ## Quick Links
 
@@ -40,6 +40,10 @@ Blender Dev Tools integration for PyCharm. This plugin allows you to launch Blen
 
 - **Enhanced UI**: More granular control over symlink management and multi-extension projects.
 - **Deeper Integration**: Better support for Blender's internal asset browser and library management.
+
+## License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. See the [LICENSE](LICENSE) file for the full license text.
 
 ---
 

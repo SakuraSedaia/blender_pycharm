@@ -1,5 +1,9 @@
 # Notices and Acknowledgments
 
+## License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**. See the [LICENSE](../LICENSE) file for the full license text.
+
 ## AI Content Notice
 
 This project was developed almost exclusively using the AI integration tools by JetBrains s.r.o. in IntelliJ IDEA. The AI tools were used to generate the initial code, documentation, and some of the content in this repository. The final review and editing were done by a human to ensure accuracy and clarity.
