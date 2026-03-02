@@ -96,9 +96,30 @@ class BlenderScriptGenerator {
             def listen_for_reload():
                 import json
                 import sys
+                import time
+                
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                max_retries = 5
+                retry_count = 0
+                connected = False
+                
+                while retry_count < max_retries:
+                    try:
+                        s.connect(('127.0.0.1', $port))
+                        connected = True
+                        break
+                    except Exception as e:
+                        retry_count += 1
+                        print(f"Connection attempt {retry_count} failed: {e}. Retrying in 1s...")
+                        time.sleep(1)
+                
+                if not connected:
+                    print(f"Failed to connect to IntelliJ after {max_retries} attempts.")
+                    return
+
                 try:
-                    s.connect(('127.0.0.1', $port))
+                    # Send ready message
+                    s.sendall(json.dumps({"type": "ready"}).encode() + b"\n")
                     print(f"Connected to IntelliJ for extension reloading on port $port")
                     while True:
                         data = s.recv(1024)

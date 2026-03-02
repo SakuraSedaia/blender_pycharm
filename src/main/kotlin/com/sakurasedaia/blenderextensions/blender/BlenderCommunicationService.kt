@@ -3,6 +3,8 @@ package com.sakurasedaia.blenderextensions.blender
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
@@ -30,8 +32,20 @@ class BlenderCommunicationService(private val project: Project) {
                         null
                     }
                     if (client != null) {
-                        logger.log("Blender connected on port ${port}")
-                        blenderClient = client
+                        try {
+                            val reader = BufferedReader(InputStreamReader(client.getInputStream()))
+                            val firstLine = reader.readLine()
+                            if (firstLine != null && firstLine.contains("\"type\": \"ready\"")) {
+                                logger.log("Blender connected and ready on port ${port}")
+                                blenderClient = client
+                            } else {
+                                logger.log("Blender connected but didn't send ready message. Closing connection.")
+                                client.close()
+                            }
+                        } catch (e: Exception) {
+                            logger.log("Error during initial handshake: ${e.message}")
+                            client.close()
+                        }
                     }
                 }
             } catch (e: Exception) {
