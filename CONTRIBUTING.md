@@ -55,10 +55,19 @@ To build the distribution plugin ZIP file:
 The built plugin will be available in `build/distributions/`.
 
 ### 4. Commit and Push
-Commit your changes with descriptive messages:
+Commit your changes using the following standardized prefixes:
+- `[Fix]`: When bug fixes are made.
+- `[Feature]`: When new features are implemented.
+- `[Refactor]`: When general refactors are made for code clarity (no functional changes).
+- `[Removal]`: When features or components are removed.
+- `[Chore]`: Basic chores such as general file cleanup, dependency updates, or version bumps (when authorized).
+- `[Docs]`: When documentation is updated.
+- `[Test]`: When adding or updating tests.
+- `[Style]`: When making stylistic changes (whitespace, formatting) that do not affect code logic.
+
 ```bash
 git add .
-git commit -m "Add feature: detailed description"
+git commit -m "[Feature] Add detailed description"
 git push origin feature/your-feature-name
 ```
 

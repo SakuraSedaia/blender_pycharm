@@ -33,6 +33,17 @@
 - Wiki Documentation: The external wiki is what the `wiki_guidelines.md` is for, which has information and context for editing said wiki. When updating the `PycharmBlenderWiki` project, follow the Sphinx/RST practices defined in `.junie/wiki_guidelines.md`. **Editing the wiki's source code is allowed when authorized.**
 - Development Workflow:
   - Session Logging: Every chat session should be logged locally in `.ai-logs/` unless the user explicitly says "No Log". Do NOT commit these logs.
-  - Commits: Upon successful completion of a task, commit the changes to Git with brief messages (<= 2 sentences). Use prefixes like `Fix:`, `Feature:`, `Docs:`, or `Refactor:` to clarify the purpose of the commit.
+  - Commits: Upon successful completion of a task, commit the changes to Git using the standardized commit prefixes defined in the **Commit Guidelines** section below.
   - Resource Management: Download external assets locally (avoid CDNs) for reliability and offline availability.
   - SSH/Passphrase Handling: If a Git command or any process requires a passphrase or password, use the `ask_user` tool to request it from the user. Since the `bash` tool is non-interactive, use appropriate means (like `GIT_ASKPASS`, `expect`, or `ssh-add` if applicable) to proceed once the user provides it.
+
+## Commit Guidelines
+All commits MUST use one of the following standardized prefixes:
+- `[Fix]`: When bug fixes are made.
+- `[Feature]`: When new features are implemented.
+- `[Refactor]`: When general refactors are made for code clarity (no functional changes).
+- `[Removal]`: When features or components are removed.
+- `[Chore]`: Basic chores such as general file cleanup, dependency updates, or version bumps (when authorized).
+- `[Docs]`: When documentation is updated.
+- `[Test]`: When adding or updating tests.
+- `[Style]`: When making stylistic changes (whitespace, formatting) that do not affect code logic.
