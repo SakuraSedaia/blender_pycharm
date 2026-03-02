@@ -1,0 +1,23 @@
+name: Feature Request
+description: Suggest a new feature for the plugin.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of what the feature is and how it should work.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Use Case / Motivation
+      description: Why would this feature be useful to you or others?
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context or screenshots about the feature request here.
