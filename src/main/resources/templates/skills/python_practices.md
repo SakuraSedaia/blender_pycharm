@@ -19,7 +19,9 @@
 - **Explicit Imports**: Use explicit imports only. **No wildcard imports** (e.g., `from bpy.types import *` is forbidden).
 - **BPY Alias Pattern**: When possible, use aliased imports for `bpy.types` and `bpy.props`.
   ```python
+  # no-inspection PyUnresolvedReferences
   import bpy.types as T
+  # no-inspection PyUnresolvedReferences
   import bpy.props as P
   ```
 - Use the aliased name when referencing components (e.g., `T.Operator`, `P.StringProperty`).

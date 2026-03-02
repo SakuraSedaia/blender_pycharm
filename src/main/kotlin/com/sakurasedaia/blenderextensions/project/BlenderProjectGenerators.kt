@@ -40,7 +40,7 @@ private fun formatToId(name: String, allowCapitals: Boolean = false): String {
 class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProjectSettings> {
     private var myPeerReference = WeakReference<BlenderAddonProjectPeer>(null)
 
-    override fun getName(): String = "Blender Extension"
+    override fun getName(): String = "Blender extension"
     override fun getLogo(): Icon = BlenderIcons.Blender
 
     override fun createPeer(): ProjectGeneratorPeer<BlenderAddonProjectSettings> {
@@ -188,13 +188,14 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Ignore if anything fails here
         }
     }
 
     private fun setupPythonInterpreter(project: Project, pythonExe: String) {
         try {
+            @Suppress("DEPRECATION")
             val pySdkType = com.intellij.openapi.projectRoots.SdkType.findInstance(com.intellij.openapi.projectRoots.SdkType::class.java).let {
                 // This is a bit hacky, normally you'd use PythonSdkType.getInstance()
                 // But we don't have direct access without a hard dependency
@@ -213,7 +214,7 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
                     com.intellij.openapi.roots.ProjectRootManager.getInstance(p).projectSdk = sdk
                 }
             }
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             // Log or ignore
         }
     }
@@ -250,6 +251,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     private var projectLocation: String? = null
     private var isUpdating = false
     private var addonIdIsManual = false
+    @Suppress("DEPRECATION")
     private val stateListeners = mutableListOf<com.intellij.platform.WebProjectGenerator.SettingsStateListener>()
 
     private fun fireStateChanged() {
@@ -458,11 +460,11 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
             .addLabeledComponent("Maintainer:", addonMaintainerField)
             .addLabeledComponent("Website (Optional):", addonWebsiteField)
             .addLabeledComponent("Tags (comma separated, Optional):", addonTagsField)
-            .addLabeledComponent("Min Blender Version:", blenderVersionMinField)
-            .addLabeledComponent("Max Blender Version (Optional):", blenderVersionMaxField)
-            .addLabeledComponent("Platforms (comma separated, Optional):", addonPlatformsField)
+            .addLabeledComponent("Min blender version:", blenderVersionMinField)
+            .addLabeledComponent("Max blender version (optional):", blenderVersionMaxField)
+            .addLabeledComponent("Platforms (comma separated, optional):", addonPlatformsField)
             .addSeparator()
-            .addLabeledComponent("Permissions (Optional):", JPanel()) // Placeholder for header
+            .addLabeledComponent("Permissions (optional):", JPanel()) // Placeholder for header
             .addComponent(permissionNetworkCheckbox)
             .addLabeledComponent("  Reason (required if checked, max 64 chars):", permissionNetworkReasonField)
             .addComponent(permissionFilesCheckbox)
@@ -474,7 +476,7 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
             .addComponent(permissionMicrophoneCheckbox)
             .addLabeledComponent("  Reason (required if checked, max 64 chars):", permissionMicrophoneReasonField)
             .addSeparator()
-            .addLabeledComponent("Build Exclude Patterns (Optional):", buildPathsExcludePatternField)
+            .addLabeledComponent("Build exclude patterns (optional):", buildPathsExcludePatternField)
             .addComponentFillVertically(JPanel(), 0)
             .panel
 

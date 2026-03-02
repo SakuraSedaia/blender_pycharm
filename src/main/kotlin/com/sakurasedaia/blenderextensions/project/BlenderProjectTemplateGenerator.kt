@@ -197,7 +197,7 @@ class BlenderProjectTemplateGenerator {
             """.trimIndent()
         }
 
-        fun generateReadme(name: String, author: String, tagline: String): String {
+        fun generateReadme(name: String, @Suppress("UNUSED_PARAMETER") author: String, tagline: String): String {
             return """
                 # $name
 
