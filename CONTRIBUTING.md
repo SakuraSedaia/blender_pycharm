@@ -80,7 +80,9 @@ The [Jacques Lucke VS-Code extension](https://github.com/JacquesLucke/blender_vs
 This project uses AI agents (like Junie) to maintain high-quality code and documentation. When contributing using an AI agent:
 
 - **Local Logging**: Chat sessions may be logged locally in the `.ai-logs/` folder for personal reference. These logs should NOT be committed to the repository.
+- **Versioning**: NEVER bump the plugin version (e.g., in `build.gradle.kts`) unless explicitly told by the maintainers.
 - **Context**: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated throughout all project changes. Also, keep `.junie/context.md` (language context) and `.junie/guidelines.md` (general rules) updated as standards evolve.
+- **Wiki**: The external wiki is what the `wiki_guidelines.md` is for, which has information and context for editing said wiki. When updating the `PycharmBlenderWiki` project, follow the Sphinx/RST practices defined in `.junie/wiki_guidelines.md`.
 - **Authentication**: If a Git operation requires an SSH passphrase, provide it to the agent via chat if it asks for it.
 
 ## Reporting Issues
