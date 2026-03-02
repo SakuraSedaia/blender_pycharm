@@ -116,17 +116,14 @@ class BlenderLauncher(private val project: Project) {
             }
         }
         
-        // Copy special directories if they exist (pycharm, sedaia)
-        // TODO: Change the loop to dynamically detect and copy special directories, instead of the directories being hard-coded.
-        for (dirName in listOf("pycharm", "sedaia")) {
-            val sourceDir = sourceConfigDir.resolve(dirName)
-            if (sourceDir.exists() && sourceDir.isDirectory()) {
-                try {
-                    copyDirectory(sourceDir, targetConfigDir.resolve(dirName))
-                    logger.log("Imported $dirName folder")
-                } catch (e: Exception) {
-                    logger.log("Failed to import $dirName folder: ${e.message}")
-                }
+        // Dynamically detect and copy special directories from the config folder
+        sourceConfigDir.listDirectoryEntries().filter { it.isDirectory() }.forEach { sourceDir ->
+            val dirName = sourceDir.name
+            try {
+                copyDirectory(sourceDir, targetConfigDir.resolve(dirName))
+                logger.log("Imported $dirName folder")
+            } catch (e: Exception) {
+                logger.log("Failed to import $dirName folder: ${e.message}")
             }
         }
     }
