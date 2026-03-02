@@ -1,36 +1,36 @@
 # Changelog
 
-## [0.2.0] - 2026-03-01
+## [0.2.0] In Progress - 2026-03-01
 ### Added
-- New **Blender Dev Tools** project type and icon updates.
-- **Blender Scanner**: Improved macOS Blender detection by utilizing the `which` command.
-- **Custom Blender Versions**: Support for manually specifying Blender versions and paths.
-- **Source Directory Management**: Support for marking specific folders as Blender source directories.
-- **Universal OS Compatibility**: Improved path handling for Windows, macOS, and Linux.
-- **Documentation**: Comprehensive documentation has been moved to an [external site](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html).
-- **Unit Tests**: Added basic unit tests for core plugin functions.
-- **NPW Sandboxing Toggle**: Added a new setting to control if the Blender instance is sandboxed inside the New Project Wizard.
+- **Blender Dev Tools Project**: New specialized project type for Blender extension development.
+- **Improved Scanner**: Enhanced macOS and Linux Blender detection using the `which` command.
+- **Custom Versions**: Support for manual specification of Blender executable paths and versioning.
+- **Source Management**: Option to mark project folders as Blender source directories for better organization.
+- **Cross-Platform Compatibility**: Refined path handling for Windows, macOS, and Linux.
+- **Documentation**: Moved comprehensive guides to the [external documentation site](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html).
+- **Unit Testing**: Initial suite of unit tests for core plugin functionality.
+- **Sandbox Control**: New setting to toggle sandboxing for Blender instances within the New Project Wizard.
 
 ### Changed
-- **Project Name**: Renamed plugin to "Blender Dev Tools".
-- **Sandboxing**: Dynamically detect and copy all subdirectories from the system's Blender configuration directory, ensuring a more complete and automated environment setup.
-- **Logging**: Improved logging with per-day log rotation and enhanced configuration.
-- **Run Configurations**: Updated templates for Testing, Build, and Validation with a dynamic UI.
-  - No longer appends `--app-template pycharm` when running the `build` and `validate` run configs.
-  - Improved extension command detection for run configurations.
-  - Refactored the internal handling of the `src` path to use standard Kotlin Path utilities for improved reliability across operating systems.
-- **License**: Updated to full GNU/GPL V3 and extracted into a separate template file.
+- **Branding**: Renamed the plugin to **Blender Dev Tools** and updated all icons to comply with JetBrains Icon guidelines. Added standardized scaling and positioning for Blender logo icons.
+- **Improved**: Added folder icons for directories marked as Blender source folders in the project view.
+- **Environment Setup**: Automated the detection and replication of system Blender configuration subdirectories to ensure a consistent sandboxed environment.
+- **Diagnostics**: Improved logging with per-day rotation and more detailed configuration.
+- **Run Configurations**: Updated templates for testing, building, and validation with a dynamic UI.
+  - Removed redundant `--app-template pycharm` arguments when executing `build` and `validate` commands.
+  - Enhanced logic for detecting extension-specific commands.
+  - Standardized internal `src` path handling using Kotlin NIO.2 utilities for better OS reliability.
+- **Licensing**: Transitioned to GNU GPL v3 and moved license text to a standalone template.
 
 ### Fixed
-- **Blender Management Tool Window**: Fixed and reworked the UI for managing Blender versions and sandboxes.
-- **Blender Manifest**: Switched from kebab-case to snake_case formatting for Manifest IDs to resolve validation errors within Blender.
-- **Run Config CLI**: Corrected CLI arguments for Preset Extension run configurations, removing the extra `s` at the end of extensions.
-- **Tool Window Stability**: Fixed crashes in the Blender version management tool window.
-- **NPW Stability**: Fixed and improved the stability of the New Project Wizard, squashing many bugs and validation errors.
-- **Run Configuration Fatal Error**: Fixed the `FATAL_ERROR: Missing local "src"` error by using absolute paths for the `--source-dir` argument in "Build" and "Validate" configurations.
-- **Blender Launcher**: Added a working directory to `GeneralCommandLine` for proper resolution of relative paths.
-- **Sandboxing Toggle**: Corrected a bug where the `--app-template` argument was being incorrectly added to CLI-based extension commands.
-- **Project Generation**: Fixed a missing argument in the README generator's template call.
+- **Management UI**: Reworked the Blender version and sandbox management tool window for better stability.
+- **Manifest Formatting**: Switched Manifest IDs from kebab-case to snake_case to comply with Blender's validation requirements.
+- **CLI Arguments**: Corrected the extension command syntax in run configurations, fixing a pluralization error.
+- **Stability**: Fixed crashes in the version management tool window and resolved validation issues in the New Project Wizard.
+- **Path Resolution**: Fixed the `FATAL_ERROR: Missing local "src"` by utilizing absolute paths for the `--source-dir` argument.
+- **Process Management**: Configured the `GeneralCommandLine` working directory to ensure correct resolution of relative paths.
+- **Extension Logic**: Fixed a bug where `--app-template` was incorrectly applied to CLI-based extension operations.
+- **Readme Generation**: Resolved a missing argument error in the README generator template call.
 
 ## [0.1.0] - 2026-02-28
 - Initial release
