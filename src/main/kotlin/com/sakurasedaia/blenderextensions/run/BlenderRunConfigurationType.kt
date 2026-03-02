@@ -10,8 +10,8 @@ import java.nio.file.Path
 import javax.swing.Icon
 import kotlin.io.path.pathString
 
-private val srcPath: String
-    get() = Path.of("src").pathString
+private fun getSrcPath(project: Project): String = 
+    Path.of(project.basePath ?: "", "src").toAbsolutePath().pathString
 
 class BlenderRunConfigurationType : ConfigurationType {
     override fun getDisplayName(): String = "Blender"
@@ -39,7 +39,7 @@ class BlenderBuildConfigurationFactory(type: ConfigurationType) : ConfigurationF
     
     override fun createTemplateConfiguration(project: Project): RunConfiguration {
         val config = BlenderRunConfiguration(project, this, "Build")
-        config.getOptions().blenderCommand = "extension build --source-dir $srcPath"
+        config.getOptions().blenderCommand = "extension build --source-dir ${getSrcPath(project)}"
         return config
     }
 
@@ -52,7 +52,7 @@ class BlenderValidateConfigurationFactory(type: ConfigurationType) : Configurati
     
     override fun createTemplateConfiguration(project: Project): RunConfiguration {
         val config = BlenderRunConfiguration(project, this, "Validate")
-        config.getOptions().blenderCommand = "extension validate $srcPath"
+        config.getOptions().blenderCommand = "extension validate ${getSrcPath(project)}"
         return config
     }
 

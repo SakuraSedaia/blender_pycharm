@@ -31,6 +31,7 @@ class BlenderLauncher(private val project: Project) {
         }
 
         val commandLine = GeneralCommandLine(blenderPath)
+        commandLine.workDirectory = project.basePath?.let { java.io.File(it) }
         
         if (!blenderCommand.isNullOrBlank()) {
             commandLine.addParameters("--command")
