@@ -127,15 +127,21 @@ This ensures that your code changes are always picked up, avoiding common cachin
 
 ## Acknowledgments
 
-1. This extension is **heavily** based on and inspired by [Jacques Lucke's blender_vscode](https://github.com/JacquesLucke/blender_vscode) extension for Visual Studio Code. Some of the core functions are pulled directly from his extension, those include in this project are:
+1. This extension is **heavily** based on and inspired by [Jacques Lucke's blender_vscode](https://github.com/JacquesLucke/blender_vscode) extension for Visual Studio Code. Some of the core functions are pulled directly from his extension, including:
 - Extension repository management.
 - Communication between Blender and PyCharm.
 - Robust reload cycle.
-- New Project Wizard. (Integrated into PyCharm's New Project Wizard)
+- New Project Wizard (integrated into PyCharm's New Project Wizard).
 
-2. The Blender logo is a trademark of the Blender Foundation, and is only used within this project to denote Blender specific actions and features.
+2. The initial versions of this project were developed using JetBrains' AI tools, specifically Junie, which wrote a significant portion of the code and documentation.
 
-3. The initial versions of this project were developed using JetBrains' AI tools, specifically Junie, which wrote a significant portion of the code and documentation.
+## Trademark Notice
+
+Blender is a registered trademark of the Blender Foundation. The Blender logo is used within this project under **nominative fair use** to denote compatibility and integration features. 
+
+This project is an independent community development and is **not** affiliated with, endorsed by, or sponsored by the Blender Foundation. 
+
+The icons used in this project are either custom-made, based on JetBrains' `AllIcons` library, or utilize the [Blender Community Logo](https://www.blender.org/about/logo/#community) ("the eye") in a way that respects its intended use for third-party extensions and tools.
 
 ---
 
@@ -145,4 +151,18 @@ For more information on contributing, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Disclaimer
 
-This project is not affiliated with either Blender, the Blender Foundation, or JetBrains s.r.o, as I am not a developer or maintainer for any of these organizations.
+This project is not affiliated with, endorsed by, or sponsored by the Blender Foundation or JetBrains s.r.o. It is an independent community effort.
+
+---
+
+## Future Plans
+
+The following features and improvements are planned for future releases to enhance stability, UX, and the overall developer experience:
+
+- **Bidirectional Communication**: Implement a "heartbeat" mechanism so PyCharm can confirm when Blender is active and listening for commands.
+- **Enhanced Resilience**: Add retry logic to the TCP client for more reliable connections during heavy Blender scene loads.
+- **UI/UX Improvements**: Surfacing connection status indicators in the tool window and providing balloon notifications for critical errors.
+- **Advanced Environment Setup**: Automatic detection and configuration of Blender's internal Python interpreter for immediate stub and linting support in PyCharm.
+- **Multi-Extension Support**: Ability to manage and develop multiple interconnected extensions simultaneously within a single project.
+- **Performance Optimizations**: Implementing metadata caching for Blender installations to speed up configuration and scanning.
+- **Headless Testing**: Integration of headless background tests to validate reload cycles and communication stability automatically.

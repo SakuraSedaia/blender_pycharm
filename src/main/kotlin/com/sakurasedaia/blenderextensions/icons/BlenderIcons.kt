@@ -24,20 +24,20 @@ object BlenderIcons {
     val Install: Icon = AllIcons.Actions.Install
 
     @JvmField
-    val Delete: Icon = AllIcons.Actions.GC
+    val Remove: Icon = AllIcons.Actions.Cancel
 
     @JvmField
     val Checkmark: Icon = AllIcons.Actions.Checked
 
     @JvmField
-    val Cross: Icon = AllIcons.General.Close
+    val Cross: Icon = AllIcons.Actions.Cancel
 
     @JvmField
     val Add: Icon = AllIcons.General.Add
 
     @JvmField
-    val System: Icon = AllIcons.Nodes.HomeFolder
+    val System: Icon = AllIcons.General.Settings
 
     @JvmField
-    val Custom: Icon = AllIcons.General.User
+    val Custom: Icon = AllIcons.Nodes.Folder
 }

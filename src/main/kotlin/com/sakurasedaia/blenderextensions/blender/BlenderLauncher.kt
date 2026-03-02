@@ -141,21 +141,7 @@ class BlenderLauncher(private val project: Project) {
     }
 
     private fun findSystemBlenderConfigDir(version: String): Path? {
-        val osName = System.getProperty("os.name").lowercase()
-        val userHome = System.getProperty("user.home")
-        
-        return when {
-            osName.contains("win") -> {
-                val appData = System.getenv("APPDATA")
-                if (appData != null) Paths.get(appData, "Blender Foundation", "Blender", version, "config") else null
-            }
-            osName.contains("mac") -> {
-                Paths.get(userHome, "Library", "Application Support", "Blender", version, "config")
-            }
-            else -> { // Linux/Unix
-                Paths.get(userHome, ".config", "blender", version, "config")
-            }
-        }
+        return BlenderPathUtil.getSystemBlenderConfigDir(version)
     }
 
     private fun handleSandboxSplashScreen(templatesDir: Path) {

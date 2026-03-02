@@ -18,12 +18,12 @@ class BlenderLogger(private val project: Project) {
         platformLogger.info(message)
 
         // Create Log Directory
-        val logPath = "${project.basePath}/.logs/" ?: return
-        if (!Path.of(logPath).exists()) { Path.of(logPath).toFile().mkdirs() }
+        val logPath = project.basePath?.let { Path.of(it, ".logs") } ?: return
+        if (!logPath.exists()) { logPath.toFile().mkdirs() }
 
         // Custom file logging in project root (as requested by user in README)
         val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        val logFile = Path.of(logPath, "blender_plugin_$date.log")
+        val logFile = logPath.resolve("blender_plugin_$date.log")
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         try {
             logFile.appendText("[$timestamp] $message\n")

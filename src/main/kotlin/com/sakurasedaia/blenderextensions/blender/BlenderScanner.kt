@@ -64,8 +64,7 @@ object BlenderScanner {
     }
 
     private fun findBlenderExecutable(path: Path): Path? {
-        val exeName =
-            if (SystemInfo.isWindows) "blender.exe" else if (SystemInfo.isMac) "Blender.app/Contents/MacOS/Blender" else "blender"
+        val exeName = BlenderPathUtil.getBlenderExecutableName()
         val exe = path.resolve(exeName)
         if (exe.exists()) return exe
 
@@ -81,13 +80,14 @@ object BlenderScanner {
         }
     }
 
-    private fun tryGetVersion(path: String): String {
+    fun tryGetVersion(path: String): String {
         try {
-            val process = ProcessBuilder(path, "--version").start()
-            val output = process.inputStream.bufferedReader().readText()
-            process.waitFor()
+            val commandLine = com.intellij.execution.configurations.GeneralCommandLine(path, "--version")
+            val output = com.intellij.execution.util.ExecUtil.execAndGetOutput(commandLine)
+            if (output.exitCode != 0) return "Unknown"
+            
             // Output looks like "Blender 4.2.0\nbuild date: ..."
-            val match = Regex("Blender (\\d+\\.\\d+)").find(output)
+            val match = Regex("Blender (\\d+\\.\\d+)").find(output.stdout)
             return match?.groupValues?.get(1) ?: "Unknown"
         } catch (e: Exception) {
             return "Unknown"
@@ -173,10 +173,11 @@ object BlenderScanner {
 
     private fun tryWhich(exec: String): String? {
         return try {
-            val process = ProcessBuilder("which", exec).redirectErrorStream(true).start()
-            val output = process.inputStream.bufferedReader().readText().trim()
-            if (process.waitFor() == 0 && output.isNotEmpty() && !output.contains("not found")) {
-                output
+            val commandLine = com.intellij.execution.configurations.GeneralCommandLine("which", exec)
+            val output = com.intellij.execution.util.ExecUtil.execAndGetOutput(commandLine)
+            val result = output.stdout.trim()
+            if (output.exitCode == 0 && result.isNotEmpty() && !result.contains("not found")) {
+                result
             } else {
                 null
             }

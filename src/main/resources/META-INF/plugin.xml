@@ -14,23 +14,23 @@
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
     <description><![CDATA[
         <h1>Blender Dev Tools for PyCharm</h1>
-        <p>Integrate Blender extension development directly into your PyCharm workflow. This plugin provides a comprehensive suite of tools to streamline the creation, testing, and deployment of Blender extensions using the new "Blender Dev Tools".</p>
+        <p><b>Blender Dev Tools</b> seamlessly integrates professional Blender extension development into the PyCharm IDE. This plugin provides a powerful suite of tools designed to streamline the entire lifecycle of creating, testing, and deploying Blender extensions (v4.2+) using modern development practices.</p>
 
-        <p>WARNING: This Plugin is still in development, please use with caution and report any bugs, issues, and feature requests to the <a href="https://github.com/SakuraSedaia/blender_pycharm/issues">Github Repository</a></p>
+        <p><i><b>Note:</b> This plugin is currently in active development. Please report bugs or feature requests at the <a href="https://github.com/SakuraSedaia/blender_pycharm/issues">GitHub Repository</a>.</i></p>
 
-        <h3>Core Features:</h3>
+        <h3>Key Capabilities:</h3>
         <ul>
-            <li><b>Automated Environment Management:</b> Automatically download and manage multiple Blender versions (4.2+ and 5.0) directly from the IDE.</li>
-            <li><b>Sandboxed Development:</b> Launch Blender in an isolated development environment with project-local configuration and script directories to prevent conflicts with your main Blender installation.</li>
-            <li><b>Real-time Hot-Reloading:</b> Automatically reload your extension in Blender upon saving files in PyCharm, or trigger reloads manually with <code>Ctrl+Alt+R</code>.</li>
-            <li><b>Smart Project Templates:</b> Quickly bootstrap new Blender extensions with pre-configured project structures, including optional "auto-load" logic and automated run configurations.</li>
-            <li><b>Integrated CLI Tools:</b> Dedicated run configurations for building and validating extensions using the <code>blender --command</code> interface.</li>
-            <li><b>Customization:</b> Support for custom Blender splash screens in sandboxed sessions and flexible configuration of executable paths and symlink names.</li>
+            <li><b>Automated Version Management:</b> Effortlessly download, install, and switch between multiple Blender versions (including 4.2 LTS and 5.0) directly from a dedicated management tool window.</li>
+            <li><b>Advanced Sandboxing:</b> Develop in total isolation. Launch Blender with project-local configuration, scripts, and preferences to ensure your development environment never interferes with your production Blender setup.</li>
+            <li><b>Integrated Hot-Reloading:</b> Experience instant feedback with automatic reloads upon saving files in PyCharm, or trigger manual reloads via <code>Ctrl+Alt+R</code>. The robust reload logic handles module purging and repository refreshing to prevent common caching issues.</li>
+            <li><b>Comprehensive Project Wizard:</b> Bootstrap new extensions in seconds with a feature-rich template. Includes a dedicated UI for configuring <code>blender_manifest.toml</code> (metadata, permissions, build settings) and automated setup of Run Configurations.</li>
+            <li><b>Blender CLI Integration:</b> Run specialized configurations for <code>build</code> and <code>validate</code> commands, ensuring your extensions are marketplace-ready without leaving the IDE.</li>
+            <li><b>Customizable Developer Experience:</b> Supports custom splash screens for sandboxed sessions, flexible path management, and automatic detection of system Blender installations.</li>
         </ul>
 
-        <p>Based on the <a href="https://github.com/JacquesLucke/blender_vscode">Blender Development extension for Visual Studio Code</a> by <b>Jacques Lucke</b> and adapted for use in PyCharm.</p>
+        <p>Inspired by the <a href="https://github.com/JacquesLucke/blender_vscode">Blender Development extension for Visual Studio Code</a> by <b>Jacques Lucke</b> and optimized for the PyCharm ecosystem.</p>
 
-        <p><i>The Blender Logo is a registered trademark of the Blender Foundation, and is only used in this project to denote functions which directly relate to developing, maintaining, and creation Blender Extensions</i></p>
+        <p><small><i>Blender is a registered trademark of the Blender Foundation. This plugin is an independent project and is not affiliated with, endorsed by, or sponsored by the Blender Foundation. The Blender logo is used under nominative fair use to denote compatibility.</i></small></p>
     ]]></description>
 
     <!-- Product and plugin compatibility requirements.

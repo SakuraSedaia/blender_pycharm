@@ -71,13 +71,7 @@ class BlenderLinker(private val project: Project) {
             return Path.of(projectPath, ".blender-sandbox", "extensions", "blender_pycharm")
         }
         
-        val osName = System.getProperty("os.name").lowercase()
-        val userHome = System.getProperty("user.home")
-        val blenderConfigDir = when {
-            osName.contains("win") -> Path.of(System.getenv("APPDATA"), "Blender Foundation", "Blender")
-            osName.contains("mac") -> Path.of(userHome, "Library", "Application Support", "Blender")
-            else -> Path.of(userHome, ".config", "blender") // Linux
-        }
+        val blenderConfigDir = BlenderPathUtil.getBlenderRootConfigDir() ?: return null
 
         if (!blenderConfigDir.exists()) return null
 

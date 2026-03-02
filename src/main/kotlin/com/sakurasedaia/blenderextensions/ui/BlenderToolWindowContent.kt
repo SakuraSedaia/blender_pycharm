@@ -123,7 +123,7 @@ class BlenderToolWindowContent(private val project: Project) {
             font = font.deriveFont(java.awt.Font.BOLD)
         }
         
-        val clearSandboxButton = JButton("Clear Sandbox (.blender-sandbox)", BlenderIcons.Delete).apply {
+        val clearSandboxButton = JButton("Clear Sandbox (.blender-sandbox)", BlenderIcons.Remove).apply {
             addActionListener {
                 val confirm = Messages.showYesNoDialog(
                     project,
@@ -281,7 +281,7 @@ class BlenderToolWindowContent(private val project: Project) {
             val inst = systemTableModel.getInstallationAt(row)
             if (inst.isCustom) {
                 text = ""
-                icon = BlenderIcons.Delete
+                icon = BlenderIcons.Remove
                 isVisible = true
             } else {
                 text = ""
@@ -324,7 +324,7 @@ class BlenderToolWindowContent(private val project: Project) {
             this.row = row
             val inst = systemTableModel.getInstallationAt(row)
             if (inst.isCustom) {
-                button.icon = BlenderIcons.Delete
+                button.icon = BlenderIcons.Remove
                 button.isVisible = true
             } else {
                 button.icon = null
@@ -346,7 +346,7 @@ class BlenderToolWindowContent(private val project: Project) {
         ): Component {
             text = value.toString()
             val version = tableModel.getVersionAt(row)
-            icon = if (downloader.isDownloaded(version)) BlenderIcons.Delete else BlenderIcons.Install
+            icon = if (downloader.isDownloaded(version)) BlenderIcons.Remove else BlenderIcons.Install
             return this
         }
     }
@@ -392,7 +392,7 @@ class BlenderToolWindowContent(private val project: Project) {
             this.row = row
             button.text = value.toString()
             val version = tableModel.getVersionAt(row)
-            button.icon = if (downloader.isDownloaded(version)) BlenderIcons.Delete else BlenderIcons.Install
+            button.icon = if (downloader.isDownloaded(version)) BlenderIcons.Remove else BlenderIcons.Install
             return button
         }
 
