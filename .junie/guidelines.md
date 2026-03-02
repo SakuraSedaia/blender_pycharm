@@ -30,7 +30,7 @@
   - When adding rules to `.junie/`, place them in the correct file (generic rules and guidelines here; project-specific data in `project.md`; generic kotlin and python context in `context.md`).
   - Guideline Sync: When updating internal guidelines here that affect development style/structure/standards, also update the public `CONTRIBUTING.md` accordingly.
 - Documentation Maintenance: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated throughout the changes this project undergoes.
-- Wiki Documentation: The external wiki is what the `wiki_guidelines.md` is for, which has information and context for editing said wiki. When updating the `PycharmBlenderWiki` project, follow the Sphinx/RST practices defined in `.junie/wiki_guidelines.md`.
+- Wiki Documentation: The external wiki is what the `wiki_guidelines.md` is for, which has information and context for editing said wiki. When updating the `PycharmBlenderWiki` project, follow the Sphinx/RST practices defined in `.junie/wiki_guidelines.md`. **Editing the wiki's source code is allowed when authorized.**
 - Development Workflow:
   - Session Logging: Every chat session should be logged locally in `.ai-logs/` unless the user explicitly says "No Log". Do NOT commit these logs.
   - Commits: Upon successful completion of a task, commit the changes to Git with brief messages (<= 2 sentences). Use prefixes like `Fix:`, `Feature:`, `Docs:`, or `Refactor:` to clarify the purpose of the commit.
