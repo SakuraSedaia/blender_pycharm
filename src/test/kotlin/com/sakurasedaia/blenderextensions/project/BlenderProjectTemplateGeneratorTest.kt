@@ -53,7 +53,7 @@ class BlenderProjectTemplateGeneratorTest {
 
     @Test
     fun testGenerateReadme() {
-        val readme = BlenderProjectTemplateGenerator.generateReadme()
+        val readme = BlenderProjectTemplateGenerator.generateReadme("Name", "Author", "A Cool Tagline")
         assertTrue(readme.contains("# Blender Extension"))
         assertTrue(readme.contains("## Setup Instructions"))
     }
