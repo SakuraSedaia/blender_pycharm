@@ -1,6 +1,19 @@
 # Changelog
 
-## [0.2.0] In Progress - 2026-03-01
+## [0.3.0] - 2026-03-02
+### Added
+- **Bidirectional Heartbeat**: Implemented a "ready" signal and retry logic for Blender-to-PyCharm TCP connections, ensuring reliable communication.
+- **Connection Status UI**: Added a real-time status indicator in the Blender Management tool window.
+- **Enhanced Run Configs**: Introduced inline download buttons for missing Blender versions and support for multiple source folders.
+- **Automatic Interpreter Setup**: Plugin now automatically detects and configures the bundled Python interpreter from managed Blender installations.
+- **Performance**: Added a version metadata cache to significantly speed up Blender scanning.
+- **CI/CD**: Added a GitHub Actions workflow for automated plugin verification and headless integration tests.
+
+### Fixed
+- **Stability**: Improved error handling with balloon notifications for critical TCP and process errors.
+- **Environment**: Fixed issues with symlink creation when multiple source folders are involved.
+
+## [0.2.0] - 2026-03-01
 ### Added
 - **Blender Dev Tools Project**: New specialized project type for Blender extension development.
 - **Improved Scanner**: Enhanced macOS and Linux Blender detection using the `which` command.

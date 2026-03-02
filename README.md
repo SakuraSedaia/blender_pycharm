@@ -19,8 +19,8 @@ Visit our [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/) for in-dept
 
 For a detailed look at all features, check out the [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/Features.html).
 
-- **Testing**: Launch a Blender instance in a development environment with auto-reload, sandboxing, and symlinking enabled.
-- **Auto-Reload**: Automatically reload your extension in Blender whenever you save a file in PyCharm.
+- **Testing**: Launch a Blender instance in a development environment with auto-reload, sandboxing, and symlinking enabled. Supports multiple source folders via automatic junction/symlink creation.
+- **Auto-Reload**: Automatically reload your extension in Blender whenever you save a file in PyCharm. Uses a bidirectional heartbeat and retry logic for robust communication.
 - **Manual Reload**: Trigger a reload manually using a keyboard shortcut or menu action.
 - **Project Template**: Quickly start a new Blender Extension project from a single template that mirrors PyCharm’s Pure Python setup. It includes a comprehensive project wizard to configure your `blender_manifest.toml`:
     - **Metadata**: Set Addon ID, Tagline, Maintainer, Website, and Tags.
@@ -30,10 +30,11 @@ For a detailed look at all features, check out the [Wiki](https://sakurasedaia.g
     - **Automation**: Optionally enable “Auto-load” to include an `auto_load.py` helper and autoload-ready `__init__.py`.
     - **AI Integration**: Check “Append pre-made agent guidelines” to include standardized instructions for AI agents in a `.junie/` directory.
     - **Run Configurations**: The template automatically creates pre-configured Blender Run Configurations for Testing, Build, and Validate.
-    - **Post-Creation**: The generated `README.md` provides clear instructions on configuring your Python interpreter and linting stubs using PyCharm's built-in tools.
+    - **Post-Creation**: The generated `README.md` provides clear instructions on configuring your Python interpreter and linting stubs using PyCharm's built-in tools. Automatic Python interpreter detection is available for managed Blender installations.
 - **Blender File Icons**: `.blend` and `.blend1` files are automatically identified with a custom Blender color icon.
-- **Blender Management Tool Window**: A new tool window (right side) to manage global Blender installations (Download/Delete) and clear the project-local sandbox.
-- **Configurable**: Easily set the path to your Blender executable and toggle auto-reload.
+- **Blender Management Tool Window**: A new tool window (right side) to manage global Blender installations (Download/Delete), view real-time connection status, and clear the project-local sandbox.
+- **Configurable**: Easily set the path to your Blender executable, toggle auto-reload, and manage version metadata caching for faster scanning.
+- **Automated Verification**: Integrated GitHub Actions workflow for headless testing and validation of the communication cycle.
 
 ---
 
@@ -65,8 +66,8 @@ Currently, the plugin is not published on the JetBrains Marketplace, and as such
     - **Validate**: Validate your extension using `blender --command extensions validate`.
     - **Command**: Run a custom Blender command using `blender --command <command>`.
 5. Choose a Blender version from the **Blender version** dropdown (4.2+). Blender 5.0 is the default version. The plugin will download and manage it for you. Alternatively, pick **Custom/Pre-installed** and set the path manually.
-6. (Testing only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time. Additionally, check **Import User Configuration** to copy your standard Blender settings (user preferences, startup file, etc.) into the sandbox. Note that fields not relevant to the selected mode (like sandboxing for Build/Validate) are automatically hidden.
-7. (Testing only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**.
+6. (Testing only) Toggle **Enable Sandboxing** to isolate your development environment. When enabled, the plugin runs Blender with a project-local app template and user dirs to avoid conflicts. The plugin includes a default splash screen for sandboxed sessions. You can also provide a custom one by placing a `splash.png` file in your project root. You can disable sandboxing any time. Additionally, check **Import User Configuration** to copy your standard Blender settings (user preferences, startup file, etc.) into the sandbox. Note that fields not relevant to the selected mode (like sandboxing for Build/Validate) are automatically hidden. Inline **Download** buttons are available if a specific Blender version is missing.
+7. (Testing only) Set the **Addon source directory** (defaults to the project's root) and optionally a **symlink name**. Multiple source directories can be specified (comma-separated or through the UI) to be linked into Blender.
 8. (Optional) In **Settings** > **Tools** > **Blender Dev Tools**, check **Auto-reload extension on save** to enable automatic reloads.
 
 ### Logging and Troubleshooting
@@ -168,12 +169,7 @@ This project is not affiliated with, endorsed by, or sponsored by the Blender Fo
 
 ## Future Plans
 
-The following features and improvements are planned for future releases to enhance stability, UX, and the overall developer experience:
+The following features and improvements are planned for future releases:
 
-- **Bidirectional Communication**: Implement a "heartbeat" mechanism so PyCharm can confirm when Blender is active and listening for commands.
-- **Enhanced Resilience**: Add retry logic to the TCP client for more reliable connections during heavy Blender scene loads.
-- **UI/UX Improvements**: Surfacing connection status indicators in the tool window and providing balloon notifications for critical errors.
-- **Advanced Environment Setup**: Automatic detection and configuration of Blender's internal Python interpreter for immediate stub and linting support in PyCharm.
-- **Multi-Extension Support**: Ability to manage and develop multiple interconnected extensions simultaneously within a single project.
-- **Performance Optimizations**: Implementing metadata caching for Blender installations to speed up configuration and scanning.
-- **Headless Testing**: Integration of headless background tests to validate reload cycles and communication stability automatically.
+- **Enhanced UI**: More granular control over symlink management and multi-extension projects.
+- **Deeper Integration**: Better support for Blender's internal asset browser and library management from within PyCharm.

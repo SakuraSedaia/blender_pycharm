@@ -35,10 +35,11 @@ Run the plugin in a sandbox environment to verify your changes:
 ```bash
 ./gradlew runIde
 ```
-If you've added new logic, please consider adding unit tests in `src/test/kotlin` (if applicable) and run them with:
+This project includes both unit tests and headless integration tests that validate the communication cycle with Blender. Run all tests with:
 ```bash
 ./gradlew test
 ```
+The integration tests use a headless Blender environment to verify the TCP heartbeat and reload logic.
 To build the distribution plugin ZIP file, run:
 ```bash
 ./gradlew build
