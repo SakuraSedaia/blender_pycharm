@@ -6,16 +6,21 @@ Thank you for your interest in contributing to this project! We welcome all cont
 
 ### Prerequisites
 
-- [IntelliJ IDEA](https://www.jetbrains.com/idea/) (Community or Ultimate)
-- [JDK 21](https://adoptium.net/temurin/releases/?version=21) or later
-- [Blender](https://www.blender.org/) 4.2 or later (supporting extensions)
+- **JDK 21** (or later) – [Download Adoptium Temurin](https://adoptium.net/temurin/releases/?version=21)
+- **IntelliJ IDEA** (Community or Ultimate) – [Download](https://www.jetbrains.com/idea/)
+- **DevKit Plugin** – Installed within IntelliJ IDEA to provide plugin development support.
+- **Blender 4.2+** – [Download](https://www.blender.org/download/)
 
 ### Setup
 
-1. **Fork the repository** on GitHub.
-2. **Clone your fork** locally.
-3. **Open the project** in IntelliJ IDEA.
-4. **Set up the SDK**: Ensure you have JDK 21+ installed and configured. IntelliJ should automatically pick up the Gradle configuration.
+1. **Fork and Clone** the repository:
+   ```bash
+   git clone https://github.com/your-username/BlenderExtensions.git
+   cd BlenderExtensions
+   ```
+2. **Open the project** in IntelliJ IDEA.
+3. **Configure the JDK**: Go to `File > Project Structure > Project` and ensure the Project SDK is set to JDK 21+.
+4. **Import Gradle**: IntelliJ should automatically detect the `build.gradle.kts` file and import the project. If not, open the **Gradle** tool window and click the **Refresh** icon.
 
 ## Development Workflow
 
@@ -31,7 +36,7 @@ git checkout -b fix/your-bug-fix
 Implement your changes in the `src/main/kotlin` directory. Follow the existing project structure and coding style.
 
 ### 3. Test Your Changes
-Run the plugin in a sandbox environment to verify your changes:
+Run the plugin in a sandbox environment to verify your changes. You can do this from the terminal or using the **Run IDE** configuration in IntelliJ:
 ```bash
 ./gradlew runIde
 ```
@@ -40,10 +45,13 @@ This project includes both unit tests and headless integration tests that valida
 ./gradlew test
 ```
 The integration tests use a headless Blender environment to verify the TCP heartbeat and reload logic.
-To build the distribution plugin ZIP file, run:
-```bash
-./gradlew build
-```
+
+To build the distribution plugin ZIP file:
+- **IntelliJ**: Use the **Build Plugin** run configuration or the `buildPlugin` task in the Gradle tool window.
+- **Terminal**:
+  ```bash
+  ./gradlew buildPlugin
+  ```
 The built plugin will be available in `build/distributions/`.
 
 ### 4. Commit and Push

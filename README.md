@@ -56,14 +56,17 @@ Installing a prebuilt binary is the **safe and stable** option for most users.
 
 Building from source provides the **most up-to-date** features but may be **unstable** as it reflects the current development state.
 
-1. Ensure you have the latest version of IntelliJ IDEA (Community or Pro) installed and JDK 21+.
-2. Clone this repository and open it in IntelliJ IDEA:
+1. Ensure you have **JDK 21** or later installed.
+2. Clone this repository:
    ```bash
    git clone https://github.com/Sakura-Sedaia/BlenderExtensions.git
+   cd BlenderExtensions
    ```
-3. Run `./gradlew buildPlugin` or use the **Build Plugin** run configuration in IntelliJ.
-   - The built plugin will be located in the `build/distributions` directory.
-4. Follow steps 2-5 from **Option 1** to install the generated ZIP file from the `build/distributions` folder.
+3. Build the plugin using the included Gradle wrapper:
+   - **Windows**: `.\gradlew.bat buildPlugin`
+   - **macOS/Linux**: `./gradlew buildPlugin`
+4. The built plugin ZIP file will be located in the `build/distributions` directory.
+5. Follow steps 2-5 from **Option 1** to install the generated ZIP file.
 
 ---
 
