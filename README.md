@@ -77,6 +77,17 @@ The plugin maintains a runtime log in the project root: `blender_plugin.log`. Th
 
 If you encounter issues, check this log first.
 
+### Troubleshooting
+
+- **macOS/Linux Binary Path**: If you are using a custom Blender installation, ensure the path points to the actual executable, not the `.app` bundle or a shell script. 
+    - On macOS, this is typically `Blender.app/Contents/MacOS/Blender`.
+    - On Linux, if you downloaded a tarball, it's the `blender` binary inside the extracted folder.
+- **Connection Issues**: If PyCharm fails to connect to Blender:
+    - Check the `Status` in the **Blender Management** tool window.
+    - Ensure no firewall is blocking port `5555` (or the dynamically allocated port shown in the logs).
+    - If Blender takes a long time to load, the plugin will retry up to 5 times. Check the Blender console for connection errors.
+- **Permission Errors**: On Windows, creating symbolic links may require Developer Mode enabled or running PyCharm as Administrator. The plugin will attempt to create a directory junction as a fallback.
+
 ### Usage
 
 - **Testing**: Create a new **Blender** Run Configuration (Run > Edit Configurations... > + > Blender), select the **Testing** template, and run it.
