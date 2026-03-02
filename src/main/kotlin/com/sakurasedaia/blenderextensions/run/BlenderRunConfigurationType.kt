@@ -6,7 +6,12 @@ import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.project.Project
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
+import java.nio.file.Path
 import javax.swing.Icon
+import kotlin.io.path.pathString
+
+private val srcPath: String
+    get() = Path.of("src").pathString
 
 class BlenderRunConfigurationType : ConfigurationType {
     override fun getDisplayName(): String = "Blender"
@@ -31,9 +36,10 @@ class BlenderStartBlenderConfigurationFactory(type: ConfigurationType) : Configu
 }
 
 class BlenderBuildConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
+    
     override fun createTemplateConfiguration(project: Project): RunConfiguration {
         val config = BlenderRunConfiguration(project, this, "Build")
-        config.getOptions().blenderCommand = "extension build --source-dir src --output-dir builds"
+        config.getOptions().blenderCommand = "extension build --source-dir $srcPath"
         return config
     }
 
@@ -43,9 +49,10 @@ class BlenderBuildConfigurationFactory(type: ConfigurationType) : ConfigurationF
 }
 
 class BlenderValidateConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {
+    
     override fun createTemplateConfiguration(project: Project): RunConfiguration {
         val config = BlenderRunConfiguration(project, this, "Validate")
-        config.getOptions().blenderCommand = "extension validate --source-dir src --output-dir builds"
+        config.getOptions().blenderCommand = "extension validate $srcPath"
         return config
     }
 
