@@ -119,5 +119,7 @@ If you find a bug or have a feature request, please [open an issue](https://gith
 
 For questions or discussions, feel free to use GitHub Discussions or open an issue.
 
+For legal notices, AI disclosures, and trademark information, please see [NOTICE.md](NOTICE.md). For detailed architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
 ---
 By contributing, you agree that your contributions will be licensed under the project's license.
