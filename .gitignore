@@ -39,6 +39,11 @@ bin/
 ### VS Code ###
 .vscode/
 
+### Scripts ###
+build_and_grep.sh
+release_trigger.sh
+*.ps1
+
 ### Mac OS ###
 .DS_Store
 /.reference/

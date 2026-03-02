@@ -2,7 +2,7 @@
 
 ## Wiki Project Path
 - **Windows**: `C:\Users\Sakura\Documents\PycharmProjects\PycharmBlenderWiki`
-- **Linux**: `/home/sakura/PycharmProjects/PycharmBlenderWiki`
+- **General**: All projects under `PycharmProjects` (including the wiki) will always exist in `$USER_HOME\Documents\PycharmProjects`.
 
 This file contains the imported guidelines and context for interacting with the `PycharmBlenderWiki` project. **These are only to be referenced when making changes to the wiki.**
 

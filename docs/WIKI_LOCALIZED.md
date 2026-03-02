@@ -17,6 +17,7 @@ This document provides links to the localized versions of the Blender Developmen
 | **Dutch** | [Nederlandse Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/nl/index.html) |
 | **Polish** | [Polska Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/pl/index.html) |
 | **Vietnamese** | [Wiki Tiếng Việt](https://sakurasedaia.github.io/PycharmBlenderWiki/vi/index.html) |
+| **Localization Assistance** | [Wiki Localization Guide](docs/wiki/localization.md) |
 
 ---
 

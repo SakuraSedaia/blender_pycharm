@@ -88,6 +88,7 @@ Submit a Pull Request on GitHub. Provide a clear description of the changes and 
 - **Internationalization (i18n)**: All user-facing UI and log strings MUST have an associated i18n mapping.
   - Use `BlenderBundle.message("key")` for localized strings.
   - English mappings are stored in: `src/main/resources/messages/BlenderBundle.properties`
+  - See [Localization Contribution Guidelines](docs/LOCALIZATION_CONTRIBUTING.md) for more details.
 
 ## Documentation References
 

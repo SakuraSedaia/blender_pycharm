@@ -20,6 +20,7 @@ The following changes have been implemented in the Blender Development for PyCha
 ## 4. Contributing
 - **Headless Testing**: A new suite of headless integration tests has been added. Contributors should run `./gradlew test` to verify that their changes don't break the core communication and reload cycles.
 - **CI/CD**: A GitHub Actions workflow (`.github/workflows/verify.yml`) now automatically validates all Pull Requests.
+- **Localization Assistance**: A new [Localization Guide](docs/wiki/localization.md) has been added to the wiki to help community members contribute to translating the plugin into different languages.
 
 ## 5. Troubleshooting
 - **Heartbeat Timeout**: If the "Status" remains disconnected, check if a firewall is blocking the dynamic TCP port (defaulting to 5555).
