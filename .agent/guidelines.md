@@ -26,7 +26,7 @@
 ## AI Agent Workflow & Documentation
 
 ### Session & Environment Management
-- **Initial Context**: At session start, review `.junie/` files (`project.md`, `context.md`, `guidelines.md`) to align with current architecture and standards.
+- **Initial Context**: At session start, review `.agent/` files (`project.md`, `context.md`, `guidelines.md`) and specialized skills in `.agent/skills/` to align with current architecture and standards.
 - **Logging**: Maintain local-only chat session logs in `.ai-logs/`, organized by date. These are for personal reference and MUST NOT be committed to the repository.
 - **Summaries**: When asked for a "context summary", write `summary_YYYY-MM-DD.md` in `.ai-logs/` with highlights.
 - **Versioning**: NEVER bump the plugin version (e.g., in `build.gradle.kts`) unless explicitly instructed by the User.
@@ -34,10 +34,17 @@
 - **SSH/Passphrase Handling**: If a process (e.g., Git) requires a passphrase, use the `ask_user` tool to request it.
 
 ### Documentation & Wiki Maintenance
-- **Internal Docs**: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated as the project evolves.
+- **Internal Docs**: Keep `.agent/project.md`, `README.md`, and `CONTRIBUTING.md` updated as the project evolves.
 - **Rule Placement**: Place generic rules/guidelines in `guidelines.md`; project-specific data in `project.md`; and language/Kotlin/Python context in `context.md`.
 - **Guideline Sync**: When updating internal guidelines that affect development standards, also update `CONTRIBUTING.md`.
-- **External Wiki**: `wiki_guidelines.md` is strictly for the external Sphinx/RST wiki (`PycharmBlenderWiki`) and has NO effect on this project's code or internal documentation. Editing the external wiki's source code is allowed only when authorized.
+- **External Wiki**: `wiki_guidelines.md` is strictly for the external Sphinx/RST wiki (`PycharmBlenderWiki`) and has NO effect on this project's code or internal documentation.
+  - Refer to `.agent/wiki_guidelines.md` for Sphinx and reStructuredText (RST) standards.
+  - Editing the external wiki's source code is allowed only when authorized.
+
+## Agent Skills
+Detailed procedural skills are maintained in `.agent/skills/`:
+- **Git Management**: `.agent/skills/git_management.md`
+- **Documentation**: `.agent/skills/documentation.md`
 
 ## Commit Guidelines
 All commits MUST use one of the following standardized prefixes:

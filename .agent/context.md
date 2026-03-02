@@ -12,6 +12,3 @@
 
 ## Python Styling Practices
 - When Python code exists, follow PEP 8, prefer the standard library, and keep nesting minimal (<= 4 indents).
-
-## Documentation Context (Wiki)
-- When making changes to the `PycharmBlenderWiki` project, refer to `.junie/wiki_guidelines.md` for Sphinx and reStructuredText (RST) standards.
