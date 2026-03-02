@@ -7,6 +7,98 @@ import java.nio.file.Path
 @Service
 class BlenderScriptGenerator {
 
+    fun generateStartupScriptContent(port: Int, extensionName: String?): String {
+        return """
+            import bpy
+            import socket
+            import json
+            import traceback
+            import time
+            import sys
+            
+            def listen_for_reload():
+                import json
+                import sys
+                import time
+                
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                max_retries = 5
+                retry_count = 0
+                connected = False
+                
+                while retry_count < max_retries:
+                    try:
+                        s.connect(('127.0.0.1', $port))
+                        connected = True
+                        break
+                    except Exception as e:
+                        retry_count += 1
+                        print(f"Connection attempt {retry_count} failed: {e}. Retrying in 1s...")
+                        time.sleep(1)
+                
+                if not connected:
+                    print(f"Failed to connect to IntelliJ after {max_retries} attempts.")
+                    return
+
+                try:
+                    # Send ready message
+                    s.sendall(json.dumps({"type": "ready"}).encode() + b"\n")
+                    print(f"Connected to IntelliJ for extension reloading on port $port")
+                    while True:
+                        data = s.recv(1024)
+                        if not data:
+                            break
+                        try:
+                            message = json.loads(data.decode().strip())
+                            if message.get('type') == 'reload':
+                                extension_name = message.get('name')
+                                print(f"Received reload command for: {extension_name}")
+                                
+                                def do_reload():
+                                    try:
+                                        module_name = f"bl_ext.blender_pycharm.{extension_name}"
+                                        
+                                        # 1. Disable if enabled
+                                        if module_name in bpy.context.preferences.addons:
+                                            bpy.ops.preferences.addon_disable(module=module_name)
+                                        
+                                        # 2. Refresh repositories to pick up file changes
+                                        if hasattr(bpy.ops.extensions, 'repo_refresh_all'):
+                                            bpy.ops.extensions.repo_refresh_all()
+                                        
+                                        # 3. Purge from sys.modules to force re-import
+                                        for m in list(sys.modules.keys()):
+                                            if m == module_name or m.startswith(module_name + "."):
+                                                del sys.modules[m]
+                                        
+                                        # 4. Re-enable
+                                        bpy.ops.preferences.addon_enable(module=module_name)
+                                        print(f"Successfully reloaded extension: {module_name}")
+                                        
+                                    except Exception as e:
+                                        print(f"Error during reload of {extension_name}: {e}")
+                                        traceback.print_exc()
+                                    return None # Don't repeat the timer
+                                
+                                # Use timer to run on main thread
+                                if hasattr(bpy.app, 'timers'):
+                                    bpy.app.timers.register(do_reload)
+                                else:
+                                    do_reload()
+                        except Exception as e:
+                            print(f"Error parsing reload message: {e}")
+                except Exception as e:
+                    print(f"Error in listen_for_reload: {e}")
+                finally:
+                    s.close()
+
+            import threading
+            t = threading.Thread(target=listen_for_reload)
+            t.daemon = True
+            t.start()
+        """.trimIndent()
+    }
+
     fun createStartupScript(port: Int, repoDir: Path?, extensionName: String?): Path {
         val repoPath = repoDir?.toAbsolutePath()?.toString()?.replace("\\", "\\\\") ?: ""
         val extName = extensionName ?: ""

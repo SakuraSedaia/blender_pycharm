@@ -1,5 +1,6 @@
 package com.sakurasedaia.blenderextensions.blender
 
+import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.util.SystemInfo
 import java.nio.file.Files
 import java.nio.file.Path
@@ -18,6 +19,7 @@ data class BlenderInstallation(
 )
 
 object BlenderScanner {
+    private const val VERSION_CACHE_PREFIX = "com.sakurasedaia.blenderextensions.version."
     private var cachedInstallations: List<BlenderInstallation>? = null
 
     fun scanSystemInstallations(
@@ -81,6 +83,12 @@ object BlenderScanner {
     }
 
     fun tryGetVersion(path: String): String {
+        val cacheKey = VERSION_CACHE_PREFIX + path.hashCode()
+        val cachedVersion = PropertiesComponent.getInstance().getValue(cacheKey)
+        if (cachedVersion != null && cachedVersion != "Unknown") {
+            return cachedVersion
+        }
+
         try {
             val commandLine = com.intellij.execution.configurations.GeneralCommandLine(path, "--version")
             val output = com.intellij.execution.util.ExecUtil.execAndGetOutput(commandLine)
@@ -88,7 +96,13 @@ object BlenderScanner {
             
             // Output looks like "Blender 4.2.0\nbuild date: ..."
             val match = Regex("Blender (\\d+\\.\\d+)").find(output.stdout)
-            return match?.groupValues?.get(1) ?: "Unknown"
+            val version = match?.groupValues?.get(1) ?: "Unknown"
+
+            if (version != "Unknown") {
+                PropertiesComponent.getInstance().setValue(cacheKey, version)
+            }
+
+            return version
         } catch (e: Exception) {
             return "Unknown"
         }
