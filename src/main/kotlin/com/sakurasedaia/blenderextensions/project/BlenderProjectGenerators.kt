@@ -18,6 +18,7 @@ import javax.swing.event.DocumentEvent
 import javax.swing.SwingUtilities
 import com.intellij.execution.RunManager
 import com.intellij.execution.configurations.ConfigurationTypeUtil
+import com.sakurasedaia.blenderextensions.blender.*
 import com.sakurasedaia.blenderextensions.run.*
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 import java.nio.file.Files
@@ -156,6 +157,47 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
                     .createProcess()
                     .waitFor()
             } catch (_: Exception) {}
+        }
+
+        // 4. Automatic Python Interpreter Setup
+        try {
+            val blenderPath = BlenderDownloader.getInstance(project).getOrDownloadBlenderPath("5.0")
+            if (blenderPath != null) {
+                val pythonExe = BlenderPathUtil.findPythonExecutable(Path.of(blenderPath))
+                if (pythonExe != null && Files.exists(pythonExe)) {
+                    // Use reflection or a safe way to call Python SDK API if available
+                    com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
+                        setupPythonInterpreter(project, pythonExe.toString())
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            // Ignore if anything fails here
+        }
+    }
+
+    private fun setupPythonInterpreter(project: Project, pythonExe: String) {
+        try {
+            val pySdkType = com.intellij.openapi.projectRoots.SdkType.findInstance(com.intellij.openapi.projectRoots.SdkType::class.java).let {
+                // This is a bit hacky, normally you'd use PythonSdkType.getInstance()
+                // But we don't have direct access without a hard dependency
+                com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().allJdks.find { it.sdkType.name == "Python SDK" }?.sdkType
+                    ?: com.intellij.openapi.projectRoots.SdkType.getAllTypes().find { it.name == "Python SDK" }
+            } ?: return
+
+            val sdk = com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().createSdk("Blender Python", pySdkType)
+            val sdkModificator = sdk.sdkModificator
+            sdkModificator.homePath = pythonExe
+            sdkModificator.commitChanges()
+
+            com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().addJdk(sdk)
+            com.intellij.openapi.project.ProjectManager.getInstance().openProjects.forEach { p ->
+                if (p == project) {
+                    com.intellij.openapi.roots.ProjectRootManager.getInstance(p).projectSdk = sdk
+                }
+            }
+        } catch (e: Throwable) {
+            // Log or ignore
         }
     }
 }

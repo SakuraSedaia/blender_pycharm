@@ -20,31 +20,57 @@ class BlenderLinker(private val project: Project) {
         }
 
         val projectPath = project.basePath ?: return
-        val sourcePath = if (!addonSourceDir.isNullOrEmpty()) Path.of(addonSourceDir) else Path.of(projectPath)
         
-        if (!sourcePath.exists()) {
-            logger.log("Source directory does not exist: $sourcePath")
-            return
-        }
-
-        val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourcePath.name
-        val targetLink = userRepoDir.resolve(symlinkName)
-
-        if (targetLink.exists()) {
-            try {
-                Files.delete(targetLink)
-            } catch (e: Exception) {
-                logger.log("Failed to delete existing link at $targetLink: ${e.message}")
+        // Collect all sources to link
+        val sourcesToLink = mutableListOf<Pair<Path, String>>()
+        
+        if (!addonSourceDir.isNullOrEmpty()) {
+            val sourcePath = Path.of(addonSourceDir)
+            if (sourcePath.exists()) {
+                val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourcePath.name
+                sourcesToLink.add(sourcePath to symlinkName)
+            } else {
+                logger.log("Source directory does not exist: $sourcePath")
+            }
+        } else {
+            val settings = com.sakurasedaia.blenderextensions.settings.BlenderSettings.getInstance(project)
+            val markedSources = settings.getSourceFolders()
+            if (markedSources.isNotEmpty()) {
+                markedSources.forEach { pathStr ->
+                    val sourcePath = Path.of(pathStr)
+                    if (sourcePath.exists()) {
+                        sourcesToLink.add(sourcePath to sourcePath.name)
+                    } else {
+                        logger.log("Marked source directory does not exist: $sourcePath")
+                    }
+                }
+            } else {
+                val sourcePath = Path.of(projectPath)
+                if (sourcePath.exists()) {
+                    sourcesToLink.add(sourcePath to sourcePath.name)
+                }
             }
         }
 
-        try {
-            Files.createSymbolicLink(targetLink, sourcePath)
-            logger.log("Created symbolic link: $targetLink -> $sourcePath")
-        } catch (e: Exception) {
-            logger.log("Failed to create symbolic link: ${e.message}")
-            if (System.getProperty("os.name").lowercase().contains("win")) {
-                createWindowsJunction(targetLink, sourcePath)
+        for ((sourcePath, symlinkName) in sourcesToLink) {
+            val targetLink = userRepoDir.resolve(symlinkName)
+            if (targetLink.exists()) {
+                try {
+                    Files.delete(targetLink)
+                } catch (e: Exception) {
+                    logger.log("Failed to delete existing link at $targetLink: ${e.message}")
+                    continue
+                }
+            }
+
+            try {
+                Files.createSymbolicLink(targetLink, sourcePath)
+                logger.log("Created symbolic link: $targetLink -> $sourcePath")
+            } catch (e: Exception) {
+                logger.log("Failed to create symbolic link for $sourcePath: ${e.message}")
+                if (System.getProperty("os.name").lowercase().contains("win")) {
+                    createWindowsJunction(targetLink, sourcePath)
+                }
             }
         }
     }
