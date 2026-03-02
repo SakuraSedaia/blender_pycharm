@@ -40,7 +40,7 @@ class BlenderLauncher(private val project: Project) {
         }
         
         if (isSandboxed) {
-            setupSandbox(commandLine, importUserConfig, blenderVersion)
+            setupSandbox(commandLine, importUserConfig, blenderVersion, blenderCommand)
         }
         
         if (!additionalArgs.isNullOrBlank()) {
@@ -51,7 +51,12 @@ class BlenderLauncher(private val project: Project) {
         return OSProcessHandler(commandLine)
     }
 
-    private fun setupSandbox(commandLine: GeneralCommandLine, importUserConfig: Boolean, blenderVersion: String?) {
+    private fun setupSandbox(
+        commandLine: GeneralCommandLine,
+        importUserConfig: Boolean,
+        blenderVersion: String?,
+        blenderCommand: String?
+    ) {
         logger.log("Using sandboxed environment")
         val projectPath = project.basePath ?: return
         val sandboxDir = Paths.get(projectPath, ".blender-sandbox")
@@ -77,7 +82,14 @@ class BlenderLauncher(private val project: Project) {
         
         commandLine.withEnvironment("BLENDER_USER_CONFIG", configDir.absolutePathString())
         commandLine.withEnvironment("BLENDER_USER_SCRIPTS", scriptsDir.absolutePathString())
-        commandLine.addParameters("--app-template", "pycharm")
+
+        val isExtensionCommand = blenderCommand?.contains("extension") == true
+
+        if (!isExtensionCommand) {
+            commandLine.addParameters("--app-template", "pycharm")
+        } else {
+            logger.log("Extension command detected, skipping --app-template")
+        }
     }
 
     private fun importBlenderConfig(targetConfigDir: Path, version: String?) {
