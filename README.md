@@ -5,10 +5,10 @@ Blender Dev Tools integration for PyCharm. This plugin allows you to launch Blen
 ## Quick Links
 
 - [Installation Guide](#installation)
-- [Operating Instructions](USAGE.md)
-- [Architecture Overview](ARCHITECTURE.md)
+- [Operating Instructions](docs/USAGE.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
 - [Contributing](CONTRIBUTING.md)
-- [Notices and Acknowledgments](NOTICE.md)
+- [Notices and Acknowledgments](docs/NOTICE.md)
 - [External Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/)
 
 ## Features
@@ -43,4 +43,4 @@ Blender Dev Tools integration for PyCharm. This plugin allows you to launch Blen
 
 ---
 
-For legal notices and acknowledgments, please see [NOTICE.md](NOTICE.md).
+For legal notices and acknowledgments, please see [NOTICE.md](docs/NOTICE.md).
