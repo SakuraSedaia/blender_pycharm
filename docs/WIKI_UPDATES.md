@@ -1,6 +1,6 @@
 # Wiki Update Recommendations - Session 2026-03-02
 
-The following changes have been implemented in the Blender Development for PyCharm plugin and should be reflected in the [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/).
+The following changes have been implemented in the Blender Development for PyCharm plugin and should be reflected in the [Wiki](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html).
 
 ## 1. Installation & Setup
 - **New Feature**: Automatic Python Interpreter Detection.

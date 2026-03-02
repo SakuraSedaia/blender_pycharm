@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This document describes the internal workings of the Blender Development for PyCharm. For a high-level overview, see the [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/Architecture.html).
+This document describes the internal workings of the Blender Development for PyCharm. For a high-level overview, see the [Wiki](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/core-concepts/architecture.html).
 
 ## How it Works
 

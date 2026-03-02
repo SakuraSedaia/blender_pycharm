@@ -1,6 +1,6 @@
 # Operating Instructions
 
-This guide provides detailed instructions on how to set up and use the Blender Development for PyCharm. For more in-depth documentation, please visit our [Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/).
+This guide provides detailed instructions on how to set up and use the Blender Development for PyCharm. For more in-depth documentation, please visit our [Wiki](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html).
 
 ## Setup
 

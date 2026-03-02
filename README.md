@@ -3,13 +3,13 @@
 Blender Development integration for PyCharm. This plugin allows you to launch Blender from within PyCharm and automatically or manually reload your Blender extensions during development.
 
 ## Documentation
-- [Installation Guide](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/blender-development-pycharm/getting-started/installation.html)
-- [Operating Instructions](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/blender-development-pycharm/usage/index.html)
-- [Architecture Overview](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/blender-development-pycharm/core-concepts/architecture.html)
-- [Contributing](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/blender-development-pycharm/contributing/index.html)
-- [Localized Wiki Links](https://sakurasedaia.github.io/PycharmBlenderWiki/docs/blender-development-pycharm/index.html)
+- [Installation Guide](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/getting-started/installation.html)
+- [Operating Instructions](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/usage/index.html)
+- [Architecture Overview](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/core-concepts/architecture.html)
+- [Contributing](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/contributing/index.html)
+- [Localized Wiki Links](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html)
 - [Notices and Acknowledgments](docs/NOTICE.md)
-- [Full Documentation Wiki](https://sakurasedaia.github.io/PycharmBlenderWiki/)
+- [Full Documentation Wiki](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html)
 
 ## Features
 
