@@ -59,7 +59,7 @@ Building from source provides the **most up-to-date** features but may be **unst
 1. Ensure you have **JDK 21** or later installed.
 2. Clone this repository:
    ```bash
-   git clone https://github.com/Sakura-Sedaia/BlenderExtensions.git
+   git clone --depth 1 https://github.com/Sakura-Sedaia/BlenderExtensions.git
    cd BlenderExtensions
    ```
 3. Build the plugin using the included Gradle wrapper:

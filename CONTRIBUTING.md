@@ -15,7 +15,7 @@ Thank you for your interest in contributing to this project! We welcome all cont
 
 1. **Fork and Clone** the repository:
    ```bash
-   git clone https://github.com/your-username/BlenderExtensions.git
+   git clone --depth 1 https://github.com/your-username/BlenderExtensions.git
    cd BlenderExtensions
    ```
 2. **Open the project** in IntelliJ IDEA.
