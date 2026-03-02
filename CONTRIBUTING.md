@@ -96,11 +96,12 @@ The [Jacques Lucke VS-Code extension](https://github.com/JacquesLucke/blender_vs
 
 This project uses AI agents (like Junie) to maintain high-quality code and documentation. When contributing using an AI agent:
 
-- **Local Logging**: Chat sessions may be logged locally in the `.ai-logs/` folder for personal reference. These logs should NOT be committed to the repository.
-- **Versioning**: NEVER bump the plugin version (e.g., in `build.gradle.kts`) unless explicitly told by the maintainers.
-- **Context**: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated throughout all project changes. Also, keep `.junie/context.md` (language context) and `.junie/guidelines.md` (general rules) updated as standards evolve.
-- **Wiki**: The external wiki is what the `wiki_guidelines.md` is for, which has information and context for editing said wiki. When updating the `PycharmBlenderWiki` project, follow the Sphinx/RST practices defined in `.junie/wiki_guidelines.md`. **Editing the wiki's source code is allowed when authorized.**
-- **Authentication**: If a Git operation requires an SSH passphrase, provide it to the agent via chat if it asks for it.
+- **Initial Context**: At session start, review `.junie/` files (`project.md`, `context.md`, `guidelines.md`) to align with current architecture and standards.
+- **Local Logging**: Chat sessions may be logged locally in the `.ai-logs/` folder for personal reference. These logs MUST NOT be committed to the repository.
+- **Versioning**: NEVER bump the plugin version (e.g., in `build.gradle.kts`) unless explicitly instructed by the maintainers.
+- **Documentation**: Keep `.junie/project.md`, `README.md`, and `CONTRIBUTING.md` updated throughout all project changes.
+- **Wiki**: `wiki_guidelines.md` is strictly for the external Sphinx/RST wiki (`PycharmBlenderWiki`) and has NO effect on this project's code or internal documentation. Editing the wiki's source code is allowed only when authorized.
+- **Authentication**: If a process requires an SSH passphrase, provide it to the agent via chat if it asks for it.
 
 ## Reporting Issues
 
