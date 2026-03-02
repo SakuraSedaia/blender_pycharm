@@ -62,6 +62,9 @@
                     icon="com.sakurasedaia.blenderextensions.icons.BlenderIcons.Blender"/>
 
         <fileTemplateGroup implementation="com.sakurasedaia.blenderextensions.actions.BlenderTemplateGroupFactory"/>
+        
+        <statusBarWidgetFactory implementation="com.sakurasedaia.blenderextensions.ui.BlenderStatusBarWidgetFactory"
+                                id="BlenderStatus"/>
     </extensions>
 
     <actions>

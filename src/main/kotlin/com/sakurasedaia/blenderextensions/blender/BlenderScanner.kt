@@ -1,5 +1,6 @@
 package com.sakurasedaia.blenderextensions.blender
 
+import com.sakurasedaia.blenderextensions.BlenderBundle
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.util.SystemInfo
 import java.nio.file.Files
@@ -41,11 +42,12 @@ object BlenderScanner {
             if (path.exists()) {
                 val exe = if (path.isDirectory()) findBlenderExecutable(path) else path
                 if (exe != null && exe.exists()) {
+                    val version = tryGetVersion(exe.toString())
                     installations.add(
                         BlenderInstallation(
-                            customName,
+                            BlenderBundle.message("blender.installation.custom", version),
                             exe.toString(),
-                            "Unknown",
+                            version,
                             isCustom = true,
                             originPath = pathStr
                         )
@@ -55,7 +57,7 @@ object BlenderScanner {
         }
 
         val result = installations.distinctBy { it.path }.map {
-            if (it.version == "Unknown") {
+            if (it.version == BlenderBundle.message("blender.version.unknown")) {
                 it.copy(version = tryGetVersion(it.path))
             } else {
                 it
@@ -85,26 +87,27 @@ object BlenderScanner {
     fun tryGetVersion(path: String): String {
         val cacheKey = VERSION_CACHE_PREFIX + path.hashCode()
         val cachedVersion = PropertiesComponent.getInstance().getValue(cacheKey)
-        if (cachedVersion != null && cachedVersion != "Unknown") {
+        val unknown = BlenderBundle.message("blender.version.unknown")
+        if (cachedVersion != null && cachedVersion != unknown) {
             return cachedVersion
         }
 
         try {
             val commandLine = com.intellij.execution.configurations.GeneralCommandLine(path, "--version")
             val output = com.intellij.execution.util.ExecUtil.execAndGetOutput(commandLine)
-            if (output.exitCode != 0) return "Unknown"
+            if (output.exitCode != 0) return unknown
             
             // Output looks like "Blender 4.2.0\nbuild date: ..."
             val match = Regex("Blender (\\d+\\.\\d+)").find(output.stdout)
-            val version = match?.groupValues?.get(1) ?: "Unknown"
+            val version = match?.groupValues?.get(1) ?: unknown
 
-            if (version != "Unknown") {
+            if (version != unknown) {
                 PropertiesComponent.getInstance().setValue(cacheKey, version)
             }
 
             return version
         } catch (e: Exception) {
-            return "Unknown"
+            return unknown
         }
     }
 
@@ -122,7 +125,7 @@ object BlenderScanner {
                             val exe = dir.resolve("blender.exe")
                             if (exe.exists()) {
                                 val version = dir.name.removePrefix("Blender").trim()
-                                paths.add(BlenderInstallation("Blender $version (System)", exe.toString(), version))
+                                paths.add(BlenderInstallation(BlenderBundle.message("blender.installation.system", version), exe.toString(), version))
                             }
                         }
                 }
@@ -135,7 +138,7 @@ object BlenderScanner {
         val installations = mutableListOf<BlenderInstallation>()
 
         // 1. Try which command
-        tryWhich("Blender")?.let { addIfValid(installations, it, "Native") }
+        tryWhich("Blender")?.let { addIfValid(installations, it, BlenderBundle.message("blender.installation.manual")) }
 
         // 2. Scan standard Application folders
         listOf("/Applications", System.getProperty("user.home") + "/Applications").forEach { base ->
@@ -157,7 +160,7 @@ object BlenderScanner {
         val installations = mutableListOf<BlenderInstallation>()
 
         // 1. Try which command
-        tryWhich("blender")?.let { addIfValid(installations, it, "Native") }
+        tryWhich("blender")?.let { addIfValid(installations, it, BlenderBundle.message("blender.installation.manual")) }
 
         // 2. Common binaries in PATH
         listOf("/usr/bin/blender", "/usr/local/bin/blender", System.getProperty("user.home") + "/bin/blender")
@@ -181,7 +184,8 @@ object BlenderScanner {
     private fun addIfValid(list: MutableList<BlenderInstallation>, pathStr: String, suffix: String) {
         val path = Path.of(pathStr)
         if (path.exists() && Files.isExecutable(path)) {
-            list.add(BlenderInstallation("Blender ($suffix: $pathStr)", path.toString(), "Unknown"))
+            val version = tryGetVersion(path.toString())
+            list.add(BlenderInstallation(BlenderBundle.message("blender.installation.system", version), path.toString(), version))
         }
     }
 

@@ -82,9 +82,12 @@ Submit a Pull Request on GitHub. Provide a clear description of the changes and 
 - Follow the official [Kotlin Style Guide](https://kotlinlang.org/docs/coding-conventions.html).
 - Keep the UI consistent with IntelliJ Platform guidelines.
 - Use Swing and `FormBuilder` for configuration UIs.
-- Icon Management: Declare all icons in `BlenderIcons.kt` and reference them as `BlenderIcons.Icon` across the codebase.
+- **Icon Management**: Declare all icons in `BlenderIcons.kt` and reference them as `BlenderIcons.Icon` across the codebase.
   - Custom icon example: `@JvmField val BlenderColor: Icon = IconLoader.getIcon("/images/blender_color.svg", BlenderIcons::class.java)`
   - JetBrains icon example: `@JvmField val Install: Icon = AllIcons.Actions.Install`
+- **Internationalization (i18n)**: All user-facing UI and log strings MUST have an associated i18n mapping.
+  - Use `BlenderBundle.message("key")` for localized strings.
+  - English mappings are stored in: `src/main/resources/messages/BlenderBundle.properties`
 
 ## Documentation References
 

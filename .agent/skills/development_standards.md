@@ -23,4 +23,7 @@
 - **Icon Management**: All icons must be declared in `BlenderIcons.kt` and referenced as `BlenderIcons.Icon`.
   - Custom icons: `@JvmField val IconName: Icon = IconLoader.getIcon("/images/icon_name.svg", BlenderIcons::class.java)`
   - JetBrains icons: `@JvmField val IconName: Icon = AllIcons.Icon.IconName`
+- **Internationalization (i18n)**: All user-facing UI strings and log messages MUST have an associated i18n mapping.
+  - Use `BlenderBundle.message("key")` for localized strings.
+  - English mappings are stored in: `src/main/resources/messages/BlenderBundle.properties`
 - **Comments**: Write self-documenting code. Use comments only to explain "why" if it's not obvious from "what" and "how".

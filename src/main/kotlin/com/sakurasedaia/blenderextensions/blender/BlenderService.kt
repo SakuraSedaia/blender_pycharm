@@ -1,5 +1,6 @@
 package com.sakurasedaia.blenderextensions.blender
 
+import com.sakurasedaia.blenderextensions.BlenderBundle
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessEvent
@@ -26,6 +27,9 @@ class BlenderService(private val project: Project) {
 
     private var processHandler: OSProcessHandler? = null
     private val isRunning = AtomicBoolean(false)
+    private val hasError = AtomicBoolean(false)
+    fun isRunning(): Boolean = isRunning.get()
+    fun hasError(): Boolean = hasError.get()
     private var currentExtensionName: String? = null
 
     /**
@@ -40,7 +44,7 @@ class BlenderService(private val project: Project) {
         val sandboxDir = Path.of(projectPath, ".blender-sandbox")
         if (sandboxDir.exists()) {
             com.intellij.openapi.util.io.FileUtil.delete(sandboxDir.toFile())
-            logger.log("Cleared sandbox directory: $sandboxDir")
+            logger.log(BlenderBundle.message("log.service.cleared.sandbox", sandboxDir.toString()))
         }
     }
 
@@ -55,6 +59,7 @@ class BlenderService(private val project: Project) {
         blenderVersion: String? = null
     ): OSProcessHandler? {
         if (isRunning.get()) return processHandler
+        hasError.set(false)
 
         val projectPath = project.basePath ?: return null
 
@@ -76,7 +81,7 @@ class BlenderService(private val project: Project) {
             }
 
             if (!sourcePath.exists()) {
-                logger.log("Source directory does not exist: $sourcePath")
+                logger.log(BlenderBundle.message("log.linker.source.not.found", sourcePath.toString()))
                 return null
             }
 
@@ -100,13 +105,18 @@ class BlenderService(private val project: Project) {
         }
 
         if (handler == null) {
+            hasError.set(true)
             if (blenderCommand.isNullOrBlank()) {
                 communicationService.stopServer()
             }
             
             NotificationGroupManager.getInstance()
                 .getNotificationGroup(NOTIFICATION_GROUP)
-                .createNotification("Failed to start Blender", "Please check the Blender path and logs for more details.", NotificationType.ERROR)
+                .createNotification(
+                    BlenderBundle.message("notification.failed.start.blender.title"),
+                    BlenderBundle.message("notification.failed.start.blender.message"),
+                    NotificationType.ERROR
+                )
                 .notify(project)
                 
             return null
@@ -132,9 +142,13 @@ class BlenderService(private val project: Project) {
         } catch (e: Exception) {
             NotificationGroupManager.getInstance()
                 .getNotificationGroup(NOTIFICATION_GROUP)
-                .createNotification("Reload Failed", "Could not send reload command to Blender: ${e.message}", NotificationType.WARNING)
+                .createNotification(
+                    BlenderBundle.message("notification.reload.failed.title"),
+                    BlenderBundle.message("notification.reload.failed.message", e.message ?: ""),
+                    NotificationType.WARNING
+                )
                 .notify(project)
-            logger.log("Failed to send reload command: ${e.message}")
+            logger.log(BlenderBundle.message("log.blender.failed.reload", e.message ?: ""))
         }
     }
 

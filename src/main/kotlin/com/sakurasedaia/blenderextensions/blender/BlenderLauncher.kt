@@ -1,5 +1,6 @@
 package com.sakurasedaia.blenderextensions.blender
 
+import com.sakurasedaia.blenderextensions.BlenderBundle
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.components.Service
@@ -26,7 +27,7 @@ class BlenderLauncher(private val project: Project) {
     ): OSProcessHandler? {
         val blenderFile = Paths.get(blenderPath)
         if (!blenderFile.exists()) {
-            logger.log("Blender executable does not exist: $blenderPath")
+            logger.log(BlenderBundle.message("log.service.exec.not.found", blenderPath))
             return null
         }
 
@@ -48,7 +49,7 @@ class BlenderLauncher(private val project: Project) {
             commandLine.addParameters(additionalArgs.split(" "))
         }
         
-        logger.log("Executing command: ${commandLine.commandLineString}")
+        logger.log(BlenderBundle.message("log.launcher.executing", commandLine.commandLineString))
         return OSProcessHandler(commandLine)
     }
 
@@ -58,7 +59,7 @@ class BlenderLauncher(private val project: Project) {
         blenderVersion: String?,
         blenderCommand: String?
     ) {
-        logger.log("Using sandboxed environment")
+        logger.log(BlenderBundle.message("log.launcher.using.sandbox"))
         val projectPath = project.basePath ?: return
         val sandboxDir = Paths.get(projectPath, ".blender-sandbox")
         val configDir = sandboxDir.resolve("config")
@@ -89,7 +90,7 @@ class BlenderLauncher(private val project: Project) {
         if (!isExtensionCommand) {
             commandLine.addParameters("--app-template", "pycharm")
         } else {
-            logger.log("Extension command detected, skipping --app-template")
+            logger.log(BlenderBundle.message("log.launcher.extension.command"))
         }
     }
 
@@ -98,11 +99,11 @@ class BlenderLauncher(private val project: Project) {
         val sourceConfigDir = findSystemBlenderConfigDir(versionToUse)
         
         if (sourceConfigDir == null || !sourceConfigDir.exists()) {
-            logger.log("Could not find system Blender config directory for version $versionToUse")
+            logger.log(BlenderBundle.message("log.launcher.config.not.found", versionToUse))
             return
         }
 
-        logger.log("Importing user config from: ${sourceConfigDir.absolutePathString()}")
+        logger.log(BlenderBundle.message("log.launcher.importing.config", sourceConfigDir.absolutePathString()))
         val filesToCopy = listOf("userpref.blend", "startup.blend", "bookmarks.txt", "recent-files.txt", "recent-searches.txt")
         
         for (fileName in filesToCopy) {
@@ -110,9 +111,9 @@ class BlenderLauncher(private val project: Project) {
             if (sourceFile.exists()) {
                 try {
                     sourceFile.copyTo(targetConfigDir.resolve(fileName), overwrite = true)
-                    logger.log("Imported $fileName")
+                    logger.log(BlenderBundle.message("log.launcher.imported.file", fileName))
                 } catch (e: Exception) {
-                    logger.log("Failed to import $fileName: ${e.message}")
+                    logger.log(BlenderBundle.message("log.launcher.failed.import.file", fileName, e.message ?: ""))
                 }
             }
         }
@@ -122,9 +123,9 @@ class BlenderLauncher(private val project: Project) {
             val dirName = sourceDir.name
             try {
                 copyDirectory(sourceDir, targetConfigDir.resolve(dirName))
-                logger.log("Imported $dirName folder")
+                logger.log(BlenderBundle.message("log.launcher.imported.folder", dirName))
             } catch (e: Exception) {
-                logger.log("Failed to import $dirName folder: ${e.message}")
+                logger.log(BlenderBundle.message("log.launcher.failed.import.folder", dirName, e.message ?: ""))
             }
         }
     }
@@ -152,9 +153,9 @@ class BlenderLauncher(private val project: Project) {
         if (projectSplash.exists()) {
             try {
                 projectSplash.copyTo(targetSplash, overwrite = true)
-                logger.log("Copied project-specific splash screen to sandboxed app template")
+                logger.log(BlenderBundle.message("log.launcher.copied.splash"))
             } catch (e: Exception) {
-                logger.log("Failed to copy project splash screen: ${e.message}")
+                logger.log(BlenderBundle.message("log.launcher.failed.copy.splash", e.message ?: ""))
             }
         } else {
             // Try to copy the default splash from plugin resources
@@ -162,9 +163,9 @@ class BlenderLauncher(private val project: Project) {
                 this.javaClass.getResourceAsStream("/images/sandbox_splash.png")?.use { input ->
                     Files.copy(input, targetSplash, StandardCopyOption.REPLACE_EXISTING)
                 }
-                logger.log("Copied default splash screen from plugin resources to sandboxed app template")
+                logger.log(BlenderBundle.message("log.launcher.copied.splash"))
             } catch (e: Exception) {
-                logger.log("Failed to copy default splash screen: ${e.message}")
+                logger.log(BlenderBundle.message("log.launcher.failed.copy.splash", e.message ?: ""))
             }
         }
     }

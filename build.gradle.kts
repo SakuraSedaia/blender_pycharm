@@ -44,6 +44,7 @@ intellijPlatform {
 				<li><b>Custom Versions</b>: Support for manual specification of Blender executable paths and versioning.</li>
 				<li><b>Source Management</b>: Option to mark project folders as Blender source directories for better organization.</li>
 				<li><b>Cross-Platform Compatibility</b>: Refined path handling for Windows, macOS, and Linux.</li>
+				<li><b>Internationalization</b>: Added AI-translated i18n support for 11 European and Asian languages (Spanish, German, French, Italian, Japanese, Korean, Dutch, Polish, Portuguese, Russian, and Chinese).</li>
 				<li><b>Documentation</b>: Moved comprehensive guides to the <a href="https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html">external documentation site</a>.</li>
 				<li><b>Unit Testing</b>: Initial suite of unit tests for core plugin functionality.</li>
 				<li><b>Sandbox Control</b>: New setting to toggle sandboxing for Blender instances within the New Project Wizard.</li>

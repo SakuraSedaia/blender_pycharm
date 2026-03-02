@@ -20,4 +20,4 @@ This document provides links to the localized versions of the Blender Developmen
 
 ---
 
-*Note: These translations were primarily generated using AI and may contain inaccuracies. We value accuracy and community input—human-made translations and corrections are always welcome and highly encouraged. If you find any errors or wish to improve the documentation, please feel free to contribute.*
+*Note: Initial Translations were made using the assistance of an LLM tool, and translations for all languages is incomplete. We value accuracy and community input—human-made translations and corrections are always welcome and highly encouraged. If you find any errors or wish to improve the documentation, please feel free to contribute.*

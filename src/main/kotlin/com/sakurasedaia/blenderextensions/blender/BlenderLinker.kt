@@ -1,5 +1,6 @@
 package com.sakurasedaia.blenderextensions.blender
 
+import com.sakurasedaia.blenderextensions.BlenderBundle
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -30,7 +31,7 @@ class BlenderLinker(private val project: Project) {
                 val symlinkName = if (!addonSymlinkName.isNullOrEmpty()) addonSymlinkName else sourcePath.name
                 sourcesToLink.add(sourcePath to symlinkName)
             } else {
-                logger.log("Source directory does not exist: $sourcePath")
+                logger.log(BlenderBundle.message("log.linker.source.not.found", sourcePath.toString()))
             }
         } else {
             val settings = com.sakurasedaia.blenderextensions.settings.BlenderSettings.getInstance(project)
@@ -41,7 +42,7 @@ class BlenderLinker(private val project: Project) {
                     if (sourcePath.exists()) {
                         sourcesToLink.add(sourcePath to sourcePath.name)
                     } else {
-                        logger.log("Marked source directory does not exist: $sourcePath")
+                        logger.log(BlenderBundle.message("log.linker.marked.source.not.found", sourcePath.toString()))
                     }
                 }
             } else {
@@ -58,16 +59,16 @@ class BlenderLinker(private val project: Project) {
                 try {
                     Files.delete(targetLink)
                 } catch (e: Exception) {
-                    logger.log("Failed to delete existing link at $targetLink: ${e.message}")
+                    logger.log(BlenderBundle.message("log.linker.failed.delete.link", targetLink.toString(), e.message ?: ""))
                     continue
                 }
             }
 
             try {
                 Files.createSymbolicLink(targetLink, sourcePath)
-                logger.log("Created symbolic link: $targetLink -> $sourcePath")
+                logger.log(BlenderBundle.message("log.linker.created.link", targetLink.toString(), sourcePath.toString()))
             } catch (e: Exception) {
-                logger.log("Failed to create symbolic link for $sourcePath: ${e.message}")
+                logger.log(BlenderBundle.message("log.linker.failed.link", sourcePath.toString(), e.message ?: ""))
                 if (System.getProperty("os.name").lowercase().contains("win")) {
                     createWindowsJunction(targetLink, sourcePath)
                 }
@@ -76,18 +77,18 @@ class BlenderLinker(private val project: Project) {
     }
 
     private fun createWindowsJunction(target: Path, source: Path) {
-        logger.log("Attempting to create a directory junction instead (Windows fallback)...")
+        logger.log(BlenderBundle.message("log.linker.attempt.junction"))
         try {
             val commandLine = GeneralCommandLine("cmd", "/c", "mklink", "/J", target.toString(), source.toString())
             val process = commandLine.createProcess()
             val exitCode = process.waitFor()
             if (exitCode == 0) {
-                logger.log("Successfully created directory junction.")
+                logger.log(BlenderBundle.message("log.linker.junction.success"))
             } else {
-                logger.log("mklink failed with exit code $exitCode")
+                logger.log(BlenderBundle.message("log.linker.junction.failed", exitCode))
             }
         } catch (e: Exception) {
-            logger.log("Failed to create junction: ${e.message}")
+            logger.log(BlenderBundle.message("log.linker.junction.error", e.message ?: ""))
         }
     }
 

@@ -7,6 +7,7 @@
 - **Custom Versions**: Support for manual specification of Blender executable paths and versioning.
 - **Source Management**: Option to mark project folders as Blender source directories for better organization.
 - **Cross-Platform Compatibility**: Refined path handling for Windows, macOS, and Linux.
+- **Internationalization**: Added AI-translated i18n support for 11 European and Asian languages (Spanish, German, French, Italian, Japanese, Korean, Dutch, Polish, Portuguese, Russian, and Chinese). Human-made contributions are welcome!
 - **Documentation**: Simplified internal documentation to English-only to ensure maintainability. Moved comprehensive and localized guides to the [external documentation site](https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html). Localized wiki links are available in [WIKI_LOCALIZED.md](docs/WIKI_LOCALIZED.md).
 - **Unit Testing**: Initial suite of unit tests for core plugin functionality.
 - **Sandbox Control**: New setting to toggle sandboxing for Blender instances within the New Project Wizard.

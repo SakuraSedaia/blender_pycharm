@@ -10,6 +10,7 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBUI
 import com.intellij.util.ui.UIUtil
+import com.sakurasedaia.blenderextensions.BlenderBundle
 import com.sakurasedaia.blenderextensions.blender.*
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
@@ -34,29 +35,17 @@ class BlenderToolWindowContent(private val project: Project) {
     private val table = JBTable(tableModel)
     private val systemTableModel = SystemBlenderTableModel()
     private val systemTable = JBTable(systemTableModel)
-    private val statusLabel = JBLabel("Status: Disconnected")
     private val timer: Timer
 
     init {
         configureTable(table, true)
         configureTable(systemTable, false)
         
-        statusLabel.foreground = UIUtil.getLabelDisabledForeground()
-        
         timer = Timer(2000) {
-            updateStatus()
+            tableModel.fireTableDataChanged()
+            systemTableModel.refresh()
         }
         timer.start()
-    }
-
-    private fun updateStatus() {
-        if (communicationService.isConnected()) {
-            statusLabel.text = "Status: Connected"
-            statusLabel.foreground = JBColor.GREEN
-        } else {
-            statusLabel.text = "Status: Disconnected"
-            statusLabel.foreground = UIUtil.getLabelDisabledForeground()
-        }
     }
 
     private fun configureTable(table: JBTable, isManaged: Boolean) {
@@ -73,11 +62,11 @@ class BlenderToolWindowContent(private val project: Project) {
                         horizontalAlignment = SwingConstants.CENTER
                         
                         val inst = (table.model as? SystemBlenderTableModel)?.getInstallationAt(row)
-                        toolTipText = if (inst?.isCustom == true) "Added manually" else "Auto-detected"
+                        toolTipText = if (inst?.isCustom == true) BlenderBundle.message("toolwindow.table.tooltip.added.manually") else BlenderBundle.message("toolwindow.table.tooltip.auto.detected")
                     } else if (value is String) {
                         icon = null
                         text = value
-                        foreground = if (value == "Detected") JBUI.CurrentTheme.Label.foreground()
+                        foreground = if (value == BlenderBundle.message("toolwindow.table.status.detected")) JBUI.CurrentTheme.Label.foreground()
                         else UIUtil.getLabelDisabledForeground()
                     }
                     return component
@@ -100,12 +89,12 @@ class BlenderToolWindowContent(private val project: Project) {
     }
 
     fun getContent(): JComponent {
-        val managedVersionsLabel = JBLabel("Managed Blender Installations").apply {
+        val managedVersionsLabel = JBLabel(BlenderBundle.message("toolwindow.managed.versions.label")).apply {
             font = font.deriveFont(java.awt.Font.BOLD)
         }
 
         val refreshButton = JButton("", BlenderIcons.Refresh).apply {
-            toolTipText = "Refresh Status"
+            toolTipText = BlenderBundle.message("toolwindow.refresh.tooltip")
             addActionListener {
                 tableModel.refresh()
                 systemTableModel.refresh()
@@ -115,21 +104,20 @@ class BlenderToolWindowContent(private val project: Project) {
         val managedVersionsHeader = JPanel(BorderLayout()).apply {
             val leftPanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 0))
             leftPanel.add(managedVersionsLabel)
-            leftPanel.add(statusLabel)
             add(leftPanel, BorderLayout.WEST)
             add(refreshButton, BorderLayout.EAST)
         }
 
-        val systemVersionsLabel = JBLabel("System Blender Versions").apply {
+        val systemVersionsLabel = JBLabel(BlenderBundle.message("toolwindow.system.versions.label")).apply {
             font = font.deriveFont(Font.BOLD)
         }
 
         val addCustomButton = JButton("", BlenderIcons.Add).apply {
-            toolTipText = "Add custom Blender installation root or executable"
+            toolTipText = BlenderBundle.message("toolwindow.add.custom.tooltip")
             addActionListener {
                 val descriptor = FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()
-                    .withTitle("Select Blender Installation")
-                    .withDescription("Select a Blender installation directory or the blender executable itself.")
+                    .withTitle(BlenderBundle.message("toolwindow.select.blender.title"))
+                    .withDescription(BlenderBundle.message("toolwindow.select.blender.description"))
                 
                 val file = FileChooser.chooseFile(descriptor, project, null)
                 if (file != null) {
@@ -144,21 +132,21 @@ class BlenderToolWindowContent(private val project: Project) {
             add(addCustomButton, BorderLayout.EAST)
         }
 
-        val sandboxLabel = JBLabel("Project Sandbox Management").apply {
+        val sandboxLabel = JBLabel(BlenderBundle.message("toolwindow.sandbox.management.label")).apply {
             font = font.deriveFont(java.awt.Font.BOLD)
         }
         
-        val clearSandboxButton = JButton("Clear Sandbox (.blender-sandbox)", BlenderIcons.Remove).apply {
+        val clearSandboxButton = JButton(BlenderBundle.message("toolwindow.clear.sandbox.button"), BlenderIcons.Remove).apply {
             addActionListener {
                 val confirm = Messages.showYesNoDialog(
                     project,
-                    "Are you sure you want to delete the .blender-sandbox directory? This will remove all local configuration and scripts for this project's sandbox.",
-                    "Clear Sandbox",
+                    BlenderBundle.message("toolwindow.clear.sandbox.confirm.message"),
+                    BlenderBundle.message("toolwindow.clear.sandbox.confirm.title"),
                     Messages.getQuestionIcon()
                 )
                 if (confirm == Messages.YES) {
                     service.clearSandbox()
-                    Messages.showInfoMessage(project, "Sandbox cleared successfully.", "Clear Sandbox")
+                    Messages.showInfoMessage(project, BlenderBundle.message("toolwindow.clear.sandbox.success.message"), BlenderBundle.message("toolwindow.clear.sandbox.confirm.title"))
                 }
             }
         }
@@ -220,7 +208,10 @@ class BlenderToolWindowContent(private val project: Project) {
     }
 
     private inner class BlenderVersionsTableModel : AbstractTableModel() {
-        private val columnNames = arrayOf("Version", "Action")
+        private val columnNames = arrayOf(
+            BlenderBundle.message("toolwindow.table.column.version"),
+            BlenderBundle.message("toolwindow.table.column.action")
+        )
         private val versions = BlenderVersions.SUPPORTED_VERSIONS
 
         override fun getRowCount(): Int = versions.size
@@ -246,7 +237,12 @@ class BlenderToolWindowContent(private val project: Project) {
     }
 
     private inner class SystemBlenderTableModel : AbstractTableModel() {
-        private val columnNames = arrayOf("Status", "Name", "Path", "Action")
+        private val columnNames = arrayOf(
+            BlenderBundle.message("toolwindow.table.column.status"),
+            BlenderBundle.message("toolwindow.table.column.name"),
+            BlenderBundle.message("toolwindow.table.column.path"),
+            BlenderBundle.message("toolwindow.table.column.action")
+        )
         private var installations = listOf<BlenderInstallation>()
 
         init {
@@ -263,7 +259,7 @@ class BlenderToolWindowContent(private val project: Project) {
                 0 -> if (inst.isCustom) BlenderIcons.Custom else BlenderIcons.System
                 1 -> inst.name
                 2 -> inst.path
-                3 -> if (inst.isCustom) "Remove" else ""
+                3 -> if (inst.isCustom) BlenderBundle.message("toolwindow.table.action.remove") else ""
                 else -> ""
             }
         }
@@ -329,8 +325,8 @@ class BlenderToolWindowContent(private val project: Project) {
                 if (inst.isCustom && inst.originPath != null) {
                     val confirm = Messages.showYesNoDialog(
                         project,
-                        "Are you sure you want to remove this Blender Path?",
-                        "Confirm",
+                        BlenderBundle.message("toolwindow.table.action.delete.confirm.message"),
+                        BlenderBundle.message("toolwindow.table.action.delete.confirm.title"),
                         Messages.getQuestionIcon()
                     )
                     if (confirm == Messages.YES) {
@@ -388,8 +384,8 @@ class BlenderToolWindowContent(private val project: Project) {
                 if (downloader.isDownloaded(version)) {
                     val confirm = Messages.showYesNoDialog(
                         project,
-                        "Are you sure you want to delete Blender $version?",
-                        "Delete Blender",
+                        BlenderBundle.message("toolwindow.table.action.delete.version.confirm.message", version),
+                        BlenderBundle.message("toolwindow.table.action.delete.version.confirm.title"),
                         Messages.getQuestionIcon()
                     )
                     if (confirm == Messages.YES) {
@@ -399,7 +395,7 @@ class BlenderToolWindowContent(private val project: Project) {
                 } else {
                     // Start download
                     com.intellij.openapi.progress.ProgressManager.getInstance().run(
-                        object : com.intellij.openapi.progress.Task.Backgroundable(project, "Downloading Blender $version") {
+                        object : com.intellij.openapi.progress.Task.Backgroundable(project, BlenderBundle.message("toolwindow.table.action.downloading.task", version)) {
                             override fun run(indicator: com.intellij.openapi.progress.ProgressIndicator) {
                                 downloader.getOrDownloadBlenderPath(version)
                                 SwingUtilities.invokeLater { tableModel.refresh() }
