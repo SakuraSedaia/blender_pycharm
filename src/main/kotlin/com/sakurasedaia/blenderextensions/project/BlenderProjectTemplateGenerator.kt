@@ -267,5 +267,45 @@ class BlenderProjectTemplateGenerator {
             val resource = BlenderProjectTemplateGenerator::class.java.getResourceAsStream("/templates/agent-guidelines.md")
             return resource?.bufferedReader()?.use { it.readText() } ?: ""
         }
+
+        fun generateAgentSkill(skillName: String): String {
+            val resource = BlenderProjectTemplateGenerator::class.java.getResourceAsStream("/templates/skills/$skillName.md")
+            return resource?.bufferedReader()?.use { it.readText() } ?: ""
+        }
+
+        fun generateAgentProject(name: String): String {
+            return """
+                # Project Map: $name
+
+                ## Goals
+                - Develop a high-quality Blender Extension.
+                - Maintain compliance with Blender's extension guidelines.
+
+                ## Architecture
+                - **src/**: Extension source code.
+                - **blender_manifest.toml**: Extension metadata and permissions.
+
+                ## Task Status
+                - [x] Project Initialization
+                - [ ] Implement Core Functionality
+                - [ ] Validate Extension
+                - [ ] Build & Package
+            """.trimIndent()
+        }
+
+        fun generateAgentContext(): String {
+            return """
+                # Project Context
+
+                ## Language Styles
+                ### Python
+                - PEP 8 compliance.
+                - Standard Blender API (bpy) usage.
+                - Use `self.report()` for UI feedback in operators.
+
+                ## Tooling
+                - Blender Extension CLI for validation and building.
+            """.trimIndent()
+        }
     }
 }

@@ -96,9 +96,26 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
         projectPath.resolve(".gitignore").writeText(BlenderProjectTemplateGenerator.generateGitignore())
 
         if (settings.agentGuidelines) {
-            projectPath.resolve(".agent-guidelines.md").writeText(
+            val agentDir = projectPath.resolve(".agent")
+            val skillsDir = agentDir.resolve("skills")
+            Files.createDirectories(skillsDir)
+
+            agentDir.resolve("guidelines.md").writeText(
                 BlenderProjectTemplateGenerator.generateAgentGuidelines()
             )
+            agentDir.resolve("project.md").writeText(
+                BlenderProjectTemplateGenerator.generateAgentProject(projectName)
+            )
+            agentDir.resolve("context.md").writeText(
+                BlenderProjectTemplateGenerator.generateAgentContext()
+            )
+
+            val skills = listOf("blender_extension_dev", "python_practices", "git_management", "ai_workflow")
+            for (skill in skills) {
+                skillsDir.resolve("$skill.md").writeText(
+                    BlenderProjectTemplateGenerator.generateAgentSkill(skill)
+                )
+            }
         }
 
         if (settings.enableAutoLoad) {
