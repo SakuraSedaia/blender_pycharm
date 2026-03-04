@@ -8,7 +8,7 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.ServerSocket
 import java.net.Socket
-import com.sakurasedaia.blenderextensions.BlenderBundle
+import com.sakurasedaia.blenderextensions.LangManager
 import java.util.concurrent.atomic.AtomicBoolean
 
 @Service(Service.Level.PROJECT)
@@ -37,14 +37,14 @@ class BlenderCommunicationService(private val project: Project) {
                             val reader = BufferedReader(InputStreamReader(client.getInputStream()))
                             val firstLine = reader.readLine()
                             if (firstLine != null && firstLine.contains("\"type\": \"ready\"")) {
-                                logger.log(BlenderBundle.message("log.blender.connected", port))
+                                logger.log(LangManager.message("log.blender.connected", port))
                                 blenderClient = client
                             } else {
-                                logger.log(BlenderBundle.message("log.blender.handshake.failed"))
+                                logger.log(LangManager.message("log.blender.handshake.failed"))
                                 client.close()
                             }
                         } catch (e: Exception) {
-                            logger.log(BlenderBundle.message("log.blender.handshake.error", e.message ?: ""))
+                            logger.log(LangManager.message("log.blender.handshake.error", e.message ?: ""))
                             client.close()
                         }
                     }
@@ -73,16 +73,16 @@ class BlenderCommunicationService(private val project: Project) {
     fun sendReloadCommand(extensionName: String) {
         val client = blenderClient
         if (client == null || client.isClosed) {
-            logger.log(BlenderBundle.message("log.blender.cannot.reload"))
+            logger.log(LangManager.message("log.blender.cannot.reload"))
             return
         }
 
         try {
             val out = PrintWriter(client.getOutputStream(), true)
             out.println("{\"type\": \"reload\", \"name\": \"$extensionName\"}")
-            logger.log(BlenderBundle.message("log.blender.sent.reload", extensionName))
+            logger.log(LangManager.message("log.blender.sent.reload", extensionName))
         } catch (e: Exception) {
-            logger.log(BlenderBundle.message("log.blender.failed.reload", e.message ?: ""))
+            logger.log(LangManager.message("log.blender.failed.reload", e.message ?: ""))
         }
     }
 

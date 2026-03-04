@@ -4,12 +4,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidgetFactory
-import com.sakurasedaia.blenderextensions.BlenderBundle
+import com.sakurasedaia.blenderextensions.LangManager
 
 class BlenderStatusBarWidgetFactory : StatusBarWidgetFactory {
     override fun getId(): String = "BlenderStatus"
     
-    override fun getDisplayName(): String = BlenderBundle.message("settings.display.name")
+    override fun getDisplayName(): String = LangManager.message("settings.display.name")
     
     override fun isAvailable(project: Project): Boolean = true
     

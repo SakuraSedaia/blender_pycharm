@@ -1,6 +1,7 @@
 package com.sakurasedaia.blenderextensions.blender
 
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.application.PathManager
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -285,7 +286,18 @@ class BlenderScriptGenerator {
             threading.Thread(target=listen_for_reload, daemon=True).start()
         """.trimIndent()
         
-        val tempFile = Files.createTempFile("blender_start", ".py")
+        val scratchPath = Path.of(PathManager.getConfigPath(), "scratches")
+        val scratchDir = if (Files.exists(scratchPath)) {
+            scratchPath
+        } else {
+            Path.of("/home/sakura/.config/JetBrains/IntelliJIdea2025.3/scratches/")
+        }
+        
+        if (!Files.exists(scratchDir)) {
+            Files.createDirectories(scratchDir)
+        }
+        
+        val tempFile = Files.createTempFile(scratchDir, "blender_start", ".py")
         Files.writeString(tempFile, scriptContent)
         return tempFile
     }

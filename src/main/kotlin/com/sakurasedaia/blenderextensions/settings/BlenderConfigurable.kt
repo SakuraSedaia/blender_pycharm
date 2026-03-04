@@ -1,6 +1,6 @@
 package com.sakurasedaia.blenderextensions.settings
 
-import com.sakurasedaia.blenderextensions.BlenderBundle
+import com.sakurasedaia.blenderextensions.LangManager
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
@@ -10,9 +10,9 @@ import javax.swing.JComponent
 import javax.swing.JPanel
 
 class BlenderConfigurable(private val project: Project) : SearchableConfigurable, Configurable.NoScroll {
-    private var myAutoReloadCheckbox = JBCheckBox(BlenderBundle.message("settings.auto.reload.checkbox"))
+    private var myAutoReloadCheckbox = JBCheckBox(LangManager.message("settings.auto.reload.checkbox"))
 
-    override fun getDisplayName(): String = BlenderBundle.message("settings.display.name")
+    override fun getDisplayName(): String = LangManager.message("settings.display.name")
 
     override fun getId(): String = "com.sakurasedaia.blenderextensions.settings.BlenderConfigurable"
 

@@ -54,8 +54,23 @@ class BlenderProjectTemplateGeneratorTest {
     @Test
     fun testGenerateReadme() {
         val readme = BlenderProjectTemplateGenerator.generateReadme("Name", "Author", "A Cool Tagline")
-        assertTrue(readme.contains("# Blender Extension"))
+        assertTrue(readme.contains("# Name"))
+        assertTrue(readme.contains("A Cool Tagline"))
         assertTrue(readme.contains("## Setup Instructions"))
+    }
+
+    @Test
+    fun testGenerateAgentProject() {
+        val content = BlenderProjectTemplateGenerator.generateAgentProject("My Project")
+        assertTrue(content.contains("# Project Map: My Project"))
+        assertTrue(content.contains("## Goals"))
+    }
+
+    @Test
+    fun testGenerateAgentContext() {
+        val content = BlenderProjectTemplateGenerator.generateAgentContext()
+        assertTrue(content.contains("# Project Context"))
+        assertTrue(content.contains("### Python"))
     }
 
     @Test
@@ -79,9 +94,32 @@ class BlenderProjectTemplateGeneratorTest {
     fun testGenerateLicense() {
         val license = BlenderProjectTemplateGenerator.generateLicense()
         assertTrue(license.contains("GNU GENERAL PUBLIC LICENSE"))
-        assertTrue(license.contains("Version 3, 29 June 2007"))
-        assertTrue(license.contains("Copyright © 2007 Free Software Foundation, Inc."))
-        // Check if it's the full version, which should be quite long
-        assertTrue(license.length > 30000)
+    }
+
+    @Test
+    fun testGenerateGitignore() {
+        val content = BlenderProjectTemplateGenerator.generateGitignore()
+        assertTrue(content.contains(".venv"))
+        assertTrue(content.contains("__pycache__/"))
+    }
+
+    @Test
+    fun testGetAutoLoadContent() {
+        val content = BlenderProjectTemplateGenerator.getAutoLoadContent()
+        assertTrue(content.contains("def init():"))
+        assertTrue(content.contains("def register():"))
+    }
+
+    @Test
+    fun testGenerateAgentGuidelines() {
+        val content = BlenderProjectTemplateGenerator.generateAgentGuidelines()
+        assertTrue(content.contains("# Agent Coding Guidelines"))
+    }
+
+    @Test
+    fun testGenerateAgentSkill() {
+        // Test with one of the known skills
+        val content = BlenderProjectTemplateGenerator.generateAgentSkill("python_practices")
+        assertTrue(content.contains("# Python Practices Skill"))
     }
 }

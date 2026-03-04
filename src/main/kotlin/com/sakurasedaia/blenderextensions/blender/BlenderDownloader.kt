@@ -1,7 +1,7 @@
 package com.sakurasedaia.blenderextensions.blender
 
 import com.intellij.execution.configurations.GeneralCommandLine
-import com.sakurasedaia.blenderextensions.BlenderBundle
+import com.sakurasedaia.blenderextensions.LangManager
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.Service
@@ -36,7 +36,7 @@ class BlenderDownloader(private val project: Project) {
         val downloadDir = getDownloadDirectory(version)
         if (downloadDir.exists()) {
             downloadDir.toFile().deleteRecursively()
-            logger.log(BlenderBundle.message("log.blender.deleted.version", version, downloadDir.absolutePathString()))
+            logger.log(LangManager.message("log.blender.deleted.version", version, downloadDir.absolutePathString()))
             clearCache()
         }
     }
@@ -56,32 +56,32 @@ class BlenderDownloader(private val project: Project) {
         // Check if already downloaded
         val executable = findBlenderExecutable(downloadDir)
         if (executable != null) {
-            logger.log(BlenderBundle.message("log.blender.using.cached", version, executable.absolutePathString()))
+            logger.log(LangManager.message("log.blender.using.cached", version, executable.absolutePathString()))
             return executable.absolutePathString()
         }
 
         // If not, download it
         val downloadUrl = getDownloadUrl(version, isWindows, isMac, isLinux, arch) ?: run {
-            logger.log(BlenderBundle.message("log.blender.download.failed", version, "URL not found"))
+            logger.log(LangManager.message("log.blender.download.failed", version, "URL not found"))
             return null
         }
         
-        logger.log(BlenderBundle.message("log.blender.downloading", version))
+        logger.log(LangManager.message("log.blender.downloading", version))
         val downloadedFile = downloadFile(downloadUrl, downloadDir) ?: run {
-            logger.log(BlenderBundle.message("log.blender.download.failed", version, "Download failed"))
+            logger.log(LangManager.message("log.blender.download.failed", version, "Download failed"))
             return null
         }
         
         // Extract it
-        logger.log(BlenderBundle.message("log.blender.extracting", downloadedFile.name, downloadDir.absolutePathString()))
+        logger.log(LangManager.message("log.blender.extracting", downloadedFile.name, downloadDir.absolutePathString()))
         extractFile(downloadedFile, downloadDir)
         
         clearCache()
         val finalExecutable = findBlenderExecutable(downloadDir)
         if (finalExecutable != null) {
-            logger.log(BlenderBundle.message("log.blender.extracted", version, finalExecutable.absolutePathString()))
+            logger.log(LangManager.message("log.blender.extracted", version, finalExecutable.absolutePathString()))
         } else {
-            logger.log(BlenderBundle.message("log.blender.could.not.find.exec", downloadDir.absolutePathString()))
+            logger.log(LangManager.message("log.blender.could.not.find.exec", downloadDir.absolutePathString()))
         }
         return finalExecutable?.absolutePathString()
     }
@@ -139,7 +139,7 @@ class BlenderDownloader(private val project: Project) {
         val targetFile = targetDir.resolve(fileName)
         
         val indicator = ProgressManager.getInstance().progressIndicator
-        indicator?.text = BlenderBundle.message("log.blender.downloading.progress", fileName)
+        indicator?.text = LangManager.message("log.blender.downloading.progress", fileName)
         indicator?.text2 = url
         
         try {
@@ -160,7 +160,7 @@ class BlenderDownloader(private val project: Project) {
 
     private fun extractFile(file: Path, targetDir: Path) {
         val indicator = ProgressManager.getInstance().progressIndicator
-        indicator?.text = BlenderBundle.message("log.blender.extracting.progress", file.name)
+        indicator?.text = LangManager.message("log.blender.extracting.progress", file.name)
         indicator?.text2 = file.name
         indicator?.isIndeterminate = true
         
@@ -170,10 +170,10 @@ class BlenderDownloader(private val project: Project) {
                 fileName.endsWith(".zip") -> extractZip(file, targetDir)
                 fileName.endsWith(".tar.xz") -> extractTarXz(file, targetDir)
                 fileName.endsWith(".dmg") -> extractDmg(file, targetDir)
-                else -> logger.log(BlenderBundle.message("log.blender.unsupported.format", fileName))
+                else -> logger.log(LangManager.message("log.blender.unsupported.format", fileName))
             }
         } catch (e: Exception) {
-            logger.log(BlenderBundle.message("log.blender.extraction.failed", fileName, e.message ?: ""))
+            logger.log(LangManager.message("log.blender.extraction.failed", fileName, e.message ?: ""))
             throw e
         }
     }
@@ -195,31 +195,31 @@ class BlenderDownloader(private val project: Project) {
 
     private fun extractDmg(file: Path, targetDir: Path) {
         if (!System.getProperty("os.name").lowercase().contains("mac")) {
-            logger.log(BlenderBundle.message("log.blender.dmg.extracted"))
+            logger.log(LangManager.message("log.blender.dmg.extracted"))
             return
         }
 
         val mountPoint = Path.of("/tmp", "blender_mount_${System.currentTimeMillis()}")
         Files.createDirectories(mountPoint)
         try {
-            logger.log(BlenderBundle.message("log.blender.mounting", file.absolutePathString()))
+            logger.log(LangManager.message("log.blender.mounting", file.absolutePathString()))
             val commandLine = GeneralCommandLine("hdiutil", "attach", file.absolutePathString(), "-mountpoint", mountPoint.absolutePathString(), "-nobrowse", "-readonly")
             executeExtractionCommand(commandLine)
             
             Files.list(mountPoint).use { stream ->
                 val appFile = stream.filter { it.name == "Blender.app" }.findFirst().orElse(null)
                 if (appFile != null) {
-                    logger.log(BlenderBundle.message("log.blender.copying.app", appFile.name, targetDir.absolutePathString()))
+                    logger.log(LangManager.message("log.blender.copying.app", appFile.name, targetDir.absolutePathString()))
                     executeExtractionCommand(GeneralCommandLine("cp", "-R", appFile.absolutePathString(), targetDir.absolutePathString()))
                 } else {
-                    logger.log(BlenderBundle.message("log.blender.failed.copy.app", mountPoint.absolutePathString()))
+                    logger.log(LangManager.message("log.blender.failed.copy.app", mountPoint.absolutePathString()))
                 }
             }
         } catch (e: Exception) {
-            logger.log(BlenderBundle.message("log.blender.failed.mount", file.absolutePathString(), e.message ?: ""))
-            logger.log(BlenderBundle.message("log.blender.error.during.download", e.message ?: ""))
+            logger.log(LangManager.message("log.blender.failed.mount", file.absolutePathString(), e.message ?: ""))
+            logger.log(LangManager.message("log.blender.error.during.download", e.message ?: ""))
         } finally {
-            logger.log(BlenderBundle.message("log.blender.detaching", mountPoint.absolutePathString()))
+            logger.log(LangManager.message("log.blender.detaching", mountPoint.absolutePathString()))
             executeExtractionCommand(GeneralCommandLine("hdiutil", "detach", mountPoint.absolutePathString()))
             try {
                 Files.deleteIfExists(mountPoint)

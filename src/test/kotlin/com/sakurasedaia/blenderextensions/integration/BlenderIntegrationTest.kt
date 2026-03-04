@@ -5,6 +5,7 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.application.PathManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.sakurasedaia.blenderextensions.blender.BlenderCommunicationService
 import com.sakurasedaia.blenderextensions.blender.BlenderDownloader
@@ -70,7 +71,18 @@ class BlenderIntegrationTest : BasePlatformTestCase() {
     }
 
     private fun createTempFile(name: String, content: String): java.io.File {
-        val file = java.io.File.createTempFile("junie_test_", name)
+        val scratchPath = java.nio.file.Path.of(PathManager.getConfigPath(), "scratches")
+        val scratchDir = if (java.nio.file.Files.exists(scratchPath)) {
+            scratchPath
+        } else {
+            java.nio.file.Path.of("/home/sakura/.config/JetBrains/IntelliJIdea2025.3/scratches/")
+        }
+        
+        if (!java.nio.file.Files.exists(scratchDir)) {
+            java.nio.file.Files.createDirectories(scratchDir)
+        }
+        
+        val file = java.nio.file.Files.createTempFile(scratchDir, "junie_test_", name).toFile()
         file.writeText(content)
         file.deleteOnExit()
         return file

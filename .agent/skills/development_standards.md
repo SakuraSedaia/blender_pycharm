@@ -27,3 +27,6 @@
   - Use `BlenderBundle.message("key")` for localized strings.
   - English mappings are stored in: `src/main/resources/messages/BlenderBundle.properties`
 - **Comments**: Write self-documenting code. Use comments only to explain "why" if it's not obvious from "what" and "how".
+- **TODO: Comments**: Do NOT automatically resolve or implement `TODO:` comments unless explicitly requested by the user.
+- **Scratch & Temp Files**: **Always** use the IDE scratch directory for scratch, temp, or logging files: `/home/sakura/.config/JetBrains/IntelliJIdea2025.3/scratches/`.
+- **Run Configurations**: **Immediately delete** any new run configuration made for testing purposes. The only run configurations that should exist are: `buildPlugin`, `runIde`, `runAllTests`, `runUnitTests`, and `runIntegrationTests`.

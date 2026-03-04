@@ -15,6 +15,9 @@ These skills are synchronized across the project to ensure consistent agent beha
 2. **Never** bump versions without explicit permission.
 3. **Always** use standardized commit prefixes.
 4. **Always** include the co-author trailer in commits.
+5. **Always** use the IDE scratch directory for scratch, temp, or logging files: `/home/sakura/.config/JetBrains/IntelliJIdea2025.3/scratches/`.
+6. **Never** automatically resolve or implement `TODO:` comments unless specifically asked.
+7. **Immediately delete** any new run configuration made for testing purposes. Only the 5 standard configurations should remain: `buildPlugin`, `runIde`, `runAllTests`, `runUnitTests`, and `runIntegrationTests`.
 
 ## Commit Guidelines
 All commits MUST use one of the following standardized prefixes:

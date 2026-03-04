@@ -1,6 +1,6 @@
 package com.sakurasedaia.blenderextensions.blender
 
-import com.sakurasedaia.blenderextensions.BlenderBundle
+import com.sakurasedaia.blenderextensions.LangManager
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessEvent
@@ -9,7 +9,6 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
-import java.nio.file.Files
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.path.exists
@@ -44,7 +43,7 @@ class BlenderService(private val project: Project) {
         val sandboxDir = Path.of(projectPath, ".blender-sandbox")
         if (sandboxDir.exists()) {
             com.intellij.openapi.util.io.FileUtil.delete(sandboxDir.toFile())
-            logger.log(BlenderBundle.message("log.service.cleared.sandbox", sandboxDir.toString()))
+            logger.log(LangManager.message("log.service.cleared.sandbox", sandboxDir.toString()))
         }
     }
 
@@ -81,7 +80,7 @@ class BlenderService(private val project: Project) {
             }
 
             if (!sourcePath.exists()) {
-                logger.log(BlenderBundle.message("log.linker.source.not.found", sourcePath.toString()))
+                logger.log(LangManager.message("log.linker.source.not.found", sourcePath.toString()))
                 return null
             }
 
@@ -113,8 +112,8 @@ class BlenderService(private val project: Project) {
             NotificationGroupManager.getInstance()
                 .getNotificationGroup(NOTIFICATION_GROUP)
                 .createNotification(
-                    BlenderBundle.message("notification.failed.start.blender.title"),
-                    BlenderBundle.message("notification.failed.start.blender.message"),
+                    LangManager.message("notification.failed.start.blender.title"),
+                    LangManager.message("notification.failed.start.blender.message"),
                     NotificationType.ERROR
                 )
                 .notify(project)
@@ -143,12 +142,12 @@ class BlenderService(private val project: Project) {
             NotificationGroupManager.getInstance()
                 .getNotificationGroup(NOTIFICATION_GROUP)
                 .createNotification(
-                    BlenderBundle.message("notification.reload.failed.title"),
-                    BlenderBundle.message("notification.reload.failed.message", e.message ?: ""),
+                    LangManager.message("notification.reload.failed.title"),
+                    LangManager.message("notification.reload.failed.message", e.message ?: ""),
                     NotificationType.WARNING
                 )
                 .notify(project)
-            logger.log(BlenderBundle.message("log.blender.failed.reload", e.message ?: ""))
+            logger.log(LangManager.message("log.blender.failed.reload", e.message ?: ""))
         }
     }
 

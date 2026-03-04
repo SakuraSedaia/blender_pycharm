@@ -28,8 +28,9 @@ import javax.swing.JPanel
 import java.lang.ref.WeakReference
 import kotlin.io.path.writeText
 
-private fun formatToId(name: String, allowCapitals: Boolean = false): String {
-    val replaced = name.replace(" ", "_")
+
+internal fun formatToId(name: String, allowCapitals: Boolean = false): String {
+    val replaced = name.replace(Regex("\\s+"), "_")
     return if (allowCapitals) {
         replaced.replace(Regex("[^a-zA-Z0-9_]"), "")
     } else {
@@ -247,7 +248,7 @@ data class BlenderAddonProjectSettings(
     val sandbox: Boolean = true
 )
 
-private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjectSettings> {
+internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjectSettings> {
     private var projectLocation: String? = null
     private var isUpdating = false
     private var addonIdIsManual = false
@@ -285,28 +286,28 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     private val includeAgentGuidelines = JBCheckBox("Append pre-made agent guidelines", true)
     private val createGitRepoCheckbox = JBCheckBox("Create Git repository", false)
     private val sandboxEnvironment = JBCheckBox("Enable sandbox environment", true)
-    private val projectNameField = JBTextField()
-    private val addonIdField = JBTextField()
-    private val addonTaglineField = JBTextField("A Blender extension")
-    private val addonMaintainerField = JBTextField(System.getProperty("user.name") ?: "Author")
-    private val addonWebsiteField = JBTextField()
-    private val addonTagsField = JBTextField()
-    private val blenderVersionMinField = JBTextField("4.2.0")
-    private val blenderVersionMaxField = JBTextField()
-    private val addonPlatformsField = JBTextField()
+    internal val projectNameField = JBTextField()
+    internal val addonIdField = JBTextField()
+    internal val addonTaglineField = JBTextField("A Blender extension")
+    internal val addonMaintainerField = JBTextField(System.getProperty("user.name") ?: "Author")
+    internal val addonWebsiteField = JBTextField()
+    internal val addonTagsField = JBTextField()
+    internal val blenderVersionMinField = JBTextField("4.2.0")
+    internal val blenderVersionMaxField = JBTextField()
+    internal val addonPlatformsField = JBTextField()
 
-    private val permissionNetworkCheckbox = JBCheckBox("Network access", false)
-    private val permissionNetworkReasonField = JBTextField()
-    private val permissionFilesCheckbox = JBCheckBox("Filesystem access", false)
-    private val permissionFilesReasonField = JBTextField()
-    private val permissionClipboardCheckbox = JBCheckBox("Clipboard access", false)
-    private val permissionClipboardReasonField = JBTextField()
-    private val permissionCameraCheckbox = JBCheckBox("Camera access", false)
-    private val permissionCameraReasonField = JBTextField()
-    private val permissionMicrophoneCheckbox = JBCheckBox("Microphone access", false)
-    private val permissionMicrophoneReasonField = JBTextField()
+    internal val permissionNetworkCheckbox = JBCheckBox("Network access", false)
+    internal val permissionNetworkReasonField = JBTextField()
+    internal val permissionFilesCheckbox = JBCheckBox("Filesystem access", false)
+    internal val permissionFilesReasonField = JBTextField()
+    internal val permissionClipboardCheckbox = JBCheckBox("Clipboard access", false)
+    internal val permissionClipboardReasonField = JBTextField()
+    internal val permissionCameraCheckbox = JBCheckBox("Camera access", false)
+    internal val permissionCameraReasonField = JBTextField()
+    internal val permissionMicrophoneCheckbox = JBCheckBox("Microphone access", false)
+    internal val permissionMicrophoneReasonField = JBTextField()
 
-    private val buildPathsExcludePatternField = JBTextField()
+    internal val buildPathsExcludePatternField = JBTextField()
 
     private val panel: JPanel
 
@@ -554,33 +555,52 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
     )
 
     override fun validate(): ValidationInfo? {
-        // Validate Addon ID
-        val id = addonIdField.text?.trim().orEmpty()
-        val idRegex = Regex("^[a-z0-9_]{3,32}$")
-        if (id.isEmpty() || !idRegex.matches(id)) {
-            return ValidationInfo("Addon ID must be snake-case (lowercase letters, underscore), 3–32 chars.", addonIdField)
+        // 1. Project Name
+        val projectName = projectNameField.text?.trim().orEmpty()
+        if (projectName.isEmpty()) {
+            return ValidationInfo("Project name cannot be empty.", projectNameField)
         }
-        // Validate Blender min version
+
+        // 2. Addon ID
+        val id = addonIdField.text?.trim().orEmpty()
+        if (id.isEmpty()) {
+            return ValidationInfo("Addon ID cannot be empty.", addonIdField)
+        }
+        val idRegex = Regex("^[a-z0-9_]{3,32}$")
+        if (!idRegex.matches(id)) {
+            if (id.length < 3) return ValidationInfo("Addon ID is too short (min 3 characters).", addonIdField)
+            if (id.length > 32) return ValidationInfo("Addon ID is too long (max 32 characters).", addonIdField)
+            return ValidationInfo("Addon ID must be snake-case (lowercase letters, underscores only).", addonIdField)
+        }
+
+        // 3. Blender Version
         val minVer = blenderVersionMinField.text?.trim().orEmpty()
         val semver = Regex("^\\d+\\.\\d+\\.\\d+")
-        if (!semver.containsMatchIn(minVer)) {
-            return ValidationInfo("Minimum Blender version must look like 4.2.0", blenderVersionMinField)
+        if (!semver.matches(minVer)) {
+            return ValidationInfo("Minimum Blender version must be in format x.y.z (e.g., 4.2.0).", blenderVersionMinField)
         }
-        // Validate Website URL if provided
+
+        val maxVer = blenderVersionMaxField.text?.trim().orEmpty()
+        if (maxVer.isNotEmpty() && !semver.matches(maxVer)) {
+            return ValidationInfo("Maximum Blender version must be in format x.y.z (e.g., 5.0.0).", blenderVersionMaxField)
+        }
+
+        // 4. Website URL
         val website = addonWebsiteField.text?.trim().orEmpty()
         if (website.isNotEmpty()) {
             val urlRegex = Regex("^(https?://)?[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(/.*)?$")
             if (!urlRegex.matches(website)) {
-                return ValidationInfo("Please enter a valid URL (e.g. https://example.com)", addonWebsiteField)
+                return ValidationInfo("Please enter a valid URL (e.g., https://example.com).", addonWebsiteField)
             }
         }
-        // Validate permissions reasons when enabled
+
+        // 5. Permissions
         fun checkReason(checkbox: JBCheckBox, field: JBTextField, label: String): ValidationInfo? {
             if (checkbox.isSelected) {
                 val reason = field.text?.trim().orEmpty()
-                if (reason.isEmpty()) return ValidationInfo("Provide a reason for $label", field)
-                if (reason.length > 64) return ValidationInfo("Reason must be <= 64 characters", field)
-                if (reason.endsWith('.')) return ValidationInfo("Reason should not end with a period (.)", field)
+                if (reason.isEmpty()) return ValidationInfo("Permission '$label' requires a reason.", field)
+                if (reason.length > 64) return ValidationInfo("Reason for '$label' must be 64 characters or fewer.", field)
+                if (reason.endsWith('.')) return ValidationInfo("Reason for '$label' should not end with a period (.).", field)
             }
             return null
         }
@@ -589,12 +609,16 @@ private class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProject
         checkReason(permissionClipboardCheckbox, permissionClipboardReasonField, "Clipboard")?.let { return it }
         checkReason(permissionCameraCheckbox, permissionCameraReasonField, "Camera")?.let { return it }
         checkReason(permissionMicrophoneCheckbox, permissionMicrophoneReasonField, "Microphone")?.let { return it }
-        // Validate platforms
+
+        // 6. Platforms
         val allowedPlatforms = setOf("windows-x64", "macos-arm64", "linux-x64", "windows-arm64", "macos-x64", "linux-arm64")
         val platforms = addonPlatformsField.text?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
-        if (platforms.any { it !in allowedPlatforms }) {
-            return ValidationInfo("Unsupported platform found. Allowed: ${'$'}allowedPlatforms", addonPlatformsField)
+        for (platform in platforms) {
+            if (platform !in allowedPlatforms) {
+                return ValidationInfo("Unsupported platform: $platform. Allowed: windows-x64, macos-arm64, linux-x64, etc.", addonPlatformsField)
+            }
         }
+
         return null
     }
 

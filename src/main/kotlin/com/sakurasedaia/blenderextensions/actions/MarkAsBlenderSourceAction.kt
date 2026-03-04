@@ -4,13 +4,12 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.ToggleAction
-import com.intellij.openapi.vfs.VirtualFile
-import com.sakurasedaia.blenderextensions.BlenderBundle
+import com.sakurasedaia.blenderextensions.LangManager
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 
 class MarkAsBlenderSourceAction : ToggleAction(
-    BlenderBundle.messagePointer("action.MarkAsBlenderSourceAction.text"),
-    BlenderBundle.messagePointer("action.MarkAsBlenderSourceAction.description"),
+    LangManager.messagePointer("action.MarkAsBlenderSourceAction.text"),
+    LangManager.messagePointer("action.MarkAsBlenderSourceAction.description"),
     null
 ) {
 

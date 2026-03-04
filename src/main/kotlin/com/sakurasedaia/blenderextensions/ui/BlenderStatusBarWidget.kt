@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.util.Alarm
-import com.sakurasedaia.blenderextensions.BlenderBundle
+import com.sakurasedaia.blenderextensions.LangManager
 import com.sakurasedaia.blenderextensions.blender.BlenderCommunicationService
 import com.sakurasedaia.blenderextensions.blender.BlenderService
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
@@ -32,10 +32,10 @@ class BlenderStatusBarWidget(private val project: Project) : StatusBarWidget, St
         val commService = BlenderCommunicationService.getInstance(project)
         
         return when {
-            commService.isConnected() -> BlenderBundle.message("blender.status.connected")
-            service.isRunning() -> BlenderBundle.message("blender.status.disconnected")
-            service.hasError() -> BlenderBundle.message("blender.status.error")
-            else -> BlenderBundle.message("blender.status.not_running")
+            commService.isConnected() -> LangManager.message("blender.status.connected")
+            service.isRunning() -> LangManager.message("blender.status.disconnected")
+            service.hasError() -> LangManager.message("blender.status.error")
+            else -> LangManager.message("blender.status.not_running")
         }
     }
 
@@ -53,7 +53,7 @@ class BlenderStatusBarWidget(private val project: Project) : StatusBarWidget, St
         }
     }
 
-    override fun getTooltipText(): String? = BlenderBundle.message("settings.display.name")
+    override fun getTooltipText(): String? = LangManager.message("settings.display.name")
 
     private fun scheduleUpdate() {
         if (statusBar == null) return
