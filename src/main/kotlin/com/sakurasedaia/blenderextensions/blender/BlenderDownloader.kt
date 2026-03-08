@@ -58,6 +58,15 @@ class BlenderDownloader(private val project: Project) {
         if (!downloadDir.exists()) {
             Files.createDirectories(downloadDir)
         }
+        try {
+            if (!isSysCompatible(version)) {
+                throw Exception("System compatibility check failed")
+            }
+        } catch (e: Exception) {
+            logger.log(LangManager.message("log.blender.incompatible.macintoshintel", e))
+            return null
+        }
+
 
         // Check if already downloaded
         val executable = findBlenderExecutable(downloadDir)
@@ -283,6 +292,23 @@ class BlenderDownloader(private val project: Project) {
                 break
             }
         }
+    }
+
+    private fun isSysCompatible(version: String): Boolean {
+        // TODO: Implement logic to prevent Apple Macintosh from installing Blender 5.0 and newer
+        val versionInt = version.split(".").map { it.toInt() }.toIntArray()
+        val isMac = System.getProperty("os.name").contains("Mac")
+        val isIntel = System.getProperty("os.arch").contains("amd64")
+
+        if (isMac) {
+            if (versionInt[0] >= 5 && isIntel) {
+                logger.log("Blender 5.0 and newer are not compatible with Apple Macintosh")
+                return false
+            }
+            return true
+        }
+        return true
+
     }
 
     companion object {
