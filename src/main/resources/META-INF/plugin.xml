@@ -9,7 +9,7 @@
 
     <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
     <vendor url="https://www.sakura-sedaia.com">Sakura Sedaia</vendor>
-    <resource-bundle>messages.BlenderBundle</resource-bundle>
+    <resource-bundle>messages.LangManager</resource-bundle>
 
     <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
          Guidelines: https://plugins.jetbrains.com/docs/marketplace/best-practices-for-listing.html#plugin-description -->
@@ -65,6 +65,10 @@
         
         <statusBarWidgetFactory implementation="com.sakurasedaia.blenderextensions.ui.BlenderStatusBarWidgetFactory"
                                 id="BlenderStatus"/>
+
+        <notificationGroup id="Blender Development"
+                           displayType="Balloon"
+                           key="notification.group.name" />
     </extensions>
 
     <actions>
@@ -93,4 +97,6 @@
         <listener class="com.sakurasedaia.blenderextensions.listeners.BlenderFileSaveListener"
                   topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
     </applicationListeners>
+
+
 </idea-plugin>

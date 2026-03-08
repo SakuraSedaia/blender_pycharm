@@ -4,10 +4,9 @@ import com.sakurasedaia.blenderextensions.LangManager
 import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessEvent
-import com.intellij.notification.NotificationGroupManager
-import com.intellij.notification.NotificationType
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import com.sakurasedaia.blenderextensions.notifications.BlenderNotification
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
@@ -16,7 +15,6 @@ import kotlin.io.path.name
 
 @Service(Service.Level.PROJECT)
 class BlenderService(private val project: Project) {
-    private val NOTIFICATION_GROUP = "Blender Extensions"
     private val logger = BlenderLogger.getInstance(project)
     private val downloader = BlenderDownloader.getInstance(project)
     private val linker = BlenderLinker.getInstance(project)
@@ -108,15 +106,11 @@ class BlenderService(private val project: Project) {
             if (blenderCommand.isNullOrBlank()) {
                 communicationService.stopServer()
             }
-            
-            NotificationGroupManager.getInstance()
-                .getNotificationGroup(NOTIFICATION_GROUP)
-                .createNotification(
-                    LangManager.message("notification.failed.start.blender.title"),
-                    LangManager.message("notification.failed.start.blender.message"),
-                    NotificationType.ERROR
+
+            BlenderNotification(project).sendError(
+                LangManager.message("notification.failed.start.blender.title"),
+                LangManager.message("notification.failed.start.blender.message")
                 )
-                .notify(project)
                 
             return null
         }
@@ -139,14 +133,10 @@ class BlenderService(private val project: Project) {
         try {
             communicationService.sendReloadCommand(extensionName)
         } catch (e: Exception) {
-            NotificationGroupManager.getInstance()
-                .getNotificationGroup(NOTIFICATION_GROUP)
-                .createNotification(
-                    LangManager.message("notification.reload.failed.title"),
-                    LangManager.message("notification.reload.failed.message", e.message ?: ""),
-                    NotificationType.WARNING
-                )
-                .notify(project)
+            BlenderNotification(project).sendWarning(
+                LangManager.message("notification.reload.failed.title"),
+                LangManager.message("notification.reload.failed.message", e.message ?: "")
+            )
             logger.log(LangManager.message("log.blender.failed.reload", e.message ?: ""))
         }
     }

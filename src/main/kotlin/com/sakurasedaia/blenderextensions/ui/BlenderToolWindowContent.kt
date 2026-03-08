@@ -1,5 +1,7 @@
 package com.sakurasedaia.blenderextensions.ui
 
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.project.Project
@@ -8,10 +10,10 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBUI
-import com.intellij.util.ui.UIUtil
 import com.sakurasedaia.blenderextensions.LangManager
 import com.sakurasedaia.blenderextensions.blender.*
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
+import com.sakurasedaia.blenderextensions.notifications.BlenderNotification
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 import java.awt.BorderLayout
 import java.awt.Component
@@ -24,10 +26,12 @@ import javax.swing.table.AbstractTableModel
 import javax.swing.table.DefaultTableCellRenderer
 import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
+
 class BlenderToolWindowContent(private val project: Project) {
+    private val NOTIFICATION_GROUP = "Blender Extensions"
     private val downloader = BlenderDownloader.getInstance(project)
     private val service = BlenderService.getInstance(project)
-    private val communicationService = BlenderCommunicationService.getInstance(project)
+    private val commService = BlenderCommunicationService.getInstance(project)
     private val tableModel = BlenderVersionsTableModel()
     private val table = JBTable(tableModel)
     private val systemTableModel = SystemBlenderTableModel()
@@ -59,12 +63,7 @@ class BlenderToolWindowContent(private val project: Project) {
                         horizontalAlignment = SwingConstants.CENTER
                         
                         val inst = (table.model as? SystemBlenderTableModel)?.getInstallationAt(row)
-                        toolTipText = if (inst?.isCustom == true) LangManager.message("toolwindow.table.tooltip.added.manually") else LangManager.message("toolwindow.table.tooltip.auto.detected")
-                    } else if (value is String) {
-                        icon = null
-                        text = value
-                        foreground = if (value == LangManager.message("toolwindow.table.status.detected")) JBUI.CurrentTheme.Label.foreground()
-                        else UIUtil.getLabelDisabledForeground()
+                        toolTipText = if (inst?.isCustom == true) LangManager.message("toolwindow.system.table.status.manual.tooltip") else LangManager.message("toolwindow.system.table.status.auto.tooltip")
                     }
                     return component
                 }
@@ -86,8 +85,8 @@ class BlenderToolWindowContent(private val project: Project) {
     }
 
     fun getContent(): JComponent {
-        val managedVersionsLabel = JBLabel(LangManager.message("toolwindow.managed.versions.label")).apply {
-            font = font.deriveFont(java.awt.Font.BOLD)
+        val managedVersionsLabel = JBLabel(LangManager.message("toolwindow.managed.table.title")).apply {
+            font = font.deriveFont(Font.BOLD)
         }
 
         val refreshButton = JButton("", BlenderIcons.Refresh).apply {
@@ -105,16 +104,16 @@ class BlenderToolWindowContent(private val project: Project) {
             add(refreshButton, BorderLayout.EAST)
         }
 
-        val systemVersionsLabel = JBLabel(LangManager.message("toolwindow.system.versions.label")).apply {
+        val systemVersionsLabel = JBLabel(LangManager.message("toolwindow.system.table.title")).apply {
             font = font.deriveFont(Font.BOLD)
         }
 
         val addCustomButton = JButton("", BlenderIcons.Add).apply {
-            toolTipText = LangManager.message("toolwindow.add.custom.tooltip")
+            toolTipText = LangManager.message("toolwindow.system.table.add.custom.tooltip")
             addActionListener {
                 val descriptor = FileChooserDescriptorFactory.createSingleFileOrFolderDescriptor()
-                    .withTitle(LangManager.message("toolwindow.select.blender.title"))
-                    .withDescription(LangManager.message("toolwindow.select.blender.description"))
+                    .withTitle(LangManager.message("toolwindow.system.modal.select.title"))
+                    .withDescription(LangManager.message("toolwindow.system.modal.select.description"))
                 
                 val file = FileChooser.chooseFile(descriptor, project, null)
                 if (file != null) {
@@ -130,20 +129,26 @@ class BlenderToolWindowContent(private val project: Project) {
         }
 
         val sandboxLabel = JBLabel(LangManager.message("toolwindow.sandbox.management.label")).apply {
-            font = font.deriveFont(java.awt.Font.BOLD)
+            font = font.deriveFont(Font.BOLD)
         }
         
-        val clearSandboxButton = JButton(LangManager.message("toolwindow.clear.sandbox.button"), BlenderIcons.Remove).apply {
+        val clearSandboxButton = JButton(LangManager.message("toolwindow.sandbox.clear"), BlenderIcons.Remove).apply {
             addActionListener {
                 val confirm = Messages.showYesNoDialog(
                     project,
-                    LangManager.message("toolwindow.clear.sandbox.confirm.message"),
-                    LangManager.message("toolwindow.clear.sandbox.confirm.title"),
+                    LangManager.message("toolwindow.sandbox.clear.warning"),
+                    LangManager.message("toolwindow.sandbox.clear.confirm"),
                     Messages.getQuestionIcon()
                 )
                 if (confirm == Messages.YES) {
-                    service.clearSandbox()
-                    Messages.showInfoMessage(project, LangManager.message("toolwindow.clear.sandbox.success.message"), LangManager.message("toolwindow.clear.sandbox.confirm.title"))
+                    if (!commService.isConnected()) {
+                        service.clearSandbox()
+                        Messages.showInfoMessage(
+                            project,
+                            LangManager.message("toolwindow.sandbox.clear.success"),
+                            LangManager.message("toolwindow.sandbox.clear.success.title")
+                        )
+                    }
                 }
             }
         }
@@ -235,9 +240,9 @@ class BlenderToolWindowContent(private val project: Project) {
 
     private inner class SystemBlenderTableModel : AbstractTableModel() {
         private val columnNames = arrayOf(
-            LangManager.message("toolwindow.table.column.status"),
-            LangManager.message("toolwindow.table.column.name"),
-            LangManager.message("toolwindow.table.column.path"),
+            LangManager.message("toolwindow.system.table.column.status"),
+            LangManager.message("toolwindow.table.column.version"),
+            LangManager.message("toolwindow.system.table.column.path"),
             LangManager.message("toolwindow.table.column.action")
         )
         private var installations = listOf<BlenderInstallation>()
@@ -322,8 +327,8 @@ class BlenderToolWindowContent(private val project: Project) {
                 if (inst.isCustom && inst.originPath != null) {
                     val confirm = Messages.showYesNoDialog(
                         project,
-                        LangManager.message("toolwindow.table.action.delete.confirm.message"),
-                        LangManager.message("toolwindow.table.action.delete.confirm.title"),
+                        LangManager.message("toolwindow.system.table.action.delete.confirm.message"),
+                        LangManager.message("toolwindow.system.table.action.delete.confirm.button"),
                         Messages.getQuestionIcon()
                     )
                     if (confirm == Messages.YES) {
@@ -381,18 +386,26 @@ class BlenderToolWindowContent(private val project: Project) {
                 if (downloader.isDownloaded(version)) {
                     val confirm = Messages.showYesNoDialog(
                         project,
-                        LangManager.message("toolwindow.table.action.delete.version.confirm.message", version),
-                        LangManager.message("toolwindow.table.action.delete.version.confirm.title"),
+                        LangManager.message("toolwindow.managed.action.delete.description"),
+                        LangManager.message("toolwindow.managed.action.delete.title", version),
                         Messages.getQuestionIcon()
                     )
                     if (confirm == Messages.YES) {
-                        downloader.deleteVersion(version)
-                        tableModel.refresh()
+                        if (!commService.isConnected()) {
+                            downloader.deleteVersion(version)
+                            tableModel.refresh()
+                        } else {
+                            BlenderNotification(project).sendError(
+                                title=LangManager.message("notification.delete.failed.title", "Blender $version"),
+                                content=LangManager.message("notification.delete.failed.reason.blenderRunning")
+                            )
+                            tableModel.refresh()
+                        }
                     }
                 } else {
                     // Start download
                     com.intellij.openapi.progress.ProgressManager.getInstance().run(
-                        object : com.intellij.openapi.progress.Task.Backgroundable(project, LangManager.message("toolwindow.table.action.downloading.task", version)) {
+                        object : com.intellij.openapi.progress.Task.Backgroundable(project, LangManager.message("toolwindow.action.downloading.task", version)) {
                             override fun run(indicator: com.intellij.openapi.progress.ProgressIndicator) {
                                 downloader.getOrDownloadBlenderPath(version)
                                 SwingUtilities.invokeLater { tableModel.refresh() }

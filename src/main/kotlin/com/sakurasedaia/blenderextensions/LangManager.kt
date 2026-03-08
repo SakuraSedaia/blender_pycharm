@@ -3,7 +3,7 @@ package com.sakurasedaia.blenderextensions
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.PropertyKey
 
-private const val BUNDLE = "messages.BlenderBundle"
+private const val BUNDLE = "messages.LangManager"
 
 object LangManager : DynamicBundle(BUNDLE) {
     @JvmStatic
