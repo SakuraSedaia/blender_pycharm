@@ -8,15 +8,38 @@ import junit.framework.Assert.assertNull
 
 class BlenderDownloaderReproductionTest : BasePlatformTestCase() {
 
-    fun testFindBlenderExecutableWithNonExistentDirectory() {
+    fun testExtractionCommandsListExecution() {
         val downloader = BlenderDownloader(project)
-        val nonExistentPath = createTempDirectory("blender_test").resolve("non_existent")
+        val tempDir = createTempDirectory("extraction_test")
+        val testFile = tempDir.resolve("test.txt")
+        java.nio.file.Files.writeString(testFile, "test content")
+
+        val targetFile = tempDir.resolve("test_moved.txt")
         
-        // This should NO LONGER throw NoSuchFileException and should return null
-        val method = BlenderDownloader::class.java.getDeclaredMethod("findBlenderExecutable", Path::class.java)
+        // We use 'sh' for Linux/Mac and 'cmd' or 'powershell' for Windows in the actual code.
+        // For a platform-independent test of the 'list execution' logic, we can try to use simple commands.
+        val isWindows = System.getProperty("os.name").lowercase().contains("win")
+        val commands = if (isWindows) {
+            listOf(
+                com.intellij.execution.configurations.GeneralCommandLine("cmd", "/c", "move", testFile.toString(), targetFile.toString()),
+                com.intellij.execution.configurations.GeneralCommandLine("cmd", "/c", "echo", "done")
+            )
+        } else {
+            listOf(
+                com.intellij.execution.configurations.GeneralCommandLine("mv", testFile.toString(), targetFile.toString()),
+                com.intellij.execution.configurations.GeneralCommandLine("echo", "done")
+            )
+        }
+
+        val method = BlenderDownloader::class.java.getDeclaredMethod("executeExtractionCommands", List::class.java)
         method.isAccessible = true
-        val result = method.invoke(downloader, nonExistentPath)
-        
-        assertNull("Should return null for non-existent directory", result)
+        method.invoke(downloader, commands)
+
+        try {
+            assertTrue("File should have been moved", java.nio.file.Files.exists(targetFile))
+            assertFalse("Original file should not exist", java.nio.file.Files.exists(testFile))
+        } finally {
+            tempDir.toFile().deleteRecursively()
+        }
     }
 }
