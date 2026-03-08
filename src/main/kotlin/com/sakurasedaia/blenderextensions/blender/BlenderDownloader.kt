@@ -240,6 +240,13 @@ class BlenderDownloader(private val project: Project) {
         val blendDir = targetDir.resolve(version)
         Files.createDirectories(mountPoint)
         try {
+            // First, ensure any previous mount at this point is detached (unlikely with timestamp, but good practice)
+            executeExtractionCommands(listOf(
+                GeneralCommandLine("hdiutil", "detach", mountPoint.absolutePathString(), "-force").apply {
+                    setWorkDirectory(targetDir.toFile())
+                }
+            ), silentFailure = true)
+
             logger.log(LangManager.message("log.blender.mounting", file.absolutePathString()))
             executeExtractionCommands(listOf(
                 GeneralCommandLine("hdiutil", "attach", file.absolutePathString(), "-mountpoint", mountPoint.absolutePathString(), "-nobrowse", "-readonly")
@@ -262,7 +269,7 @@ class BlenderDownloader(private val project: Project) {
         } finally {
             logger.log(LangManager.message("log.blender.detaching", mountPoint.absolutePathString()))
             executeExtractionCommands(listOf(
-                GeneralCommandLine("hdiutil", "detach", mountPoint.absolutePathString()),
+                GeneralCommandLine("hdiutil", "detach", mountPoint.absolutePathString(), "-force"),
                 GeneralCommandLine("rm", file.absolutePathString())
             ))
             try {
@@ -271,7 +278,7 @@ class BlenderDownloader(private val project: Project) {
         }
     }
 
-    private fun executeExtractionCommands(commandLines: List<GeneralCommandLine>) {
+    private fun executeExtractionCommands(commandLines: List<GeneralCommandLine>, silentFailure: Boolean = false) {
         for (commandLine in commandLines) {
             try {
                 val handler = OSProcessHandler(commandLine)
@@ -279,7 +286,7 @@ class BlenderDownloader(private val project: Project) {
                 while (!handler.waitFor(100)) {
                     ProgressManager.checkCanceled()
                 }
-                if (handler.exitCode != 0) {
+                if (handler.exitCode != 0 && !silentFailure) {
                     logger.log("Extraction command failed with exit code ${handler.exitCode}: ${commandLine.commandLineString}")
                     break
                 }
@@ -288,7 +295,9 @@ class BlenderDownloader(private val project: Project) {
                     logger.log("Extraction cancelled by user")
                     throw e
                 }
-                logger.log("Failed to execute extraction command: ${e.message}")
+                if (!silentFailure) {
+                    logger.log("Failed to execute extraction command: ${e.message}")
+                }
                 break
             }
         }
@@ -297,8 +306,10 @@ class BlenderDownloader(private val project: Project) {
     private fun isSysCompatible(version: String): Boolean {
         // TODO: Implement logic to prevent Apple Macintosh from installing Blender 5.0 and newer
         val versionInt = version.split(".").map { it.toInt() }.toIntArray()
-        val isMac = System.getProperty("os.name").contains("Mac")
-        val isIntel = System.getProperty("os.arch").contains("amd64")
+        val osName = System.getProperty("os.name").lowercase()
+        val arch = System.getProperty("os.arch").lowercase()
+        val isMac = osName.contains("mac")
+        val isIntel = arch.contains("x86_64") || arch.contains("amd64")
 
         if (isMac) {
             if (versionInt[0] >= 5 && isIntel) {

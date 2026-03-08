@@ -42,15 +42,20 @@ class BlenderToolWindowContent(private val project: Project) {
         configureTable(table, true)
         configureTable(systemTable, false)
         
-        timer = Timer(2000) {
-            tableModel.fireTableDataChanged()
-            systemTableModel.refresh()
+        timer = Timer(5000) {
+            if (!project.isDisposed) {
+                tableModel.fireTableDataChanged()
+                systemTableModel.refresh()
+            } else {
+                (it.source as Timer).stop()
+            }
         }
         timer.start()
     }
 
     private fun configureTable(table: JBTable, isManaged: Boolean) {
         if (!isManaged) {
+            table.autoResizeMode = JTable.AUTO_RESIZE_ALL_COLUMNS
             table.columnModel.getColumn(0).maxWidth = 60
             table.columnModel.getColumn(0).cellRenderer = object : DefaultTableCellRenderer() {
                 override fun getTableCellRendererComponent(
@@ -78,6 +83,7 @@ class BlenderToolWindowContent(private val project: Project) {
         }
 
         if (isManaged) {
+            table.autoResizeMode = JTable.AUTO_RESIZE_ALL_COLUMNS
             val buttonRenderer = ButtonRenderer()
             table.columnModel.getColumn(1).cellRenderer = buttonRenderer
             table.columnModel.getColumn(1).cellEditor = ButtonEditor(JCheckBox())
@@ -171,10 +177,7 @@ class BlenderToolWindowContent(private val project: Project) {
         c.gridy = 1
         c.weighty = 1.0
         c.insets = JBUI.insets(0, 5, 5, 5)
-        mainPanel.add(JBScrollPane(table).apply {
-            preferredSize = JBUI.size(400, 150)
-            minimumSize = JBUI.size(400, 100)
-        }, c)
+        mainPanel.add(JBScrollPane(table), c)
 
         // System Label
         c.gridy = 2
@@ -186,10 +189,7 @@ class BlenderToolWindowContent(private val project: Project) {
         c.gridy = 3
         c.weighty = 1.0
         c.insets = JBUI.insets(0, 5, 5, 5)
-        mainPanel.add(JBScrollPane(systemTable).apply {
-            preferredSize = JBUI.size(400, 150)
-            minimumSize = JBUI.size(400, 100)
-        }, c)
+        mainPanel.add(JBScrollPane(systemTable), c)
 
         // Sandbox Section
         c.gridy = 4
@@ -285,8 +285,14 @@ class BlenderToolWindowContent(private val project: Project) {
         fun refresh() {
             com.intellij.openapi.application.ApplicationManager.getApplication().executeOnPooledThread {
                 val customPaths = BlenderSettings.getInstance(project).getCustomBlenderPaths()
-                installations = BlenderScanner.scanSystemInstallations(force = true, customPaths = customPaths)
-                SwingUtilities.invokeLater { fireTableDataChanged() }
+                val newInstallations = BlenderScanner.scanSystemInstallations(force = true, customPaths = customPaths)
+                SwingUtilities.invokeLater {
+                    // Check if the project is not disposed before updating UI
+                    if (!project.isDisposed) {
+                        installations = newInstallations
+                        fireTableDataChanged()
+                    }
+                }
             }
         }
 
