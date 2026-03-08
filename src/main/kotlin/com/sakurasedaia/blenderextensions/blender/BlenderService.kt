@@ -21,10 +21,16 @@ class BlenderService(private val project: Project) {
     private val launcher = BlenderLauncher.getInstance(project)
     private val scriptGenerator = BlenderScriptGenerator.getInstance()
     private val communicationService = BlenderCommunicationService.getInstance(project)
+    private val telemetryService = BlenderTelemetryService.getInstance(project)
 
     private var processHandler: OSProcessHandler? = null
     private val isRunning = AtomicBoolean(false)
     private val hasError = AtomicBoolean(false)
+
+    init {
+        telemetryService.collectAndLogTelemetry()
+    }
+
     fun isRunning(): Boolean = isRunning.get()
     fun hasError(): Boolean = hasError.get()
     private var currentExtensionName: String? = null
@@ -53,7 +59,8 @@ class BlenderService(private val project: Project) {
         isSandboxed: Boolean = false,
         blenderCommand: String? = null,
         importUserConfig: Boolean = false,
-        blenderVersion: String? = null
+        blenderVersion: String? = null,
+        runOptions: com.sakurasedaia.blenderextensions.run.BlenderRunConfigurationOptions? = null
     ): OSProcessHandler? {
         if (isRunning.get()) return processHandler
         hasError.set(false)
@@ -61,6 +68,12 @@ class BlenderService(private val project: Project) {
         val projectPath = project.basePath ?: return null
 
         val handler = if (!blenderCommand.isNullOrBlank()) {
+            telemetryService.collectAndLogTelemetry(
+                context = "Blender Process Start (Custom Command)",
+                options = runOptions,
+                blenderPath = blenderPath,
+                blenderVersion = blenderVersion
+            )
             launcher.startBlenderProcess(
                 blenderPath = blenderPath,
                 additionalArgs = additionalArgs,
@@ -91,6 +104,12 @@ class BlenderService(private val project: Project) {
             val port = communicationService.startServer()
             val script = scriptGenerator.createStartupScript(port, repoDir, currentExtensionName)
 
+            telemetryService.collectAndLogTelemetry(
+                context = "Blender Process Start (Extension Development)",
+                options = runOptions,
+                blenderPath = blenderPath,
+                blenderVersion = blenderVersion
+            )
             launcher.startBlenderProcess(
                 blenderPath = blenderPath,
                 scriptPath = script,

@@ -67,7 +67,8 @@ class BlenderRunProfileState(
             isSandboxed = options.isSandboxed,
             blenderCommand = options.blenderCommand,
             importUserConfig = options.importUserConfig,
-            blenderVersion = detectedVersion
+            blenderVersion = detectedVersion,
+            runOptions = options
         ) ?: throw ExecutionException("Failed to start Blender. Check path in the run configuration.")
         
         val consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project)
