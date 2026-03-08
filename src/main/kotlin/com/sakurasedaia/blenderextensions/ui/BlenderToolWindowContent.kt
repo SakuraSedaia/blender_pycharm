@@ -403,7 +403,7 @@ class BlenderToolWindowContent(private val project: Project) {
                         } else {
                             BlenderNotification(project).sendError(
                                 title=LangManager.message("notification.delete.failed.title", "Blender $version"),
-                                content=LangManager.message("notification.delete.failed.reason.blenderRunning")
+                                content=LangManager.message("notification.delete.failed.reason.blender.running")
                             )
                             tableModel.refresh()
                         }
@@ -411,7 +411,7 @@ class BlenderToolWindowContent(private val project: Project) {
                 } else {
                     // Start download
                     com.intellij.openapi.progress.ProgressManager.getInstance().run(
-                        object : com.intellij.openapi.progress.Task.Backgroundable(project, LangManager.message("toolwindow.action.downloading.task", version)) {
+                        object : com.intellij.openapi.progress.Task.Backgroundable(project, LangManager.message("action.download.blender.task", version)) {
                             override fun run(indicator: com.intellij.openapi.progress.ProgressIndicator) {
                                 downloader.getOrDownloadBlenderPath(version)
                                 SwingUtilities.invokeLater { tableModel.refresh() }

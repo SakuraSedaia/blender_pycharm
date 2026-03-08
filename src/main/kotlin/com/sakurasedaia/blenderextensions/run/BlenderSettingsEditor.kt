@@ -15,6 +15,7 @@ import com.intellij.util.ui.FormBuilder
 import com.sakurasedaia.blenderextensions.blender.BlenderDownloader
 import com.sakurasedaia.blenderextensions.blender.BlenderVersions
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
+import com.sakurasedaia.blenderextensions.LangManager
 import java.awt.BorderLayout
 import javax.swing.DefaultComboBoxModel
 import javax.swing.JButton
@@ -27,17 +28,17 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     private val myBlenderVersionComboBox = ComboBox<String>()
     private val myBlenderPathField = TextFieldWithBrowseButton()
     private val myBlenderCommandField = JBTextField()
-    private val myIsSandboxedCheckBox = JBCheckBox("Enable Sandboxed Environment")
-    private val myImportUserConfigCheckBox = JBCheckBox("Import User Configuration")
+    private val myIsSandboxedCheckBox = JBCheckBox(LangManager.message("run.configuration.setting.sandboxed"))
+    private val myImportUserConfigCheckBox = JBCheckBox(LangManager.message("run.configuration.setting.import.user.config"))
     private val myAddonSymlinkNameField = JBTextField()
     private val myAddonSourceDirectoryField = TextFieldWithBrowseButton()
     private val myAdditionalArgumentsField = JBTextField()
-    private val myDownloadButton = JButton("Download", BlenderIcons.Install)
+    private val myDownloadButton = JButton(LangManager.message("run.configuration.button.download"), BlenderIcons.Install)
 
-    private val myBlenderCommandComponent = LabeledComponent.create(myBlenderCommandField, "Blender command ($ blender --command <command>):")
-    private val myAddonSymlinkComponent = LabeledComponent.create(myAddonSymlinkNameField, "Addon symlink name:")
-    private val myAddonSourceDirComponent = LabeledComponent.create(myAddonSourceDirectoryField, "Addon source directory:")
-    private val myArgumentsComponent = LabeledComponent.create(myAdditionalArgumentsField, "Blender commandline arguments:")
+    private val myBlenderCommandComponent = LabeledComponent.create(myBlenderCommandField, "${LangManager.message("run.configuration.setting.cli.args")}:")
+    private val myAddonSymlinkComponent = LabeledComponent.create(myAddonSymlinkNameField, "${LangManager.message("run.configuration.setting.symlink.name")}:")
+    private val myAddonSourceDirComponent = LabeledComponent.create(myAddonSourceDirectoryField, "${LangManager.message("run.configuration.setting.src")}:")
+    private val myArgumentsComponent = LabeledComponent.create(myAdditionalArgumentsField, "${LangManager.message("run.configuration.setting.cli.args")}:")
 
     init {
         val versions = BlenderVersions.getAllSelectableVersions(downloader)
@@ -46,14 +47,14 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         myBlenderVersionComboBox.addActionListener {
             updateDownloadButtonVisibility()
             val selected = myBlenderVersionComboBox.selectedItem as? String
-            val isCustom = selected == "Custom/Pre-installed"
+            val isCustom = selected == LangManager.message("run.configuration.setting.custom")
             myBlenderPathField.isEnabled = isCustom
         }
         
         myDownloadButton.addActionListener {
             val selected = myBlenderVersionComboBox.selectedItem as? String ?: return@addActionListener
             if (!downloader.isDownloaded(selected)) {
-                ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Downloading Blender $selected") {
+                ProgressManager.getInstance().run(object : Task.Backgroundable(project, LangManager.message("action.download.blender.task", selected)) {
                     override fun run(indicator: ProgressIndicator) {
                         downloader.getOrDownloadBlenderPath(selected)
                         SwingUtilities.invokeLater {
@@ -67,7 +68,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
 
     private fun updateDownloadButtonVisibility() {
         val selected = myBlenderVersionComboBox.selectedItem as? String
-        if (selected != null && selected != "Custom/Pre-installed") {
+        if (selected != null && selected != LangManager.message("run.configuration.setting.custom")) {
             myDownloadButton.isVisible = !downloader.isDownloaded(selected)
         } else {
             myDownloadButton.isVisible = false
@@ -81,7 +82,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         myIsSandboxedCheckBox.isSelected = options.isSandboxed
         myImportUserConfigCheckBox.isSelected = options.importUserConfig
         myBlenderPathField.text = options.blenderExecutablePath ?: ""
-        myBlenderPathField.isEnabled = myBlenderVersionComboBox.selectedItem == "Custom/Pre-installed"
+        myBlenderPathField.isEnabled = myBlenderVersionComboBox.selectedItem == LangManager.message("run.configuration.setting.custom")
         myBlenderCommandField.text = options.blenderCommand ?: ""
         myAddonSymlinkNameField.text = options.addonSymlinkName ?: ""
         myAddonSourceDirectoryField.text = options.addonSourceDirectory ?: ""
@@ -134,8 +135,8 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         versionPanel.add(myDownloadButton, BorderLayout.EAST)
 
         return FormBuilder.createFormBuilder()
-            .addLabeledComponent("Blender version:", versionPanel)
-            .addLabeledComponent("Manual Blender path:", myBlenderPathField)
+            .addLabeledComponent("${LangManager.message("run.configuration.form.version")}:", versionPanel)
+            .addLabeledComponent("${LangManager.message("run.configuration.form.path")}:", myBlenderPathField)
             .addComponent(myBlenderCommandComponent)
             .addComponent(myIsSandboxedCheckBox)
             .addComponent(myImportUserConfigCheckBox)

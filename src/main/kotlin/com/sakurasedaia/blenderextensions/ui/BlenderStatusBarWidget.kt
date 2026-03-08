@@ -35,7 +35,7 @@ class BlenderStatusBarWidget(private val project: Project) : StatusBarWidget, St
             commService.isConnected() -> LangManager.message("blender.status.connected")
             service.isRunning() -> LangManager.message("blender.status.disconnected")
             service.hasError() -> LangManager.message("blender.status.error")
-            else -> LangManager.message("blender.status.not_running")
+            else -> LangManager.message("blender.status.not.running")
         }
     }
 

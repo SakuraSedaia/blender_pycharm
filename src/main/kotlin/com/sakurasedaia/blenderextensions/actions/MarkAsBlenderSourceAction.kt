@@ -8,8 +8,8 @@ import com.sakurasedaia.blenderextensions.LangManager
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
 
 class MarkAsBlenderSourceAction : ToggleAction(
-    LangManager.messagePointer("action.MarkAsBlenderSourceAction.text"),
-    LangManager.messagePointer("action.MarkAsBlenderSourceAction.description"),
+    LangManager.messagePointer("action.mark.as.blender.source.text"),
+    LangManager.messagePointer("action.mark.as.blender.source.description"),
     null
 ) {
 

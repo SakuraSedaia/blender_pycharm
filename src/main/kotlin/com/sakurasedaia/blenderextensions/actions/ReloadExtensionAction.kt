@@ -7,8 +7,8 @@ import com.sakurasedaia.blenderextensions.blender.BlenderService
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
 
 class ReloadExtensionAction : AnAction(
-    LangManager.messagePointer("action.ReloadExtensionAction.text"),
-    LangManager.messagePointer("action.ReloadExtensionAction.description"),
+    LangManager.messagePointer("action.reload.extension.text"),
+    LangManager.messagePointer("action.reload.extension.description"),
     BlenderIcons.Refresh
 ) {
     override fun actionPerformed(e: AnActionEvent) {
