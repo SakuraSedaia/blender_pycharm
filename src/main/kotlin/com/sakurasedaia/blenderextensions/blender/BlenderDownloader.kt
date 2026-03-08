@@ -122,13 +122,14 @@ class BlenderDownloader(private val project: Project) {
         }
     }
 
-    private fun getDownloadUrl(version: String, isWindows: Boolean, isMac: Boolean, isLinux: Boolean, arch: String): String? {
+    private fun getDownloadUrl(version: String, isWindows: Boolean, isMac: Boolean, isLinux: Boolean, arch: String): String {
         val baseUrl = "https://download.blender.org/release/Blender$version/"
         val platformSuffix = when {
             isWindows -> "windows-x64\\.zip"
-            isMac -> if (arch.contains("aarch64") || arch.contains("arm64")) "macos-arm64\\.dmg" else "macos-x64\\.dmg"
+            isMac -> if (arch.contains("aarch64") || arch.contains("x86_64")) "macos-arm64\\.dmg" else "macos-x64\\.dmg"
             else -> "linux-x64\\.tar\\.xz"
         }
+        
         val regex = Regex("blender-$version\\.(\\d+)-$platformSuffix")
         try {
             val html = HttpRequests.request(baseUrl).readString()
@@ -198,22 +199,11 @@ class BlenderDownloader(private val project: Project) {
     }
 
     private fun extractZip(file: Path, targetDir: Path, version: String) {
-        val isWindows = System.getProperty("os.name").lowercase().contains("win")
-        val commands = if (isWindows) {
-            listOf(
+        val commands = listOf(
                 GeneralCommandLine("powershell", "Expand-Archive", "-Path", file.absolutePathString(), "-DestinationPath", targetDir.absolutePathString(), "-Force"),
                 GeneralCommandLine("powershell", "Rename-Item", "-Path", (targetDir / file.name.removeSuffix(".zip")).absolutePathString(), "-NewName", version),
                 GeneralCommandLine("powershell", "Remove-Item", "-Path", file.absolutePathString())
             )
-        } else {
-            val blendDirRaw = targetDir.resolve(file.name.removeSuffix(".zip"))
-            val blendDir = targetDir.resolve(version)
-            listOf(
-                GeneralCommandLine("unzip", "-o", file.absolutePathString(), "-d", targetDir.absolutePathString()),
-                GeneralCommandLine("mv", blendDirRaw.absolutePathString(), blendDir.absolutePathString()),
-                GeneralCommandLine("rm", file.absolutePathString())
-            )
-        }
         executeExtractionCommands(commands)
     }
 
@@ -309,17 +299,16 @@ class BlenderDownloader(private val project: Project) {
         val osName = System.getProperty("os.name").lowercase()
         val arch = System.getProperty("os.arch").lowercase()
         val isMac = osName.contains("mac")
-        val isIntel = arch.contains("x86_64") || arch.contains("amd64")
+        val isLegacy = arch.contains("x86_64") || arch.contains("amd64")
 
         if (isMac) {
-            if (versionInt[0] >= 5 && isIntel) {
+            if (versionInt[0] >= 5 && isLegacy) {
                 logger.log("Blender 5.0 and newer are not compatible with Apple Macintosh")
                 return false
             }
             return true
         }
         return true
-
     }
 
     companion object {
