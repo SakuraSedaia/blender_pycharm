@@ -40,41 +40,31 @@ intellijPlatform {
 		changeNotes = """
 			<b>Added</b>
 			<ul>
-				<li><b>Blender Development Project</b>: New specialized project type for Blender extension development.</li>
-				<li><b>Improved Scanner</b>: Enhanced macOS and Linux Blender detection using the <code>which</code> command.</li>
-				<li><b>Custom Versions</b>: Support for manual specification of Blender executable paths and versioning.</li>
-				<li><b>Source Management</b>: Option to mark project folders as Blender source directories for better organization.</li>
-				<li><b>Cross-Platform Compatibility</b>: Refined path handling for Windows, macOS, and Linux.</li>
-				<li><b>Internationalization</b>: Added AI-translated i18n support for 11 European and Asian languages (Spanish, German, French, Italian, Japanese, Korean, Dutch, Polish, Portuguese, Russian, and Chinese).</li>
-				<li><b>Documentation</b>: Moved comprehensive guides to the <a href="https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html">external documentation site</a>.</li>
-				<li><b>Unit Testing</b>: Initial suite of unit tests for core plugin functionality.</li>
-				<li><b>Sandbox Control</b>: New setting to toggle sandboxing for Blender instances within the New Project Wizard.</li>
+				<li><b>Blender Status Bar Widget</b>: New indicator in the IDE status bar showing connection status to Blender.</li>
+				<li><b>Support for Multiple Source Folders</b>: Projects can now designate and manage multiple folders as Blender source directories.</li>
+				<li><b>Automatic Python Interpreter Setup</b>: Streamlined environment configuration for new projects.</li>
+				<li><b>Offline Telemetry</b>: Added local-only telemetry for debugging and error reporting.</li>
+				<li><b>Internationalization</b>: Full i18n support for 11 languages (Spanish, German, French, Italian, Japanese, Korean, Dutch, Polish, Portuguese, Russian, and Chinese).</li>
+				<li><b>Unit & Integration Testing</b>: Added a comprehensive test suite, including headless integration tests for TCP heartbeat and reload logic.</li>
+				<li><b>Sandbox Management</b>: New tool window for clearing and managing Blender sandboxed environments.</li>
+				<li><b>Bidirectional Heartbeat</b>: Implemented a more robust TCP client with bidirectional heartbeat and automatic retry logic.</li>
 			</ul>
 			<b>Changed</b>
 			<ul>
-				<li><b>Branding</b>: Renamed the plugin to <b>Blender Development</b> and updated all icons.</li>
-				<li><b>Environment Setup</b>: Automated the detection and replication of system Blender configuration subdirectories to ensure a consistent sandboxed environment.</li>
-				<li><b>Diagnostics</b>: Improved logging with per-day rotation and more detailed configuration.</li>
-				<li><b>Run Configurations</b>: Updated templates for testing, building, and validation with a dynamic UI.
-					<ul>
-						<li>Removed redundant <code>--app-template pycharm</code> arguments when executing <code>build</code> and <code>validate</code> commands.</li>
-						<li>Enhanced logic for detecting extension-specific commands.</li>
-						<li>Standardized internal <code>src</code> path handling using Kotlin NIO.2 utilities for better OS reliability.</li>
-					</ul>
-				</li>
-				<li><b>Licensing</b>: Updated project license to GNU GPL v3.</li>
+				<li><b>Localization Refactor</b>: Standardized all resource bundle keys and migrated from <code>BlenderBundle</code> to <code>LangManager</code> (extending <code>DynamicBundle</code>).</li>
+				<li><b>Improved Blender Downloader</b>: Refined extraction logic and updated the selectable version list to focus on LTS releases.</li>
+				<li><b>Path Resolution</b>: Centralized and improved cross-platform path handling using Kotlin NIO.2 (<code>java.nio.file.Path</code>) utilities.</li>
+				<li><b>Documentation Migration</b>: Moved comprehensive guides to a <a href="https://wiki.sakura-sedaia.com/docs/blender-development-pycharm/index.html">new Sphinx-based documentation site</a>.</li>
+				<li><b>License Change</b>: Updated project license to GNU GPL v3.</li>
+				<li><b>Configuration Discovery</b>: Switched to dynamic detection of Blender configuration subdirectories for improved OS compatibility.</li>
 			</ul>
 			<b>Fixed</b>
 			<ul>
-				<li><b>Management UI</b>: Reworked the Blender version and sandbox management tool window for better stability.</li>
-				<li><b>Manifest Formatting</b>: Switched Manifest IDs from kebab-case to snake_case to comply with Blender's validation requirements.</li>
-				<li><b>CLI Arguments</b>: Corrected the extension command syntax in run configurations, fixing a pluralization error.</li>
-				<li><b>Stability</b>: Fixed crashes in the version management tool window and resolved validation issues in the New Project Wizard.</li>
-				<li><b>Path Resolution</b>: Fixed the <code>FATAL_ERROR: Missing local "src"</code> by utilizing absolute paths for the <code>--source-dir</code> argument.</li>
-				<li><b>Process Management</b>: Configured the <code>GeneralCommandLine</code> working directory to ensure correct resolution of relative paths.</li>
-				<li><b>Extension Logic</b>: Fixed a bug where <code>--app-template</code> was incorrectly applied to CLI-based extension operations.</li>
-				<li><b>Readme Generation</b>: Resolved a missing argument error in the README generator template call.</li>
-				<li><b>Licensing</b>: Updated project license to GNU GPL v3.</li>
+				<li><b>macOS Compatibility</b>: Prevented installation of Blender 5.0+ on Intel-based Macs and integrated <code>tryWhich</code> for better detection.</li>
+				<li><b>Manifest Validation</b>: Switched extension Manifest IDs to <code>snake_case</code> to comply with Blender requirements.</li>
+				<li><b>Run Configuration Stability</b>: Fixed absolute path handling for sandboxed installations and corrected CLI argument syntax.</li>
+				<li><b>UI Stability</b>: Resolved crashes in the version management tool window and improved New Project Wizard validation.</li>
+				<li><b>Logging</b>: Added log rotation for better disk usage management and expanded debug output.</li>
 			</ul>
 		""".trimIndent()
 	}

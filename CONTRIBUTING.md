@@ -86,8 +86,8 @@ Submit a Pull Request on GitHub. Provide a clear description of the changes and 
   - Custom icon example: `@JvmField val BlenderColor: Icon = IconLoader.getIcon("/images/blender_color.svg", BlenderIcons::class.java)`
   - JetBrains icon example: `@JvmField val Install: Icon = AllIcons.Actions.Install`
 - **Internationalization (i18n)**: All user-facing UI and log strings MUST have an associated i18n mapping.
-  - Use `BlenderBundle.message("key")` for localized strings.
-  - English mappings are stored in: `src/main/resources/messages/BlenderBundle.properties`
+  - Use `LangManager.message("key")` for localized strings.
+  - English mappings are stored in: `src/main/resources/messages/LangManager.properties`
   - See [Localization Contribution Guidelines](docs/LOCALIZATION_CONTRIBUTING.md) for more details.
 
 ## Documentation References

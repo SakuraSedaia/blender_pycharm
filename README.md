@@ -13,11 +13,13 @@ Blender Development integration for PyCharm. This plugin allows you to launch Bl
 
 ## Features
 
-- **Testing Environment**: Launch Blender with auto-reload, sandboxing, and multi-folder symlinking support.
-- **Auto-Reload**: Real-time extension updates on file save with robust TCP communication.
-- **Project Template**: Integrated New Project Wizard for Blender extensions with full manifest configuration.
-- **Blender Management**: Dedicated tool window for multi-version downloads (4.2+ & 5.0) and sandbox management.
-- **Customization**: Support for custom splash screens and user configuration inheritance in sandboxes.
+- **Blender Status Bar Widget**: Real-time indicator for Blender connection status and auto-reload status.
+- **Multiple Source Folders**: Projects can now designate and manage multiple folders as Blender source directories.
+- **Auto-Reload**: Real-time extension updates on file save with robust bidirectional TCP communication and heartbeat logic.
+- **Project Template**: Integrated New Project Wizard for Blender extensions with automatic Python interpreter setup and manifest configuration.
+- **Blender Management**: Dedicated tool window for multi-version downloads (LTS 4.2+ & 5.0) and sandbox management.
+- **Offline Telemetry**: Local-only telemetry support to aid in debugging and stability monitoring.
+- **Internationalization**: Full i18n support for 11 languages (Spanish, German, French, Italian, Japanese, Korean, Dutch, Polish, Portuguese, Russian, and Chinese).
 
 ## Installation
 
