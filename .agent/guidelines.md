@@ -5,6 +5,7 @@ This document serves as the primary entry point for AI agents working on the Ble
 ## Core Guidelines
 These skills are synchronized across the project to ensure consistent agent behavior.
 
+- **Junie Agent Guidelines**: [`.agent/junie_instructions.md`](junie_instructions.md) (PRIMARY)
 - **Development Standards**: [`.agent/skills/development_standards.md`](skills/development_standards.md)
 - **AI Workflow**: [`.agent/skills/ai_workflow.md`](skills/ai_workflow.md)
 - **Git Management**: [`.agent/skills/git_management.md`](skills/git_management.md)
@@ -13,19 +14,20 @@ These skills are synchronized across the project to ensure consistent agent beha
 ## Quick Reference
 1. **Always** check `.agent/project.md` for current task status.
 2. **Never** bump versions without explicit permission.
-3. **Always** use standardized commit prefixes.
+3. **Always** use standardized capitalized commit prefixes (`Type(scope):`).
 4. **Always** include the co-author trailer in commits.
-5. **Always** use the IDE scratch directory for scratch, temp, or logging files: `/home/sakura/.config/JetBrains/IntelliJIdea2025.3/scratches/`.
+5. **Always** use the Windows scratch directory: `C:\Users\Sakura\AppData\Roaming\JetBrains\IntelliJIdea2025.3\scratches\`.
 6. **Never** automatically resolve or implement `TODO:` comments unless specifically asked.
 7. **Immediately delete** any new run configuration made for testing purposes. Only the 5 standard configurations should remain: `buildPlugin`, `runIde`, `runAllTests`, `runUnitTests`, and `runIntegrationTests`.
 
 ## Commit Guidelines
-All commits MUST use one of the following standardized prefixes:
-- `[Fix]`: Bug fixes.
-- `[Feature]`: New feature implementation.
-- `[Refactor]`: Code clarity refactors (no functional changes).
-- `[Removal]`: Removing features or components.
-- `[Chore]`: General file cleanup, dependency updates, or authorized version bumps.
-- `[Docs]`: Documentation updates.
-- `[Test]`: Adding or updating tests.
-- `[Style]`: Stylistic changes (whitespace, formatting) with no logic changes.
+All commits MUST use the following standardized capitalized prefixes in `Type(scope): Description` format:
+- `Feat`: New feature implementation.
+- `Fix`: Bug fixes.
+- `Docs`: Documentation updates.
+- `Style`: Stylistic changes (whitespace, formatting) with no logic changes.
+- `Refactor`: Code clarity refactors (no functional changes).
+- `Test`: Adding or updating tests.
+- `Chore`: General file cleanup, dependency updates, or authorized version bumps.
+- `I18n`: Internationalization updates.
+- `Removal`: Removing features or components.
