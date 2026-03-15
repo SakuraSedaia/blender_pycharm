@@ -1,35 +1,35 @@
 package com.sakurasedaia.blenderextensions.blender
 
+data class BlenderVersion(
+    val majorMinor: String,
+    val fallbackPatch: String
+)
+
 object BlenderVersions {
-    val SUPPORTED_VERSIONS = listOf("4.2", "4.5", "5.0")
-    
-    val FALLBACK_PATCHES = mapOf(
-        "4.2" to "18",
-        "4.5" to "7",
-        "5.0" to "1"
+    val SUPPORTED_VERSIONS = listOf(
+        BlenderVersion("4.2", "18"),
+        BlenderVersion("4.5", "7"),
+        BlenderVersion("5.0", "1")
     )
     
     fun getSupportedVersionsWithCustom(): Array<String> {
-        return (SUPPORTED_VERSIONS + "Custom/Pre-installed").toTypedArray()
+        return SUPPORTED_VERSIONS.map { it.majorMinor }.toTypedArray()
     }
 
     /**
-     * Get a list of all selectable versions, including managed, discovered, and "Custom/Pre-installed".
+     * Get a list of all selectable versions, including managed and discovered.
      * Managed versions are just their version strings (e.g. "5.0").
      * Discovered versions are their absolute paths.
      */
-    fun getAllSelectableVersions(downloader: BlenderDownloader): List<String> {
+    fun getAllSelectableVersions(): List<String> {
         val selectable = mutableListOf<String>()
         
         // Managed versions
-        selectable.addAll(SUPPORTED_VERSIONS)
+        selectable.addAll(SUPPORTED_VERSIONS.map { it.majorMinor })
         
         // System discovered versions
         val systemInstallations = BlenderScanner.scanSystemInstallations()
         selectable.addAll(systemInstallations.map { it.path })
-        
-        // Custom
-        selectable.add("Custom/Pre-installed")
         
         return selectable.distinct()
     }

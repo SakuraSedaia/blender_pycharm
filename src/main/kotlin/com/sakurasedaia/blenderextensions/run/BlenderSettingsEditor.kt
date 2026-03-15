@@ -26,7 +26,6 @@ import javax.swing.SwingUtilities
 class BlenderSettingsEditor(private val project: Project) : SettingsEditor<BlenderRunConfiguration>() {
     private val downloader = BlenderDownloader.getInstance(project)
     private val myBlenderVersionComboBox = ComboBox<String>()
-    private val myBlenderPathField = TextFieldWithBrowseButton()
     private val myBlenderCommandField = JBTextField()
     private val myIsSandboxedCheckBox = JBCheckBox(LangManager.message("run.configuration.setting.sandboxed"))
     private val myImportUserConfigCheckBox = JBCheckBox(LangManager.message("run.configuration.setting.import.user.config"))
@@ -41,15 +40,8 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     private val myArgumentsComponent = LabeledComponent.create(myAdditionalArgumentsField, "${LangManager.message("run.configuration.setting.cli.args")}:")
 
     init {
-        val versions = BlenderVersions.getAllSelectableVersions(downloader)
+        val versions = BlenderVersions.getAllSelectableVersions()
         myBlenderVersionComboBox.model = DefaultComboBoxModel(versions.toTypedArray())
-
-        myBlenderVersionComboBox.addActionListener {
-            updateDownloadButtonVisibility()
-            val selected = myBlenderVersionComboBox.selectedItem as? String
-            val isCustom = selected == LangManager.message("run.configuration.setting.custom")
-            myBlenderPathField.isEnabled = isCustom
-        }
         
         myDownloadButton.addActionListener {
             val selected = myBlenderVersionComboBox.selectedItem as? String ?: return@addActionListener
@@ -68,11 +60,7 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
 
     private fun updateDownloadButtonVisibility() {
         val selected = myBlenderVersionComboBox.selectedItem as? String
-        if (selected != null && selected != LangManager.message("run.configuration.setting.custom")) {
-            myDownloadButton.isVisible = !downloader.isDownloaded(selected)
-        } else {
-            myDownloadButton.isVisible = false
-        }
+        myDownloadButton.isVisible = !downloader.isDownloaded(selected)
     }
 
     override fun resetEditorFrom(s: BlenderRunConfiguration) {
@@ -81,8 +69,6 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         updateDownloadButtonVisibility()
         myIsSandboxedCheckBox.isSelected = options.isSandboxed
         myImportUserConfigCheckBox.isSelected = options.importUserConfig
-        myBlenderPathField.text = options.blenderExecutablePath ?: ""
-        myBlenderPathField.isEnabled = myBlenderVersionComboBox.selectedItem == LangManager.message("run.configuration.setting.custom")
         myBlenderCommandField.text = options.blenderCommand ?: ""
         myAddonSymlinkNameField.text = options.addonSymlinkName ?: ""
         myAddonSourceDirectoryField.text = options.addonSourceDirectory ?: ""
@@ -108,7 +94,6 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
         options.blenderVersion = myBlenderVersionComboBox.selectedItem as? String
         options.isSandboxed = myIsSandboxedCheckBox.isSelected
         options.importUserConfig = myImportUserConfigCheckBox.isSelected
-        options.blenderExecutablePath = myBlenderPathField.text
         options.blenderCommand = myBlenderCommandField.text
         options.addonSymlinkName = myAddonSymlinkNameField.text
         options.addonSourceDirectory = myAddonSourceDirectoryField.text
@@ -116,13 +101,6 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
     }
 
     override fun createEditor(): JComponent {
-        myBlenderPathField.addBrowseFolderListener(
-            com.intellij.openapi.ui.TextBrowseFolderListener(
-                FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor(),
-                project
-            )
-        )
-
         myAddonSourceDirectoryField.addBrowseFolderListener(
             com.intellij.openapi.ui.TextBrowseFolderListener(
                 FileChooserDescriptorFactory.createSingleFolderDescriptor(),
@@ -136,7 +114,6 @@ class BlenderSettingsEditor(private val project: Project) : SettingsEditor<Blend
 
         return FormBuilder.createFormBuilder()
             .addLabeledComponent("${LangManager.message("run.configuration.form.version")}:", versionPanel)
-            .addLabeledComponent("${LangManager.message("run.configuration.form.path")}:", myBlenderPathField)
             .addComponent(myBlenderCommandComponent)
             .addComponent(myIsSandboxedCheckBox)
             .addComponent(myImportUserConfigCheckBox)

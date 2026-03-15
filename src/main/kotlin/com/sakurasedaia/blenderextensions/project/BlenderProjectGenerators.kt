@@ -12,6 +12,7 @@ import com.intellij.ui.components.JBTextField
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.util.ui.FormBuilder
 import com.sakurasedaia.blenderextensions.icons.BlenderIcons
+import com.sakurasedaia.blenderextensions.LangManager
 import com.intellij.ui.DocumentAdapter
 import com.intellij.util.ui.UIUtil
 import javax.swing.event.DocumentEvent
@@ -41,7 +42,7 @@ internal fun formatToId(name: String, allowCapitals: Boolean = false): String {
 class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProjectSettings> {
     private var myPeerReference = WeakReference<BlenderAddonProjectPeer>(null)
 
-    override fun getName(): String = "Blender extension"
+    override fun getName(): String = LangManager.message("project.template.name")
     override fun getLogo(): Icon = BlenderIcons.Blender
 
     override fun createPeer(): ProjectGeneratorPeer<BlenderAddonProjectSettings> {
@@ -60,6 +61,20 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
         val projectName = settings.projectName?.takeIf { it.isNotBlank() } ?: project.name
         val authorName = settings.addonMaintainer ?: System.getProperty("user.name") ?: "Author"
         val addonId = settings.addonId?.takeIf { it.isNotBlank() } ?: formatToId(projectName)
+        val selectedVersion = settings.blenderVersion ?: "5.0"
+
+        val blenderVersionMin = settings.blenderVersionMin ?: if (BlenderVersions.SUPPORTED_VERSIONS.any { it.majorMinor == selectedVersion }) {
+            val patch = BlenderVersions.SUPPORTED_VERSIONS.find { it.majorMinor == selectedVersion }?.fallbackPatch ?: "0"
+            "$selectedVersion.$patch"
+        } else {
+            // It might be a path. Try to get version from it.
+            val detected = BlenderScanner.tryGetVersion(selectedVersion)
+            if (detected != LangManager.message("blender.version.unknown")) {
+                detected + ".0" // BlenderScanner returns X.Y, we need X.Y.Z
+            } else {
+                "4.2.0" // Default fallback
+            }
+        }
 
         val srcDir = projectPath.resolve("src")
         Files.createDirectories(srcDir)
@@ -79,7 +94,7 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
             maintainer = authorName,
             website = settings.addonWebsite,
             tags = settings.addonTags?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() },
-            blenderVersionMin = settings.blenderVersionMin ?: "4.2.0",
+            blenderVersionMin = blenderVersionMin,
             blenderVersionMax = settings.blenderVersionMax,
             platforms = settings.addonPlatforms?.split(",")?.map { it.trim() }?.filter { it.isNotBlank() },
             permissions = if (permissionsMap.isNotEmpty()) permissionsMap else null,
@@ -142,7 +157,7 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
             val runSettings = runManager.createConfiguration("Start Blender", startBlenderFactory)
             val runConfig = runSettings.configuration as BlenderRunConfiguration
             val options = runConfig.getOptions()
-            options.blenderVersion = "5.0"
+            options.blenderVersion = selectedVersion
             options.isSandboxed = true
             options.addonSourceDirectory = srcDir.toAbsolutePath().toString()
             options.addonSymlinkName = addonId
@@ -155,7 +170,7 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
         if (buildFactory != null) {
             val runSettings = runManager.createConfiguration("Build", buildFactory)
             val runConfig = runSettings.configuration as BlenderRunConfiguration
-            runConfig.getOptions().blenderVersion = "5.0"
+            runConfig.getOptions().blenderVersion = selectedVersion
             runManager.addConfiguration(runSettings)
         }
 
@@ -164,7 +179,7 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
         if (validateFactory != null) {
             val runSettings = runManager.createConfiguration("Validate", validateFactory)
             val runConfig = runSettings.configuration as BlenderRunConfiguration
-            runConfig.getOptions().blenderVersion = "5.0"
+            runConfig.getOptions().blenderVersion = selectedVersion
             runManager.addConfiguration(runSettings)
         }
 
@@ -225,12 +240,13 @@ data class BlenderAddonProjectSettings(
     var enableAutoLoad: Boolean = false,
     var projectName: String? = null,
     var addonId: String? = null,
-    var addonTagline: String? = "A Blender extension",
+    var addonTagline: String? = LangManager.message("project.template.default.tagline"),
     var addonMaintainer: String? = System.getProperty("user.name") ?: "Author",
     var addonWebsite: String? = null,
     var addonTags: String? = null,
     var blenderVersionMin: String? = "4.2.0",
     var blenderVersionMax: String? = null,
+    var blenderVersion: String? = "5.0",
     var addonPlatforms: String? = null,
     var permissionNetwork: Boolean = false,
     var permissionNetworkReason: String? = null,
@@ -246,6 +262,7 @@ data class BlenderAddonProjectSettings(
     var createGitRepo: Boolean = false,
     val agentGuidelines: Boolean,
     val sandbox: Boolean = true
+    
 )
 
 internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjectSettings> {
@@ -292,7 +309,9 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
     internal val addonMaintainerField = JBTextField(System.getProperty("user.name") ?: "Author")
     internal val addonWebsiteField = JBTextField()
     internal val addonTagsField = JBTextField()
-    internal val blenderVersionMinField = JBTextField("4.2.0")
+    internal val blenderVersionComboBox = com.intellij.openapi.ui.ComboBox<String>()
+    internal val blenderDownloadButton = javax.swing.JButton(LangManager.message("run.configuration.button.download"), BlenderIcons.Install)
+    internal val blenderVersionMinField = JBTextField("5.0.0")
     internal val blenderVersionMaxField = JBTextField()
     internal val addonPlatformsField = JBTextField()
 
@@ -312,6 +331,32 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
     private val panel: JPanel
 
     init {
+        val allFields = listOf(
+            projectNameField,
+            addonIdField,
+            addonTaglineField,
+            addonMaintainerField,
+            addonWebsiteField,
+            addonTagsField,
+            blenderVersionMinField,
+            blenderVersionMaxField,
+            addonPlatformsField,
+            buildPathsExcludePatternField,
+            permissionNetworkReasonField,
+            permissionFilesReasonField,
+            permissionClipboardReasonField,
+            permissionCameraReasonField,
+            permissionMicrophoneReasonField
+        )
+
+        allFields.forEach { field ->
+            field.addFocusListener(object : java.awt.event.FocusAdapter() {
+                override fun focusLost(e: java.awt.event.FocusEvent?) {
+                    fireStateChanged()
+                }
+            })
+        }
+
         projectNameField.document.addDocumentListener(object : DocumentAdapter() {
             override fun textChanged(e: DocumentEvent) {
                 if (isUpdating) return
@@ -380,6 +425,50 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
             }
         })
 
+        // Setup blender version combo box
+        val downloader = BlenderDownloader.getInstance(com.intellij.openapi.project.ProjectManager.getInstance().defaultProject)
+        val versions = BlenderVersions.getAllSelectableVersions()
+        blenderVersionComboBox.model = javax.swing.DefaultComboBoxModel(versions.toTypedArray())
+        blenderVersionComboBox.selectedItem = "5.0"
+        
+        fun updateMinVersion() {
+            val selected = blenderVersionComboBox.selectedItem as? String ?: return
+            val supported = BlenderVersions.SUPPORTED_VERSIONS.find { it.majorMinor == selected }
+            val minVer = if (supported != null) {
+                "${supported.majorMinor}.${supported.fallbackPatch}"
+            } else {
+                val detected = BlenderScanner.tryGetVersion(selected)
+                if (detected != LangManager.message("blender.version.unknown")) {
+                    detected + ".0"
+                } else {
+                    "4.2.0"
+                }
+            }
+            blenderVersionMinField.text = minVer
+        }
+        updateMinVersion()
+
+        blenderVersionComboBox.addActionListener { 
+            updateMinVersion()
+            fireStateChanged()
+            updateDownloadButtonVisibility()
+        }
+
+        blenderDownloadButton.addActionListener {
+            val selected = blenderVersionComboBox.selectedItem as? String ?: return@addActionListener
+            if (!downloader.isDownloaded(selected)) {
+                com.intellij.openapi.progress.ProgressManager.getInstance().run(object : com.intellij.openapi.progress.Task.Backgroundable(null, LangManager.message("action.download.blender.task", selected)) {
+                    override fun run(indicator: com.intellij.openapi.progress.ProgressIndicator) {
+                        downloader.getOrDownloadBlenderPath(selected)
+                        SwingUtilities.invokeLater {
+                            updateDownloadButtonVisibility()
+                        }
+                    }
+                })
+            }
+        }
+        updateDownloadButtonVisibility()
+
         // Reason fields should be disabled if checkbox is not selected
         permissionNetworkReasonField.isEnabled = false
         permissionNetworkCheckbox.addActionListener {
@@ -427,6 +516,8 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
             })
         }
 
+        sandboxEnvironment.addActionListener { fireStateChanged() }
+
         // Enforce 64-char max for permission reasons
         fun enforceMax64(tf: JBTextField) {
             tf.document.addDocumentListener(object : DocumentAdapter() {
@@ -449,7 +540,7 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
             permissionMicrophoneReasonField
         ).forEach { enforceMax64(it) }
 
-        panel = FormBuilder.createFormBuilder()
+        val builder = FormBuilder.createFormBuilder()
             .addComponent(autoLoadCheckbox)
             .addComponent(includeAgentGuidelines)
             .addComponent(createGitRepoCheckbox)
@@ -461,9 +552,16 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
             .addLabeledComponent("Maintainer:", addonMaintainerField)
             .addLabeledComponent("Website (Optional):", addonWebsiteField)
             .addLabeledComponent("Tags (comma separated, Optional):", addonTagsField)
-            .addLabeledComponent("Min blender version:", blenderVersionMinField)
-            .addLabeledComponent("Max blender version (optional):", blenderVersionMaxField)
-            .addLabeledComponent("Platforms (comma separated, optional):", addonPlatformsField)
+            
+        val versionPanel = JPanel(java.awt.BorderLayout())
+        versionPanel.add(blenderVersionComboBox, java.awt.BorderLayout.CENTER)
+        versionPanel.add(blenderDownloadButton, java.awt.BorderLayout.EAST)
+        
+        builder.addLabeledComponent("Blender version:", versionPanel)
+        builder.addLabeledComponent("Min blender version:", blenderVersionMinField)
+        builder.addLabeledComponent("Max blender version (optional):", blenderVersionMaxField)
+
+        panel = builder.addLabeledComponent("Platforms (comma separated, optional):", addonPlatformsField)
             .addSeparator()
             .addLabeledComponent("Permissions (optional):", JPanel()) // Placeholder for header
             .addComponent(permissionNetworkCheckbox)
@@ -484,7 +582,14 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
         // Tooltips/Hints
         addonIdField.toolTipText = "Kebab-case, alphanumeric, 3-32 characters"
         addonPlatformsField.toolTipText = "windows-x64, macos-arm64, linux-x64, windows-arm64, macos-x64"
-        blenderVersionMinField.toolTipText = "e.g. 4.2.0"
+        blenderVersionComboBox.toolTipText = "Select the Blender version to use for development"
+        blenderVersionMinField.toolTipText = "Minimum Blender version required by the extension (x.y.z)"
+    }
+
+    private fun updateDownloadButtonVisibility() {
+        val selected = blenderVersionComboBox.selectedItem as? String
+        val downloader = BlenderDownloader.getInstance(com.intellij.openapi.project.ProjectManager.getInstance().defaultProject)
+        blenderDownloadButton.isVisible = selected != null && BlenderVersions.SUPPORTED_VERSIONS.any { it.majorMinor == selected } && !downloader.isDownloaded(selected)
     }
 
     private fun updateLocationFromProjectName() {
@@ -536,6 +641,7 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
         addonMaintainer = addonMaintainerField.text?.trim(),
         addonWebsite = addonWebsiteField.text?.trim(),
         addonTags = addonTagsField.text?.trim(),
+        blenderVersion = blenderVersionComboBox.selectedItem as? String,
         blenderVersionMin = blenderVersionMinField.text?.trim(),
         blenderVersionMax = blenderVersionMaxField.text?.trim(),
         addonPlatforms = addonPlatformsField.text?.trim(),
@@ -574,10 +680,19 @@ internal class BlenderAddonProjectPeer : ProjectGeneratorPeer<BlenderAddonProjec
         }
 
         // 3. Blender Version
-        val minVer = blenderVersionMinField.text?.trim().orEmpty()
+        val selectedVersion = blenderVersionComboBox.selectedItem as? String
+        if (selectedVersion.isNullOrBlank()) {
+            return ValidationInfo("Please select a Blender version.", blenderVersionComboBox)
+        }
+
         val semver = Regex("^\\d+\\.\\d+\\.\\d+")
+
+        val minVer = blenderVersionMinField.text?.trim().orEmpty()
+        if (minVer.isEmpty()) {
+            return ValidationInfo("Minimum Blender version cannot be empty.", blenderVersionMinField)
+        }
         if (!semver.matches(minVer)) {
-            return ValidationInfo("Minimum Blender version must be in format x.y.z (e.g., 4.2.0).", blenderVersionMinField)
+            return ValidationInfo("Minimum Blender version must be in format x.y.z (e.g., 5.0.0).", blenderVersionMinField)
         }
 
         val maxVer = blenderVersionMaxField.text?.trim().orEmpty()
