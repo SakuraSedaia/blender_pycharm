@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0]
+### Added
+- **Python Interpreter Setup**: Added functionality to automatically configure the project's Python interpreter to use the one bundled with a selected Blender installation.
+
+### Changed
+- **Blender Downloader**: Simplified the Blender extraction process and flattened the directory structure to reduce nesting. Improved version management by ensuring version directories are created only during extraction and added macOS-specific app renaming (e.g., `Blender 4.2.app`) for better identification.
+- **Table Layout**: Separated Managed and System Blender installation tables into individual classes and adjusted column widths for better readability.
+- **Run Configuration**: Removed the "Custom" Blender path selection from Run Configurations to focus on using managed and detected system installations.
+
+### Fixed
+- **UI Improvements**: Moved the Blender installation path to a dedicated read-only field in the System table for easier access and added an "Interpreter" column to the tables.
+- **Code Quality**: Removed unused attributes and refined internal API for version management.
+- **Fixed Softlock in NPW**: Addressed a softlock issue in the New Project Wizard. 
+
+
 ## [0.3.0]
 ### Added
 - **Blender Status Bar Widget**: New indicator in the IDE status bar showing connection status to Blender.

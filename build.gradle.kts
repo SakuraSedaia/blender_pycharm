@@ -5,8 +5,8 @@ plugins {
 }
 
 group = "com.sakura-sedaia"
-// version = "0.3.0-INDEV"
-version = "0.3.0-SNAPSHOT"
+// version = "0.4.0-INDEV"
+version = "0.4.0-SNAPSHOT"
 
 repositories {
 	mavenCentral()
