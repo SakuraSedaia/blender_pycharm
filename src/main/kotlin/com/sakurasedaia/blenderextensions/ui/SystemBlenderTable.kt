@@ -17,23 +17,15 @@ import javax.swing.table.TableCellEditor
 import javax.swing.table.TableCellRenderer
 
 class SystemBlenderTable(private val project: Project) : JBTable() {
-    private val service = BlenderService.getInstance(project)
     private val tableModel = SystemBlenderTableModel()
 
     init {
         model = tableModel
         autoResizeMode = JTable.AUTO_RESIZE_LAST_COLUMN
         
-        val systemButtonRenderer = SystemButtonRenderer()
-        val systemButtonEditor = SystemButtonEditor()
-        
         columnModel.getColumn(0).maxWidth = 60
         columnModel.getColumn(0).preferredWidth = 40
         columnModel.getColumn(1).preferredWidth = 100
-        columnModel.getColumn(2).maxWidth = 150
-        columnModel.getColumn(2).preferredWidth = 120
-        columnModel.getColumn(3).maxWidth = 80
-        columnModel.getColumn(3).preferredWidth = 80
 
         columnModel.getColumn(0).cellRenderer = object : DefaultTableCellRenderer() {
             override fun getTableCellRendererComponent(
@@ -51,14 +43,6 @@ class SystemBlenderTable(private val project: Project) : JBTable() {
                 return component
             }
         }
-        
-        // Setup the interpreter button
-        columnModel.getColumn(2).cellRenderer = systemButtonRenderer
-        columnModel.getColumn(2).cellEditor = systemButtonEditor
-
-        // Setup the remove button in the 4th column (index 3)
-        columnModel.getColumn(3).cellRenderer = systemButtonRenderer
-        columnModel.getColumn(3).cellEditor = systemButtonEditor
     }
 
     fun getSelectedInstallation(): BlenderInstallation? {
@@ -69,6 +53,14 @@ class SystemBlenderTable(private val project: Project) : JBTable() {
         return null
     }
 
+    fun containsVersion(version: String): Boolean {
+        for (i in 0 until tableModel.rowCount) {
+            val inst = tableModel.getInstallationAt(i)
+            if (inst.name.contains(version) || inst.path.contains(version)) return true
+        }
+        return false
+    }
+
     fun refresh() {
         tableModel.refresh()
     }
@@ -76,9 +68,7 @@ class SystemBlenderTable(private val project: Project) : JBTable() {
     private inner class SystemBlenderTableModel : AbstractTableModel() {
         private val columnNames = arrayOf(
             LangManager.message("toolwindow.system.table.column.status"),
-            LangManager.message("toolwindow.table.column.version"),
-            LangManager.message("toolwindow.table.column.interpreter"),
-            LangManager.message("toolwindow.table.column.action")
+            LangManager.message("toolwindow.table.column.version")
         )
         private var installations = listOf<BlenderInstallation>()
 
@@ -95,14 +85,13 @@ class SystemBlenderTable(private val project: Project) : JBTable() {
             return when (columnIndex) {
                 0 -> if (inst.isCustom) BlenderIcons.Custom else BlenderIcons.System
                 1 -> inst.name
-                3 -> if (inst.isCustom) LangManager.message("toolwindow.table.action.remove") else ""
                 else -> ""
             }
         }
 
         override fun isCellEditable(rowIndex: Int, columnIndex: Int): Boolean {
             val inst = installations[rowIndex]
-            return (columnIndex == 1 && inst.isCustom) || columnIndex >= 2
+            return (columnIndex == 1 && inst.isCustom)
         }
 
         override fun setValueAt(aValue: Any?, rowIndex: Int, columnIndex: Int) {
@@ -131,88 +120,5 @@ class SystemBlenderTable(private val project: Project) : JBTable() {
         }
 
         fun getInstallationAt(row: Int) = installations[row]
-    }
-
-    private inner class SystemButtonRenderer : JButton(), TableCellRenderer {
-        init {
-            isOpaque = true
-            border = BorderFactory.createEmptyBorder()
-        }
-        override fun getTableCellRendererComponent(
-            table: JTable, value: Any, isSelected: Boolean, hasFocus: Boolean, row: Int, column: Int
-        ): Component {
-            val inst = tableModel.getInstallationAt(row)
-            if (column == 2) { // Interpreter column
-                icon = BlenderIcons.Python
-                toolTipText = LangManager.message("toolwindow.setup.interpreter.tooltip")
-                isVisible = true
-            } else if (column == 3) { // Action column
-                if (inst.isCustom) {
-                    text = ""
-                    icon = BlenderIcons.Remove
-                    isVisible = true
-                } else {
-                    text = ""
-                    icon = null
-                    isVisible = false
-                }
-            }
-            return this
-        }
-    }
-
-    private inner class SystemButtonEditor : AbstractCellEditor(), TableCellEditor {
-        private val button = JButton()
-        private var row = 0
-        private var column = 0
-
-        init {
-            button.isOpaque = true
-            button.border = BorderFactory.createEmptyBorder()
-            button.addActionListener {
-                val inst = tableModel.getInstallationAt(row)
-                if (column == 2) { // Interpreter
-                    service.setupPythonInterpreter(inst.path)
-                } else if (column == 3) { // Remove
-                    if (inst.isCustom && inst.originPath != null) {
-                        val confirm = Messages.showYesNoDialog(
-                            project,
-                            LangManager.message("toolwindow.system.table.action.delete.confirm.message"),
-                            LangManager.message("toolwindow.system.table.action.delete.confirm.button"),
-                            Messages.getQuestionIcon()
-                        )
-                        if (confirm == Messages.YES) {
-                            val settings = BlenderSettings.getInstance(project)
-                            settings.removeCustomBlenderPath(inst.originPath)
-                            tableModel.refresh()
-                        }
-                    }
-                }
-                fireEditingStopped()
-            }
-        }
-
-        override fun getTableCellEditorComponent(
-            table: JTable, value: Any, isSelected: Boolean, row: Int, column: Int
-        ): Component {
-            this.row = row
-            this.column = column
-            val inst = tableModel.getInstallationAt(row)
-            if (column == 2) {
-                button.icon = BlenderIcons.Python
-                button.isVisible = true
-            } else if (column == 3) {
-                if (inst.isCustom) {
-                    button.icon = BlenderIcons.Remove
-                    button.isVisible = true
-                } else {
-                    button.icon = null
-                    button.isVisible = false
-                }
-            }
-            return button
-        }
-
-        override fun getCellEditorValue(): Any = ""
     }
 }
