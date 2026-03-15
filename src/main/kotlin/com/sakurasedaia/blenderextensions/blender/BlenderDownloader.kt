@@ -4,7 +4,6 @@ import com.intellij.execution.configurations.GeneralCommandLine
 
 import com.sakurasedaia.blenderextensions.LangManager
 import com.intellij.execution.process.OSProcessHandler
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.progress.ProgressManager
@@ -17,19 +16,20 @@ import kotlin.io.path.*
 @Service(Service.Level.PROJECT)
 class BlenderDownloader(private val project: Project) {
     private val logger = BlenderLogger.getInstance(project)
-    private val isDownloadedCache = mutableMapOf<String, Boolean>()
+    private val isDownloadedCache = mutableMapOf<String?, Boolean>()
 
-    fun getDownloadDirectory(version: String): Path {
-        return Path.of(PathManager.getSystemPath(), "blender_downloads", version)
-    }
-
-    fun getDownloadRoot(): Path {
+    fun getBaseDownloadDirectory(): Path {
         return Path.of(PathManager.getSystemPath(), "blender_downloads")
     }
 
-    fun isDownloaded(version: String): Boolean {
+    fun getVersionDirectory(version: String?): Path {
+        return getBaseDownloadDirectory().resolve(version ?: "unknown")
+    }
+
+
+    fun isDownloaded(version: String?): Boolean {
         return isDownloadedCache.getOrPut(version) {
-            val downloadDir = getDownloadDirectory(version)
+            val downloadDir = getVersionDirectory(version)
             findBlenderExecutable(downloadDir) != null
         }
     }
@@ -39,7 +39,7 @@ class BlenderDownloader(private val project: Project) {
     }
 
     fun deleteVersion(version: String) {
-        val downloadDir = getDownloadDirectory(version)
+        val downloadDir = getVersionDirectory(version)
         if (downloadDir.exists()) {
             downloadDir.toFile().deleteRecursively()
             logger.log(LangManager.message("log.blender.deleted.version", version, downloadDir.absolutePathString()))
@@ -54,9 +54,11 @@ class BlenderDownloader(private val project: Project) {
         val isMac = osName.contains("mac")
         val isLinux = !isWindows && !isMac
 
-        val downloadDir = getDownloadRoot()
-        if (!downloadDir.exists()) {
-            Files.createDirectories(downloadDir)
+        val baseDir = getBaseDownloadDirectory()
+        val versionDir = getVersionDirectory(version)
+
+        if (!baseDir.exists()) {
+            Files.createDirectories(baseDir)
         }
         try {
             if (!isSysCompatible(version)) {
@@ -69,7 +71,7 @@ class BlenderDownloader(private val project: Project) {
 
 
         // Check if already downloaded
-        val executable = findBlenderExecutable(downloadDir)
+        val executable = findBlenderExecutable(versionDir)
         if (executable != null) {
             logger.log(LangManager.message("log.blender.using.cached", version, executable.absolutePathString()))
             return executable.absolutePathString()
@@ -82,21 +84,21 @@ class BlenderDownloader(private val project: Project) {
         }
         
         logger.log(LangManager.message("log.blender.downloading", version))
-        val downloadedFile = downloadFile(downloadUrl, downloadDir) ?: run {
+        val downloadedFile = downloadFile(downloadUrl, baseDir) ?: run {
             logger.log(LangManager.message("log.blender.download.failed", version, "Download failed"))
             return null
         }
         
         // Extract it
-        logger.log(LangManager.message("log.blender.extracting", downloadedFile.name, downloadDir.absolutePathString()))
-        extractFile(downloadedFile, downloadDir, version)
+        logger.log(LangManager.message("log.blender.extracting", downloadedFile.name, versionDir.absolutePathString()))
+        extractFile(downloadedFile, baseDir, version)
 
         clearCache()
-        val finalExecutable = findBlenderExecutable(downloadDir)
+        val finalExecutable = findBlenderExecutable(versionDir)
         if (finalExecutable != null) {
             logger.log(LangManager.message("log.blender.extracted", version, finalExecutable.absolutePathString()))
         } else {
-            logger.log(LangManager.message("log.blender.could.not.find.exec", downloadDir.absolutePathString()))
+            logger.log(LangManager.message("log.blender.could.not.find.exec", versionDir.absolutePathString()))
         }
         return finalExecutable?.absolutePathString()
     }
@@ -114,7 +116,7 @@ class BlenderDownloader(private val project: Project) {
         Files.walk(directory, 3).use { stream ->
             return stream.filter { path ->
                 if (isMac) {
-                    path.name == "Blender" && path.toString().contains("Blender.app/Contents/MacOS")
+                    path.name == "Blender" && path.toString().contains(".app/Contents/MacOS")
                 } else {
                     path.name == executableName && path.isRegularFile() && (isWindows || Files.isExecutable(path))
                 }
@@ -124,9 +126,10 @@ class BlenderDownloader(private val project: Project) {
 
     private fun getDownloadUrl(version: String, isWindows: Boolean, isMac: Boolean, isLinux: Boolean, arch: String): String {
         val baseUrl = "https://download.blender.org/release/Blender$version/"
+        val isArm64 = arch.contains("aarch64") || arch.contains("arm64")
         val platformSuffix = when {
             isWindows -> "windows-x64\\.zip"
-            isMac -> if (arch.contains("aarch64") || arch.contains("x86_64")) "macos-arm64\\.dmg" else "macos-x64\\.dmg"
+            isMac -> if (isArm64) "macos-arm64\\.dmg" else "macos-x64\\.dmg"
             else -> "linux-x64\\.tar\\.xz"
         }
         
@@ -141,10 +144,10 @@ class BlenderDownloader(private val project: Project) {
         }
         
         // Fallback to a safe default if online detection fails
-        val fallbackPatch = BlenderVersions.FALLBACK_PATCHES[version] ?: "0"
+        val fallbackPatch = BlenderVersions.SUPPORTED_VERSIONS.find { it.majorMinor == version }?.fallbackPatch ?: "0"
         val suffix = when {
             isWindows -> "windows-x64.zip"
-            isMac -> if (arch.contains("aarch64") || arch.contains("arm64")) "macos-arm64.dmg" else "macos-x64.dmg"
+            isMac -> if (isArm64) "macos-arm64.dmg" else "macos-x64.dmg"
             else -> "linux-x64.tar.xz"
         }
         return "${baseUrl}blender-$version.$fallbackPatch-$suffix"
@@ -199,24 +202,25 @@ class BlenderDownloader(private val project: Project) {
     }
 
     private fun extractZip(file: Path, targetDir: Path, version: String) {
+        val extractedFolderName = file.name.removeSuffix(".zip")
         val commands = listOf(
-                GeneralCommandLine("powershell", "Expand-Archive", "-Path", file.absolutePathString(), "-DestinationPath", targetDir.absolutePathString(), "-Force"),
-                GeneralCommandLine("powershell", "Rename-Item", "-Path", (targetDir / file.name.removeSuffix(".zip")).absolutePathString(), "-NewName", version),
-                GeneralCommandLine("powershell", "Remove-Item", "-Path", file.absolutePathString())
-            )
+            GeneralCommandLine("powershell", "Expand-Archive", "-Path", file.absolutePathString(), "-DestinationPath", targetDir.absolutePathString(), "-Force"),
+            GeneralCommandLine("powershell", "Rename-Item", "-Path", (targetDir / extractedFolderName).absolutePathString(), "-NewName", version),
+            GeneralCommandLine("powershell", "Remove-Item", "-Path", file.absolutePathString())
+        )
         executeExtractionCommands(commands)
     }
 
     private fun extractTarXz(file: Path, targetDir: Path, version: String) {
-        val blendDirRaw = targetDir.resolve(file.name.removeSuffix(".tar.xz"))
-        val blendDir = targetDir.resolve(version)
+        val extractedFolderName = file.name.removeSuffix(".tar.xz")
+        val versionDir = targetDir.resolve(version)
 
         val commands = listOf(
             GeneralCommandLine("sh", "-c", "tar -xvf ${file.absolutePathString()} -C ${targetDir.absolutePathString()}"),
-            GeneralCommandLine("sh", "-c", "mv -T ${blendDirRaw.absolutePathString()} ${blendDir.absolutePathString()}"),
+            GeneralCommandLine("sh", "-c", "mv ${targetDir.resolve(extractedFolderName).absolutePathString()} ${versionDir.absolutePathString()}"),
             GeneralCommandLine("sh", "-c", "rm ${file.absolutePathString()}")
         )
-        
+
         executeExtractionCommands(commands)
     }
 
@@ -227,7 +231,9 @@ class BlenderDownloader(private val project: Project) {
         }
 
         val mountPoint = Path.of("/tmp", "blender_mount_${System.currentTimeMillis()}")
+        val appName = "Blender $version.app"
         val blendDir = targetDir.resolve(version)
+        val appInBlendDir = blendDir.resolve(appName)
         Files.createDirectories(mountPoint)
         try {
             // First, ensure any previous mount at this point is detached (unlikely with timestamp, but good practice)
@@ -245,9 +251,10 @@ class BlenderDownloader(private val project: Project) {
             Files.list(mountPoint).use { stream ->
                 val appFile = stream.filter { it.name == "Blender.app" }.findFirst().orElse(null)
                 if (appFile != null) {
-                    logger.log(LangManager.message("log.blender.copying.app", appFile.name, blendDir.absolutePathString()))
+                    logger.log(LangManager.message("log.blender.copying.app", appFile.name, appInBlendDir.absolutePathString()))
+                    Files.createDirectories(blendDir)
                     executeExtractionCommands(listOf(
-                        GeneralCommandLine("cp", "-R", appFile.absolutePathString(), blendDir.absolutePathString())
+                        GeneralCommandLine("cp", "-R", appFile.absolutePathString(), appInBlendDir.absolutePathString())
                     ))
                 } else {
                     logger.log(LangManager.message("log.blender.failed.copy.app", mountPoint.absolutePathString()))

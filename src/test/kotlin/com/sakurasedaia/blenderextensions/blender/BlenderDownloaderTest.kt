@@ -10,11 +10,18 @@ import kotlin.io.path.name
 
 class BlenderDownloaderTest : BasePlatformTestCase() {
 
-    fun testGetDownloadDirectory() {
+    fun testGetVersionDirectory() {
         val downloader = BlenderDownloader.getInstance(project)
-        val dir = downloader.getDownloadDirectory("4.2")
+        val dir = downloader.getVersionDirectory("4.2")
         assertTrue(dir.toString().contains("blender_downloads"))
         assertTrue(dir.toString().contains("4.2"))
+    }
+
+    fun testGetBaseDownloadDirectory() {
+        val downloader = BlenderDownloader.getInstance(project)
+        val dir = downloader.getBaseDownloadDirectory()
+        assertTrue(dir.toString().contains("blender_downloads"))
+        assertFalse(dir.toString().contains("4.2"))
     }
 
     fun testFindBlenderExecutable() {
@@ -33,7 +40,7 @@ class BlenderDownloaderTest : BasePlatformTestCase() {
             val executablePath = if (isWindows) {
                 tempDir.resolve("blender.exe").createFile()
             } else if (isMac) {
-                val macPath = tempDir.resolve("Blender.app/Contents/MacOS")
+                val macPath = tempDir.resolve("Blender 4.2.app/Contents/MacOS")
                 macPath.createDirectories()
                 macPath.resolve("Blender").createFile()
             } else {
