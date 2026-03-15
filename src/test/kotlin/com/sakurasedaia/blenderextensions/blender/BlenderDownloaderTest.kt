@@ -14,7 +14,15 @@ class BlenderDownloaderTest : BasePlatformTestCase() {
         val downloader = BlenderDownloader.getInstance(project)
         val dir = downloader.getVersionDirectory("4.2")
         assertTrue(dir.toString().contains("blender_downloads"))
+        assertTrue(dir.toString().contains("app"))
         assertTrue(dir.toString().contains("4.2"))
+    }
+
+    fun testGetAppDirectory() {
+        val downloader = BlenderDownloader.getInstance(project)
+        val dir = downloader.getAppDirectory()
+        assertTrue(dir.toString().contains("blender_downloads"))
+        assertTrue(dir.toString().contains("app"))
     }
 
     fun testGetBaseDownloadDirectory() {
@@ -68,6 +76,15 @@ class BlenderDownloaderTest : BasePlatformTestCase() {
         } finally {
             tempDir.toFile().deleteRecursively()
         }
+    }
+
+    fun testDownloadProgressInitialState() {
+        val downloader = BlenderDownloader.getInstance(project)
+        val progress = downloader.downloadProgress.value
+        assertFalse(progress.isDownloading)
+        assertEquals(0.0, progress.progress)
+        assertEquals("", progress.statusText)
+        assertEquals(BlenderDownloader.ProgressType.NONE, progress.type)
     }
 
     private fun Any.invokePrivate(methodName: String, vararg args: Any?): Any? {
