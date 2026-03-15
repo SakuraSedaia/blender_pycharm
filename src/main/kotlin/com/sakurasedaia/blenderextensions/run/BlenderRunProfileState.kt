@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
+import com.sakurasedaia.blenderextensions.LangManager
 import com.sakurasedaia.blenderextensions.blender.BlenderService
 
 class BlenderRunProfileState(
@@ -19,26 +20,22 @@ class BlenderRunProfileState(
 ) : RunProfileState {
     override fun execute(executor: Executor, runner: ProgramRunner<*>): com.intellij.execution.ExecutionResult? {
         val service = BlenderService.getInstance(project)
-        service.log("--- Starting Blender Run Configuration: ${environment.runProfile.name} ---")
+        service.log(LangManager.message("run.configuration.starting", environment.runProfile.name))
         
         val version = options.blenderVersion ?: "5.0"
         var detectedVersion: String? = null
         val blenderPath = when {
-            version == "Custom/Pre-installed" -> {
-                service.log("Using custom Blender path: ${options.blenderExecutablePath}")
-                options.blenderExecutablePath
-            }
-            version in com.sakurasedaia.blenderextensions.blender.BlenderVersions.SUPPORTED_VERSIONS -> {
-                service.log("Using managed Blender version: $version")
+            com.sakurasedaia.blenderextensions.blender.BlenderVersions.SUPPORTED_VERSIONS.any { it.majorMinor == version } -> {
+                service.log(LangManager.message("run.configuration.managed", version))
                 detectedVersion = version
-                ProgressManager.getInstance().run(object : Task.WithResult<String?, ExecutionException>(project, "Downloading Blender $version", true) {
+                ProgressManager.getInstance().run(object : Task.WithResult<String?, ExecutionException>(project, LangManager.message("run.configuration.downloading", version), true) {
                     override fun compute(indicator: ProgressIndicator): String? {
                         return service.getOrDownloadBlenderPath(version)
                     }
                 })
             }
             else -> {
-                service.log("Using system Blender installation: $version")
+                service.log(LangManager.message("run.configuration.system", version))
                 // version is a path. Let's find its version for config import.
                 val inst = com.sakurasedaia.blenderextensions.blender.BlenderScanner.scanSystemInstallations().find { it.path == version }
                 detectedVersion = inst?.version?.takeIf { it != "Unknown" }
@@ -47,7 +44,7 @@ class BlenderRunProfileState(
         }
 
         if (blenderPath.isNullOrEmpty()) {
-            throw ExecutionException("Blender executable path is not configured or version is not downloaded.")
+            throw ExecutionException(LangManager.message("run.configuration.error.path"))
         }
 
         // If version is still unknown, try a quick scan of the path itself if it's a path
@@ -69,7 +66,7 @@ class BlenderRunProfileState(
             importUserConfig = options.importUserConfig,
             blenderVersion = detectedVersion,
             runOptions = options
-        ) ?: throw ExecutionException("Failed to start Blender. Check path in the run configuration.")
+        ) ?: throw ExecutionException(LangManager.message("run.configuration.error.start"))
         
         val consoleBuilder = TextConsoleBuilderFactory.getInstance().createBuilder(project)
         val console = consoleBuilder.console

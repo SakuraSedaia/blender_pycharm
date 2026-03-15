@@ -18,20 +18,20 @@ class BlenderLogger(private val project: Project) {
         // Platform logging
         platformLogger.info(message)
 
-        // Create Log Directory
+        // Create Log Directory using IDE scratch path
         val scratchPath = Path.of(PathManager.getConfigPath(), "scratches")
         
-        val logPath = if (scratchPath.exists()) {
-            scratchPath.resolve(".logs")
-        } else {
-            Path.of("/home/sakura/.config/JetBrains/IntelliJIdea2025.3/scratches/", ".logs")
+        if (!scratchPath.exists()) {
+            return // Skip file logging if scratches doesn't exist to avoid hardcoding home paths
         }
+
+        val logPath = scratchPath.resolve(".logs")
         
         if (!logPath.exists()) { 
             java.nio.file.Files.createDirectories(logPath)
         }
 
-        // Custom file logging in project root (as requested by user in README)
+        // Custom file logging in scratches/.logs
         val date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         val logFile = logPath.resolve("blender_plugin_$date.log")
         val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
@@ -42,7 +42,6 @@ class BlenderLogger(private val project: Project) {
         }
     }
 
-    // TODO: Properly integrate to throw an error when one crops up.
     fun error(message: String, e: Throwable? = null) {
         platformLogger.error(message, e)
         log("ERROR: $message" + (if (e != null) " - ${e.message}" else ""))
