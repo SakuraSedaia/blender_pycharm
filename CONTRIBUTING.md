@@ -55,21 +55,26 @@ To build the distribution plugin ZIP file:
 The built plugin will be available in `build/distributions/`.
 
 ### 4. Commit and Push
-Commit your changes using the following standardized prefixes:
-- `[Fix]`: Bug fixes.
-- `[Feature]`: New feature implementation.
-- `[Refactor]`: Code clarity refactors (no functional changes).
-- `[Removal]`: Removing features or components.
-- `[Chore]`: General file cleanup, dependency updates, or authorized version bumps.
-- `[Docs]`: Documentation updates.
-- `[Test]`: Adding or updating tests.
-- `[Style]`: Stylistic changes (whitespace, formatting) with no logic changes.
+Commit your changes using the following standardized Conventional Commits prefixes:
+- `feat(scope)`: New feature implementation.
+- `fix(scope)`: Bug fixes.
+- `docs(scope)`: Documentation updates.
+- `style(scope)`: Stylistic changes (whitespace, formatting) with no logic changes.
+- `refactor(scope)`: Code clarity refactors (no functional changes).
+- `test(scope)`: Adding or updating tests.
+- `chore(scope)`: General file cleanup, dependency updates, or internal tasks.
+- `i18n(scope)`: Internationalization and localization updates.
+- `build(scope)`: Changes affecting the build system or external dependencies.
+- `ci(scope)`: Changes to CI configuration files and scripts.
+- `perf(scope)`: Performance improvements.
+
+The `(scope)` is optional but recommended to identify the affected module (e.g., `feat(blender):`, `fix(ui):`).
 
 For AI agents, detailed procedures are available in `.agent/skills/git_management.md`.
 
 ```bash
 git add .
-git commit -m "[Feature] Add detailed description" --trailer "Co-authored-by: Junie <junie@jetbrains.com>"
+git commit -m "feat(blender): add detailed description" --trailer "Co-authored-by: Junie <junie@jetbrains.com>"
 git push origin feature/your-feature-name
 ```
 
