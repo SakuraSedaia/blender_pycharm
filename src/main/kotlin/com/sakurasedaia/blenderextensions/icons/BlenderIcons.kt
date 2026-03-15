@@ -40,4 +40,7 @@ object BlenderIcons {
 
     @JvmField
     val Custom: Icon = AllIcons.Nodes.Folder
+
+    @JvmField
+    val Python: Icon = AllIcons.Nodes.PpLib
 }

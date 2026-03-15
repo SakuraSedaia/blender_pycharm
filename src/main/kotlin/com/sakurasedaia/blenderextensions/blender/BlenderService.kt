@@ -160,6 +160,56 @@ class BlenderService(private val project: Project) {
         }
     }
 
+    fun setupPythonInterpreter(blenderExePath: String) {
+        try {
+            val pythonExe = BlenderPathUtil.findPythonExecutable(Path.of(blenderExePath))
+            if (pythonExe == null || !pythonExe.exists()) {
+                BlenderNotification(project).sendError(
+                    LangManager.message("toolwindow.setup.interpreter"),
+                    LangManager.message("toolwindow.setup.interpreter.error", "Python executable not found in $blenderExePath")
+                )
+                return
+            }
+
+            @Suppress("DEPRECATION")
+            val pySdkType = com.intellij.openapi.projectRoots.SdkType.findInstance(com.intellij.openapi.projectRoots.SdkType::class.java).let {
+                // This is a bit hacky, normally you'd use PythonSdkType.getInstance()
+                // But we don't have direct access without a hard dependency
+                com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().allJdks.find { it.sdkType.name == "Python SDK" }?.sdkType
+                    ?: com.intellij.openapi.projectRoots.SdkType.getAllTypes().find { it.name == "Python SDK" }
+            }
+
+            if (pySdkType == null) {
+                BlenderNotification(project).sendError(
+                    LangManager.message("toolwindow.setup.interpreter"),
+                    LangManager.message("toolwindow.setup.interpreter.error", "Python plugin not found or Python SDK type unavailable")
+                )
+                return
+            }
+
+            val sdkName = "Blender Python (${Path.of(blenderExePath).parent.name})"
+            val sdk = com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().createSdk(sdkName, pySdkType)
+            val sdkModificator = sdk.sdkModificator
+            sdkModificator.homePath = pythonExe.toString()
+            sdkModificator.commitChanges()
+
+            com.intellij.openapi.application.ApplicationManager.getApplication().runWriteAction {
+                com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().addJdk(sdk)
+                com.intellij.openapi.roots.ProjectRootManager.getInstance(project).projectSdk = sdk
+            }
+
+            BlenderNotification(project).sendInfo(
+                LangManager.message("toolwindow.setup.interpreter"),
+                LangManager.message("toolwindow.setup.interpreter.success", pythonExe.toString())
+            )
+        } catch (e: Exception) {
+            BlenderNotification(project).sendError(
+                LangManager.message("toolwindow.setup.interpreter"),
+                LangManager.message("toolwindow.setup.interpreter.error", e.message ?: "Unknown error")
+            )
+        }
+    }
+
     companion object {
         fun getInstance(project: Project): BlenderService = project.getService(BlenderService::class.java)
     }

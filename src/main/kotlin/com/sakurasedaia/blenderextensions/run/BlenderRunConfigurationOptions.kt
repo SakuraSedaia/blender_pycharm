@@ -3,11 +3,6 @@ package com.sakurasedaia.blenderextensions.run
 import com.intellij.execution.configurations.RunConfigurationOptions
 
 class BlenderRunConfigurationOptions : RunConfigurationOptions() {
-    private val blenderExecutablePathProperty = string("").provideDelegate(this, "blenderExecutablePath")
-    var blenderExecutablePath: String?
-        get() = blenderExecutablePathProperty.getValue(this)
-        set(value) = blenderExecutablePathProperty.setValue(this, value)
-
     private val blenderVersionProperty = string("5.0").provideDelegate(this, "blenderVersion")
     var blenderVersion: String?
         get() = blenderVersionProperty.getValue(this)
