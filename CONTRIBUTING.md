@@ -56,25 +56,25 @@ The built plugin will be available in `build/distributions/`.
 
 ### 4. Commit and Push
 Commit your changes using the following standardized Conventional Commits prefixes:
-- `feat(scope)`: New feature implementation.
-- `fix(scope)`: Bug fixes.
-- `docs(scope)`: Documentation updates.
-- `style(scope)`: Stylistic changes (whitespace, formatting) with no logic changes.
-- `refactor(scope)`: Code clarity refactors (no functional changes).
-- `test(scope)`: Adding or updating tests.
-- `chore(scope)`: General file cleanup, dependency updates, or internal tasks.
-- `i18n(scope)`: Internationalization and localization updates.
-- `build(scope)`: Changes affecting the build system or external dependencies.
-- `ci(scope)`: Changes to CI configuration files and scripts.
-- `perf(scope)`: Performance improvements.
+- `Feat(scope)`: New feature implementation.
+- `Fix(scope)`: Bug fixes.
+- `Docs(scope)`: Documentation updates.
+- `Style(scope)`: Stylistic changes (whitespace, formatting) with no logic changes.
+- `Refactor(scope)`: Code clarity refactors (no functional changes).
+- `Test(scope)`: Adding or updating tests.
+- `Chore(scope)`: General file cleanup, dependency updates, or internal tasks.
+- `I18n(scope)`: Internationalization and localization updates.
+- `Build(scope)`: Changes affecting the build system or external dependencies.
+- `Ci(scope)`: Changes to CI configuration files and scripts.
+- `Perf(scope)`: Performance improvements.
 
-The `(scope)` is optional but recommended to identify the affected module (e.g., `feat(blender):`, `fix(ui):`).
+The `(scope)` is optional but recommended to identify the affected module (e.g., `Feat(blender):`, `Fix(ui):`).
 
 For AI agents, detailed procedures are available in `.agent/skills/git_management.md`.
 
 ```bash
 git add .
-git commit -m "feat(blender): add detailed description" --trailer "Co-authored-by: Junie <junie@jetbrains.com>"
+git commit -m "Feat(blender): add detailed description" --trailer "Co-authored-by: Junie <junie@jetbrains.com>"
 git push origin feature/your-feature-name
 ```
 
