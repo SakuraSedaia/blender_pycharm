@@ -5,9 +5,15 @@ import com.intellij.execution.process.OSProcessHandler
 import com.intellij.execution.process.ProcessListener
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.openapi.components.Service
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.sakurasedaia.blenderextensions.notifications.BlenderNotification
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
+import com.intellij.openapi.roots.OrderRootType
+import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.roots.ProjectRootManager
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.io.path.exists
@@ -160,7 +166,7 @@ class BlenderService(private val project: Project) {
         }
     }
 
-    fun setupPythonInterpreter(blenderExePath: String) {
+    fun setupPythonInterpreter(blenderExePath: String, skipLinter: Boolean = false) {
         try {
             val pythonExe = BlenderPathUtil.findPythonExecutable(Path.of(blenderExePath))
             if (pythonExe == null || !pythonExe.exists()) {
@@ -171,10 +177,15 @@ class BlenderService(private val project: Project) {
                 return
             }
 
-            @Suppress("DEPRECATION")
-            val pySdkType = com.intellij.openapi.projectRoots.SdkType.findInstance(com.intellij.openapi.projectRoots.SdkType::class.java).let {
-                // This is a bit hacky, normally you'd use PythonSdkType.getInstance()
-                // But we don't have direct access without a hard dependency
+            val sdkTypeClass = try {
+                Class.forName("com.jetbrains.python.sdk.PythonSdkType")
+            } catch (e: ClassNotFoundException) {
+                null
+            }
+
+            val pySdkType = if (sdkTypeClass != null) {
+                com.intellij.openapi.projectRoots.SdkType.findInstance(sdkTypeClass as Class<out com.intellij.openapi.projectRoots.SdkType>)
+            } else {
                 com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().allJdks.find { it.sdkType.name == "Python SDK" }?.sdkType
                     ?: com.intellij.openapi.projectRoots.SdkType.getAllTypes().find { it.name == "Python SDK" }
             }
@@ -188,19 +199,115 @@ class BlenderService(private val project: Project) {
             }
 
             val sdkName = "Blender Python (${Path.of(blenderExePath).parent.name})"
-            val sdk = com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().createSdk(sdkName, pySdkType)
-            val sdkModificator = sdk.sdkModificator
-            sdkModificator.homePath = pythonExe.toString()
-            sdkModificator.commitChanges()
-
             com.intellij.openapi.application.ApplicationManager.getApplication().runWriteAction {
-                com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().addJdk(sdk)
-                com.intellij.openapi.roots.ProjectRootManager.getInstance(project).projectSdk = sdk
+                val sdkTable = ProjectJdkTable.getInstance()
+                val existingSdk = sdkTable.allJdks.find { it.name == sdkName && it.sdkType == pySdkType }
+                
+                val sdk = existingSdk ?: sdkTable.createSdk(sdkName, pySdkType)
+                val sdkModificator = sdk.sdkModificator
+                sdkModificator.homePath = pythonExe.toString()
+                
+                // Clear existing roots to avoid duplicates when updating
+                sdkModificator.removeAllRoots()
+
+                // Add standard library paths and Blender modules
+                val pythonExePath = java.nio.file.Path.of(pythonExe.toString())
+                BlenderPathUtil.getPythonLibraryPaths(pythonExePath).forEach { path ->
+                    VirtualFileManager.getInstance().findFileByNioPath(path)?.let { vFile ->
+                        sdkModificator.addRoot(vFile, OrderRootType.CLASSES)
+                    }
+                }
+
+                // Add linting paths if available
+                val version = try {
+                    if (blenderExePath.contains("blender_downloads")) {
+                        Path.of(blenderExePath).parent.name
+                    } else {
+                        BlenderScanner.tryGetVersion(blenderExePath).takeIf { it != LangManager.message("blender.version.unknown") } ?: "unknown"
+                    }
+                } catch (e: Exception) {
+                    "unknown"
+                }
+                
+                val downloader = BlenderDownloader(project)
+                if (version != "unknown") {
+                    val lintDir = downloader.getLintDirectory(version)
+                    if (lintDir.exists()) {
+                        VirtualFileManager.getInstance().findFileByNioPath(lintDir)?.let { vFile ->
+                            sdkModificator.addRoot(vFile, OrderRootType.CLASSES)
+                        }
+                    }
+                }
+
+                sdkModificator.commitChanges()
+
+                if (existingSdk == null) {
+                    sdkTable.addJdk(sdk)
+                }
+                ProjectRootManager.getInstance(project).projectSdk = sdk
             }
 
             BlenderNotification(project).sendInfo(
                 LangManager.message("toolwindow.setup.interpreter"),
                 LangManager.message("toolwindow.setup.interpreter.success", pythonExe.toString())
+            )
+            
+            // Also trigger linter setup (it will install if missing and update the SDK roots)
+            if (!skipLinter) {
+                setupLinter(blenderExePath)
+            }
+        } catch (e: Exception) {
+            BlenderNotification(project).sendError(
+                LangManager.message("toolwindow.setup.interpreter"),
+                LangManager.message("toolwindow.setup.interpreter.error", e.message ?: "Unknown error")
+            )
+        }
+    }
+
+    fun setupLinter(blenderExePath: String) {
+        try {
+            val path = Path.of(blenderExePath)
+            if (!path.exists()) {
+                BlenderNotification(project).sendError(
+                    LangManager.message("toolwindow.setup.interpreter"),
+                    LangManager.message("toolwindow.setup.interpreter.error", "Blender executable not found: $blenderExePath")
+                )
+                return
+            }
+
+            val version = try {
+                // Try to get a clean version string from the path if it's managed, 
+                // otherwise use the scanner to get it from the executable
+                if (blenderExePath.contains("blender_downloads")) {
+                    path.parent.name
+                } else {
+                    BlenderScanner.tryGetVersion(blenderExePath).takeIf { it != LangManager.message("blender.version.unknown") } ?: "unknown"
+                }
+            } catch (e: Exception) {
+                "unknown"
+            }
+
+            if (version == "unknown") {
+                BlenderNotification(project).sendError(
+                    LangManager.message("toolwindow.setup.interpreter"),
+                    LangManager.message("toolwindow.setup.interpreter.error", "Could not determine Blender version for $blenderExePath")
+                )
+                return
+            }
+
+            ProgressManager.getInstance().run(
+                object : Task.Backgroundable(project, "Installing linter for Blender $version", true) {
+                    override fun run(indicator: com.intellij.openapi.progress.ProgressIndicator) {
+                        downloader.installFakeBpyModule(path, version)
+                        
+                        // After installation, re-run setupPythonInterpreter to add the new roots to the SDK
+                        // This will update the project SDK with the new linting paths
+                        // We skip linter setup to avoid recursion
+                        com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
+                            setupPythonInterpreter(blenderExePath, skipLinter = true)
+                        }
+                    }
+                }
             )
         } catch (e: Exception) {
             BlenderNotification(project).sendError(

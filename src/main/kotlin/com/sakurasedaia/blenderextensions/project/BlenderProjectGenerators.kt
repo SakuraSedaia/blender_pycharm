@@ -22,6 +22,8 @@ import com.intellij.execution.configurations.ConfigurationTypeUtil
 import com.sakurasedaia.blenderextensions.blender.*
 import com.sakurasedaia.blenderextensions.run.*
 import com.sakurasedaia.blenderextensions.settings.BlenderSettings
+import com.intellij.openapi.roots.OrderRootType
+import com.intellij.openapi.vfs.VirtualFileManager
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.swing.Icon
@@ -211,23 +213,60 @@ class BlenderAddonProjectGenerator : DirectoryProjectGenerator<BlenderAddonProje
 
     private fun setupPythonInterpreter(project: Project, pythonExe: String) {
         try {
-            @Suppress("DEPRECATION")
-            val pySdkType = com.intellij.openapi.projectRoots.SdkType.findInstance(com.intellij.openapi.projectRoots.SdkType::class.java).let {
-                // This is a bit hacky, normally you'd use PythonSdkType.getInstance()
-                // But we don't have direct access without a hard dependency
+            val sdkTypeClass = try {
+                Class.forName("com.jetbrains.python.sdk.PythonSdkType")
+            } catch (e: ClassNotFoundException) {
+                null
+            }
+
+            val pySdkType = if (sdkTypeClass != null) {
+                com.intellij.openapi.projectRoots.SdkType.findInstance(sdkTypeClass as Class<out com.intellij.openapi.projectRoots.SdkType>)
+            } else {
                 com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().allJdks.find { it.sdkType.name == "Python SDK" }?.sdkType
                     ?: com.intellij.openapi.projectRoots.SdkType.getAllTypes().find { it.name == "Python SDK" }
             } ?: return
 
-            val sdk = com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().createSdk("Blender Python", pySdkType)
-            val sdkModificator = sdk.sdkModificator
-            sdkModificator.homePath = pythonExe
-            sdkModificator.commitChanges()
+            com.intellij.openapi.application.ApplicationManager.getApplication().runWriteAction {
+                val sdkTable = com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance()
+                val sdkName = "Blender Python"
+                val existingSdk = sdkTable.allJdks.find { it.name == sdkName && it.sdkType == pySdkType }
 
-            com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().addJdk(sdk)
-            com.intellij.openapi.project.ProjectManager.getInstance().openProjects.forEach { p ->
-                if (p == project) {
-                    com.intellij.openapi.roots.ProjectRootManager.getInstance(p).projectSdk = sdk
+                val sdk = existingSdk ?: sdkTable.createSdk(sdkName, pySdkType)
+                val sdkModificator = sdk.sdkModificator
+                sdkModificator.homePath = pythonExe
+
+                // Clear existing roots to avoid duplicates when updating
+                sdkModificator.removeAllRoots()
+
+                // Add standard library paths and Blender modules
+                val pythonExePath = Path.of(pythonExe)
+                BlenderPathUtil.getPythonLibraryPaths(pythonExePath).forEach { path ->
+                    VirtualFileManager.getInstance().findFileByNioPath(path)?.let { vFile ->
+                        sdkModificator.addRoot(vFile, OrderRootType.CLASSES)
+                    }
+                }
+
+                // Add linting paths if available
+                val version = pythonExePath.parent?.parent?.fileName?.toString()
+                if (version != null) {
+                    val downloader = BlenderDownloader(project)
+                    val lintDir = downloader.getLintDirectory(version)
+                    if (Files.exists(lintDir)) {
+                        VirtualFileManager.getInstance().findFileByNioPath(lintDir)?.let { vFile ->
+                            sdkModificator.addRoot(vFile, OrderRootType.CLASSES)
+                        }
+                    }
+                }
+
+                sdkModificator.commitChanges()
+
+                if (existingSdk == null) {
+                    sdkTable.addJdk(sdk)
+                }
+                com.intellij.openapi.project.ProjectManager.getInstance().openProjects.forEach { p ->
+                    if (p == project) {
+                        com.intellij.openapi.roots.ProjectRootManager.getInstance(p).projectSdk = sdk
+                    }
                 }
             }
         } catch (_: Throwable) {
